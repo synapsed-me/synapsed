@@ -62,7 +62,7 @@ impl std::fmt::Display for SerializationFormat {
 #[async_trait::async_trait]
 pub trait FormatSerializer<T>: Send + Sync 
 where
-    T: Send + Sync,
+    T: Send + Sync + 'static,
 {
     /// Serialize data to bytes using the specified format
     async fn serialize(&self, data: &T, format: SerializationFormat) -> SynapsedResult<Vec<u8>>;
@@ -102,7 +102,7 @@ impl<T> Default for DefaultSerializer<T> {
 #[async_trait::async_trait]
 impl<T> FormatSerializer<T> for DefaultSerializer<T>
 where
-    T: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
 {
     async fn serialize(&self, data: &T, format: SerializationFormat) -> SynapsedResult<Vec<u8>> {
         // Run CPU-intensive serialization in a blocking task
@@ -125,7 +125,7 @@ where
                     Err(SynapsedError::serialization(format!("Custom format '{name}' not supported")))
                 }
             }
-        }).await.map_err(|e| SynapsedError::internal(format!("Serialization task failed: {e}")))??
+        }).await.map_err(|e| SynapsedError::internal(format!("Serialization task failed: {e}")))?
     }
 
     async fn deserialize(&self, data: &[u8], format: SerializationFormat) -> SynapsedResult<T> {
@@ -149,7 +149,7 @@ where
                     Err(SynapsedError::serialization(format!("Custom format '{name}' not supported")))
                 }
             }
-        }).await.map_err(|e| SynapsedError::internal(format!("Deserialization task failed: {e}")))??
+        }).await.map_err(|e| SynapsedError::internal(format!("Deserialization task failed: {e}")))?
     }
 
     fn supported_formats(&self) -> Vec<SerializationFormat> {
@@ -330,7 +330,7 @@ where
                 }
                 _ => Err(SynapsedError::serialization("Unsupported format for batch serialization"))
             }
-        }).await.map_err(|e| SynapsedError::internal(format!("Batch serialization task failed: {e}")))??
+        }).await.map_err(|e| SynapsedError::internal(format!("Batch serialization task failed: {e}")))?
     }
 
     /// Deserialize multiple items
@@ -347,7 +347,7 @@ where
                 }
                 _ => Err(SynapsedError::serialization("Unsupported format for batch deserialization"))
             }
-        }).await.map_err(|e| SynapsedError::internal(format!("Batch deserialization task failed: {e}")))??
+        }).await.map_err(|e| SynapsedError::internal(format!("Batch deserialization task failed: {e}")))?
     }
 }
 

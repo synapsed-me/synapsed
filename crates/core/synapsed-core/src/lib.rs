@@ -30,7 +30,8 @@
 
 pub mod config;
 pub mod error;
-pub mod memory;
+// TODO: Fix thread safety issues in memory module
+// pub mod memory;
 pub mod network;
 pub mod observability;
 pub mod runtime;

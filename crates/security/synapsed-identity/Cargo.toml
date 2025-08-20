@@ -76,7 +76,7 @@ regex = "1.11"
 tracing-subscriber = { workspace = true }
 
 # HTTP support (for OAuth, etc.)
-reqwest = { version = "0.12", features = ["json"], optional = true }
+reqwest = { workspace = true, optional = true }
 
 # Email validation
 email_address = "0.2"

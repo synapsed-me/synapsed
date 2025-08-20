@@ -42,7 +42,7 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 # HTTP client for payment gateway integration
-reqwest = { version = "0.12", features = ["json"], optional = true }
+reqwest = { workspace = true, optional = true }
 
 # Security
 zeroize = { version = "1.7", features = ["derive"] }
