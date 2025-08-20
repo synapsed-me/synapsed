@@ -1,0 +1,40 @@
+[package]
+name = "synapsed-intent"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["intent", "htn", "planning", "verification", "ai"]
+categories = ["algorithms", "asynchronous"]
+description = "Hierarchical intent trees with verification for AI agent systems"
+
+[dependencies]
+synapsed-core = { workspace = true }
+synapsed-substrates = { workspace = true }
+synapsed-serventis = { workspace = true }
+
+# Core dependencies
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+# Data structures
+uuid = { workspace = true }
+chrono = { workspace = true }
+petgraph = { workspace = true }
+dashmap = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+[features]
+default = ["observable"]
+observable = []

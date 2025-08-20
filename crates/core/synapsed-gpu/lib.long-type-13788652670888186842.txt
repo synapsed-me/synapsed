@@ -1,0 +1,1 @@
+impl Future<Output = std::result::Result<(Duration, Duration, Duration, Option<Vec<u8>>), GpuError>>

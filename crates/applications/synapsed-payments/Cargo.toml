@@ -1,0 +1,121 @@
+[package]
+name = "synapsed-payments"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Contributors"]
+description = "Payment processing and financial transaction management for the Synapsed framework"
+repository = "https://github.com/synapsed/synapsed"
+license = "MIT OR Apache-2.0"
+keywords = ["payments", "transactions", "financial", "blockchain", "synapsed"]
+categories = ["finance", "web-programming", "cryptography"]
+
+[dependencies]
+# Core async runtime (use workspace versions)
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Synapsed dependencies - use core for common functionality
+synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability", "config"] }
+synapsed-crypto = { path = "../../core/synapsed-crypto", version = "0.1.0" }
+synapsed-identity = { path = "../../security/synapsed-identity", version = "0.1.0" }
+synapsed-storage = { path = "../../storage/synapsed-storage", version = "0.1.0" }
+
+# Use common dependencies from synapsed-core workspace
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Numeric types for financial calculations
+rust_decimal = { version = "1.35", features = ["serde-float"] }
+rust_decimal_macros = "1.35"
+
+# UUID from workspace
+uuid = { workspace = true }
+
+# Validation - Updated for security
+validator = { version = "0.19", features = ["derive"] }  # Updated from 0.18 for idna security
+
+# Logging (use workspace versions)
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# HTTP client for payment gateway integration
+reqwest = { version = "0.12", features = ["json"], optional = true }
+
+# Security
+zeroize = { version = "1.7", features = ["derive"] }
+rand = "0.8"
+
+# Zero-Knowledge Proofs
+ark-ff = { version = "0.4", optional = true }
+ark-ec = { version = "0.4", optional = true }
+ark-std = { version = "0.4", features = ["parallel"], optional = true }
+ark-bn254 = { version = "0.4", optional = true }
+ark-groth16 = { version = "0.4", optional = true }
+ark-r1cs-std = { version = "0.4", optional = true }
+ark-relations = { version = "0.4", optional = true }
+ark-serialize = { version = "0.4", optional = true }
+
+# WebAssembly support for browser compatibility
+wasm-bindgen = { version = "0.2", optional = true }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", optional = true }
+getrandom = { version = "0.2", features = ["js"] }
+
+# DID support - Updated for security
+did-key = { version = "0.2.1", optional = true }  # Downgraded due to version availability
+did-web = { version = "0.2", optional = true }  # Updated for compatibility
+multibase = { version = "0.9", optional = true }
+
+# Bulletproofs for range proofs
+bulletproofs = { version = "4.0", optional = true }
+curve25519-dalek = { version = "4.1.3", optional = true }  # Updated for timing attack security
+merlin = { version = "3.0", optional = true }
+
+# Futures and async utilities
+futures = "0.3"
+pin-project = "1.1"
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.6"
+criterion = { version = "0.6", features = ["html_reports"] }
+mockall = "0.13"
+wiremock = "0.6"
+test-case = "3.3"
+pretty_assertions = "1.4"
+tempfile = "3.13"
+
+[features]
+default = ["traditional-payments", "zkp-payments"]
+full = ["traditional-payments", "crypto-payments", "all-gateways", "zkp-payments", "wasm-support"]
+
+# Payment methods
+traditional-payments = []
+crypto-payments = []
+zkp-payments = ["ark-ff", "ark-ec", "ark-std", "ark-bn254", "ark-groth16", "ark-r1cs-std", "ark-relations", "ark-serialize", "bulletproofs", "curve25519-dalek", "merlin"]
+
+# Payment gateways
+stripe = ["reqwest"]
+paypal = ["reqwest"]
+square = ["reqwest"]
+all-gateways = ["stripe", "paypal", "square", "reqwest"]
+
+# Privacy features
+anonymous-subscriptions = ["zkp-payments", "did-key", "did-web"]
+did-integration = ["did-key", "did-web", "multibase"]
+
+# WebAssembly support
+wasm-support = ["wasm-bindgen", "js-sys", "web-sys", "getrandom/js"]
+
+# Additional features
+recurring-payments = []
+escrow = []
+multi-currency = []
+fraud-detection = []
+compliance = []
+
+# Development features
+testing = []

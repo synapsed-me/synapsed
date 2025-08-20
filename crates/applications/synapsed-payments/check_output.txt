@@ -1,0 +1,440 @@
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /workspaces/playground/synapsed/core/synapsed-storage/Cargo.toml
+workspace: /workspaces/playground/synapsed/Cargo.toml
+warning: unexpected `cfg` condition value: `std`
+   --> core/synapsed-identity/src/authorization/mod.rs:289:11
+    |
+289 | #[cfg(not(feature = "std"))]
+    |           ^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+    = help: consider adding `std` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `std`
+   --> core/synapsed-identity/src/authorization/mod.rs:291:7
+    |
+291 | #[cfg(feature = "std")]
+    |       ^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+    = help: consider adding `std` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/rbac.rs:12:11
+   |
+12 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/rbac.rs:14:7
+   |
+14 | #[cfg(feature = "std")]
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/policy.rs:12:11
+   |
+12 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/policy.rs:14:7
+   |
+14 | #[cfg(feature = "std")]
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused import: `Error`
+ --> core/synapsed-identity/src/authorization/policy.rs:9:13
+  |
+9 | use crate::{Error, Result};
+  |             ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: hidden lifetime parameters in types are deprecated
+  --> core/synapsed-identity/src/authorization/policy.rs:66:62
+   |
+66 |     pub fn evaluate(condition: &serde_json::Value, context: &EvaluationContext) -> Result<bool> {
+   |                                                              ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+   |
+note: the lint level is defined here
+  --> core/synapsed-identity/src/lib.rs:46:9
+   |
+46 | #![warn(rust_2018_idioms)]
+   |         ^^^^^^^^^^^^^^^^
+   = note: `#[warn(elided_lifetimes_in_paths)]` implied by `#[warn(rust_2018_idioms)]`
+help: indicate the anonymous lifetime
+   |
+66 |     pub fn evaluate(condition: &serde_json::Value, context: &EvaluationContext<'_>) -> Result<bool> {
+   |                                                                               ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:120:19
+    |
+120 |         context: &EvaluationContext,
+    |                   ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+120 |         context: &EvaluationContext<'_>,
+    |                                    ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:137:66
+    |
+137 |     fn evaluate_contains(contains: &serde_json::Value, context: &EvaluationContext) -> Result<bool> {
+    |                                                                  ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+137 |     fn evaluate_contains(contains: &serde_json::Value, context: &EvaluationContext<'_>) -> Result<bool> {
+    |                                                                                   ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:156:59
+    |
+156 |     fn resolve_value(value: &serde_json::Value, context: &EvaluationContext) -> Result<serde_json::Value> {
+    |                                                           ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+156 |     fn resolve_value(value: &serde_json::Value, context: &EvaluationContext<'_>) -> Result<serde_json::Value> {
+    |                                                                            ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:231:58
+    |
+231 |     fn evaluate_policy(&self, policy: &Policy, context: &EvaluationContext) -> Result<AuthzDecision> {
+    |                                                          ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+231 |     fn evaluate_policy(&self, policy: &Policy, context: &EvaluationContext<'_>) -> Result<AuthzDecision> {
+    |                                                                           ++++
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/resource.rs:12:11
+   |
+12 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/resource.rs:14:7
+   |
+14 | #[cfg(feature = "std")]
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/storage/mod.rs:11:11
+   |
+11 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused variable: `session`
+   --> core/synapsed-identity/src/lib.rs:170:13
+    |
+170 |         let session = self.session_manager.get_session(token)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_session`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `identity`
+   --> core/synapsed-identity/src/auth/token.rs:302:13
+    |
+302 |         let identity = self.storage
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_identity`
+
+warning: unused variable: `group`
+   --> core/synapsed-identity/src/authorization/resource.rs:185:30
+    |
+185 |             Principal::Group(group) => {
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_group`
+
+warning: unused variable: `subject`
+   --> core/synapsed-identity/src/authorization/resource.rs:287:31
+    |
+287 |     fn get_permissions(&self, subject: &str) -> Result<Vec<Permission>> {
+    |                               ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_subject`
+
+warning: unused variable: `subject`
+   --> core/synapsed-identity/src/authorization/resource.rs:292:25
+    |
+292 |     fn get_roles(&self, subject: &str) -> Result<Vec<super::Role>> {
+    |                         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_subject`
+
+warning: unused variable: `public_key`
+   --> core/synapsed-identity/src/crypto/mod.rs:153:19
+    |
+153 |     pub fn verify(public_key: &[u8], data: &[u8], signature: &[u8], key_type: KeyType) -> Result<bool> {
+    |                   ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_public_key`
+
+warning: unused variable: `data`
+   --> core/synapsed-identity/src/crypto/mod.rs:153:38
+    |
+153 |     pub fn verify(public_key: &[u8], data: &[u8], signature: &[u8], key_type: KeyType) -> Result<bool> {
+    |                                      ^^^^ help: if this is intentional, prefix it with an underscore: `_data`
+
+warning: unused variable: `private_key`
+   --> core/synapsed-identity/src/crypto/mod.rs:181:20
+    |
+181 |     pub fn decrypt(private_key: &SecureKey, ciphertext: &[u8], key_type: KeyType) -> Result<Vec<u8>> {
+    |                    ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_private_key`
+
+warning: field `storage` is never read
+   --> core/synapsed-identity/src/lib.rs:117:5
+    |
+116 | pub struct IdentityManager<S, A, Z, M> {
+    |            --------------- field in this struct
+117 |     storage: S,
+    |     ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: field `session_manager` is never read
+   --> core/synapsed-identity/src/lib.rs:181:5
+    |
+177 | pub struct IdentityManagerBuilder<S, A, Z, M> {
+    |            ---------------------- field in this struct
+...
+181 |     session_manager: Option<M>,
+    |     ^^^^^^^^^^^^^^^
+
+warning: `synapsed-identity` (lib) generated 25 warnings (run `cargo fix --lib -p synapsed-identity` to apply 1 suggestion)
+    Checking synapsed-payments v0.1.0 (/workspaces/playground/synapsed/core/synapsed-payments)
+error[E0432]: unresolved import `synapsed_substrates`
+ --> core/synapsed-payments/src/substrate_integration.rs:8:5
+  |
+8 | use synapsed_substrates::{Circuit, Cortex, Subject};
+  |     ^^^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `synapsed_substrates`
+  |
+help: there is a crate or module with a similar name
+  |
+8 - use synapsed_substrates::{Circuit, Cortex, Subject};
+8 + use synapsed_storage::{Circuit, Cortex, Subject};
+  |
+
+warning: unexpected `cfg` condition value: `substrate`
+  --> core/synapsed-payments/src/lib.rs:95:7
+   |
+95 | #[cfg(feature = "substrate")]
+   |       ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+   = help: consider adding `substrate` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `sqlx`
+   --> core/synapsed-payments/src/error.rs:304:7
+    |
+304 | #[cfg(feature = "sqlx")]
+    |       ^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `sqlx` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `http-gateway`
+   --> core/synapsed-payments/src/error.rs:313:7
+    |
+313 | #[cfg(feature = "http-gateway")]
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `http-gateway` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `http-gateway`
+  --> core/synapsed-payments/src/gateway.rs:91:7
+   |
+91 | #[cfg(feature = "http-gateway")]
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+   = help: consider adding `http-gateway` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `http-gateway`
+  --> core/synapsed-payments/src/gateway.rs:97:7
+   |
+97 | #[cfg(feature = "http-gateway")]
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+   = help: consider adding `http-gateway` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `http-gateway`
+   --> core/synapsed-payments/src/gateway.rs:213:7
+    |
+213 | #[cfg(feature = "http-gateway")]
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `http-gateway` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `http-gateway`
+   --> core/synapsed-payments/src/gateway.rs:473:19
+    |
+473 |             #[cfg(feature = "http-gateway")]
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `http-gateway` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `sqlite`
+   --> core/synapsed-payments/src/storage.rs:133:7
+    |
+133 | #[cfg(feature = "sqlite")]
+    |       ^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `sqlite` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `sqlite`
+   --> core/synapsed-payments/src/storage.rs:138:7
+    |
+138 | #[cfg(feature = "sqlite")]
+    |       ^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `sqlite` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `sqlite`
+   --> core/synapsed-payments/src/storage.rs:156:7
+    |
+156 | #[cfg(feature = "sqlite")]
+    |       ^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `sqlite` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `postgres`
+   --> core/synapsed-payments/src/storage.rs:326:7
+    |
+326 | #[cfg(feature = "postgres")]
+    |       ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `postgres` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `postgres`
+   --> core/synapsed-payments/src/storage.rs:331:7
+    |
+331 | #[cfg(feature = "postgres")]
+    |       ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `postgres` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `postgres`
+   --> core/synapsed-payments/src/storage.rs:344:7
+    |
+344 | #[cfg(feature = "postgres")]
+    |       ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `postgres` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `sqlite`
+   --> core/synapsed-payments/src/lib.rs:128:11
+    |
+128 |     #[cfg(feature = "sqlite")]
+    |           ^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `sqlite` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `postgres`
+   --> core/synapsed-payments/src/lib.rs:131:11
+    |
+131 |     #[cfg(feature = "postgres")]
+    |           ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `postgres` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `substrate`
+   --> core/synapsed-payments/src/lib.rs:134:11
+    |
+134 |     #[cfg(feature = "substrate")]
+    |           ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `substrate` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `http-gateway`
+   --> core/synapsed-payments/src/lib.rs:137:11
+    |
+137 |     #[cfg(feature = "http-gateway")]
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `http-gateway` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `crypto-advanced`
+   --> core/synapsed-payments/src/lib.rs:140:11
+    |
+140 |     #[cfg(feature = "crypto-advanced")]
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-gateways`, `compliance`, `crypto-payments`, `default`, `escrow`, `fraud-detection`, `full`, `multi-currency`, `paypal`, `recurring-payments`, `reqwest`, `square`, `stripe`, `testing`, and `traditional-payments`
+    = help: consider adding `crypto-advanced` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: variable does not need to be mutable
+   --> core/synapsed-payments/src/lib.rs:126:9
+    |
+126 |     let mut features = Vec::new();
+    |         ----^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+For more information about this error, try `rustc --explain E0432`.
+warning: `synapsed-payments` (lib) generated 19 warnings
+error: could not compile `synapsed-payments` (lib) due to 1 previous error; 19 warnings emitted

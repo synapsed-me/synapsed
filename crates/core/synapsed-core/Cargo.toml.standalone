@@ -1,0 +1,15 @@
+[package]
+name = "synapsed-core-test"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "test_serialization"
+path = "test_serialization.rs"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"

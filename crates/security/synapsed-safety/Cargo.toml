@@ -1,0 +1,50 @@
+[package]
+name = "synapsed-safety"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Self-aware safety mechanisms and constraint engines for Synapsed ecosystem"
+keywords = ["safety", "constraints", "rollback", "verification", "self-aware"]
+categories = ["development-tools", "algorithms", "safety"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+parking_lot = { workspace = true }
+
+# Safety specific
+petgraph = "0.6"
+z3 = { version = "0.12", optional = true }
+
+# Internal dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-crypto = { path = "../../core/synapsed-crypto" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+# Benchmarks will be added later
+# [[bench]]
+# name = "safety_bench"
+# harness = false
+
+[features]
+default = ["constraints", "rollback", "verification"]
+constraints = []
+rollback = []
+verification = []
+formal-verification = ["z3"]
+self-healing = []

@@ -1,0 +1,37 @@
+[package]
+name = "synapsed-serventis"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Rust implementation of the Serventis Java API - semiotic-inspired observability framework"
+keywords = ["observability", "signals", "monitoring", "serventis", "semiotic"]
+categories = ["development-tools::debugging", "asynchronous"]
+
+[dependencies]
+# Core substrate dependency
+synapsed-substrates = { path = "../synapsed-substrates", version = "0.1.0" }
+
+# Core dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+
+# Synchronization and collections
+parking_lot = { workspace = true }
+once_cell = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+# [[bench]]
+# name = "serventis_benchmarks"
+# harness = false

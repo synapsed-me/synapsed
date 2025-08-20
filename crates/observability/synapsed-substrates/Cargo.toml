@@ -1,0 +1,37 @@
+[package]
+name = "synapsed-substrates"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Rust implementation of the Substrates Java API - subject-based observability framework"
+keywords = ["observability", "event-driven", "circuits", "pipes", "substrates"]
+categories = ["development-tools::debugging", "asynchronous"]
+
+[dependencies]
+# Synapsed dependencies - use core for observability patterns
+synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability"] }
+
+# Core dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+
+# Synchronization and collections
+parking_lot = { workspace = true }
+once_cell = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+# [[bench]]
+# name = "substrates_benchmarks"
+# harness = false

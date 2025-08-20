@@ -1,0 +1,95 @@
+[package]
+name = "synapsed-gpu"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Contributors"]
+description = "GPU acceleration for Synapsed cryptographic operations"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/synapsed/synapsed-gpu"
+keywords = ["gpu", "cuda", "opencl", "cryptography", "acceleration"]
+categories = ["cryptography", "hardware-support"]
+
+[features]
+default = ["cuda", "opencl"]
+cuda = ["cudarc"]
+opencl = ["opencl3"]
+runtime-detection = []
+fallback-cpu = []
+
+[dependencies]
+# GPU Backends
+cudarc = { version = "0.11", optional = true, features = ["std", "f16"] }
+opencl3 = { version = "0.9", optional = true }
+
+# Async and concurrency
+tokio = { version = "1.0", features = ["full"] }
+futures = "0.3"
+rayon = "1.8"
+
+# Error handling and utilities
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Serialization and data handling
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bytemuck = { version = "1.14", features = ["derive"] }
+
+# Numerical computing
+ndarray = { version = "0.15", features = ["rayon"] }
+num-traits = "0.2"
+
+# Memory management
+memmap2 = "0.9"
+parking_lot = "0.12"
+
+# Integration with synapsed ecosystem
+synapsed-crypto = { path = "../synapsed-crypto", version = "0.1.0" }
+
+[dev-dependencies]
+# Testing framework
+proptest = "1.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+tempfile = "3.8"
+env_logger = "0.11"
+
+# Test utilities
+mockall = "0.12"
+approx = "0.5"
+rand = "0.8"
+rand_chacha = "0.3"
+
+[build-dependencies]
+cc = "1.0"
+
+[[bench]]
+name = "gpu_acceleration"
+harness = false
+
+[[bench]]
+name = "kyber768_gpu"
+harness = false
+
+[[bench]]
+name = "memory_management"
+harness = false
+
+[[example]]
+name = "basic_gpu_usage"
+required-features = ["cuda"]
+
+[[example]]  
+name = "batch_processing"
+required-features = ["opencl"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.bench]
+opt-level = 3
+debug = true

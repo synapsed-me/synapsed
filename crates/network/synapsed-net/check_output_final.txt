@@ -1,0 +1,1738 @@
+warning: field `sequencer` is never read
+   --> core/synapsed-substrates/src/circuit.rs:789:5
+    |
+787 | struct SequencedPipe<E> {
+    |        ------------- field in this struct
+788 |     channel: Subject,
+789 |     sequencer: Arc<dyn Sequencer<dyn Path<E>>>,
+    |     ^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `synapsed-substrates` (lib) generated 1 warning
+    Checking synapsed-net v0.1.0 (/workspaces/playground/synapsed/core/synapsed-net)
+warning: unused imports: `PQSignature`, `SessionState`, and `derive_session_keys`
+ --> core/synapsed-net/src/security.rs:5:22
+  |
+5 |     key_derivation::{derive_session_keys, KeyDerivationFunction},
+  |                      ^^^^^^^^^^^^^^^^^^^
+6 |     post_quantum::{HybridKeyExchange, PQCipherSuite, PQSignature, PQSignatureAlgorithm},
+  |                                                      ^^^^^^^^^^^
+7 |     session::{SessionManager, SessionState},
+  |                               ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `Aes256Gcm`
+  --> core/synapsed-net/src/security.rs:12:15
+   |
+12 | use aes_gcm::{Aes256Gcm, KeyInit as AesKeyInit};
+   |               ^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> core/synapsed-net/src/security.rs:14:5
+   |
+14 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+  --> core/synapsed-net/src/transport/libp2p_simple.rs:10:5
+   |
+10 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+
+warning: unused imports: `NetworkAddress` and `PeerMetadata`
+ --> core/synapsed-net/src/transport/memory.rs:6:94
+  |
+6 | use crate::types::{ConnectionId, ConnectionInfo, ConnectionMetrics, PeerInfo, TransportType, NetworkAddress, PeerMetadata};
+  |                                                                                              ^^^^^^^^^^^^^^  ^^^^^^^^^^^^
+
+warning: unused import: `error`
+  --> core/synapsed-net/src/transport/quic.rs:17:22
+   |
+17 | use tracing::{debug, error, info};
+   |                      ^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> core/synapsed-net/src/transport/signaling.rs:6:13
+  |
+6 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `debug`
+  --> core/synapsed-net/src/transport/tcp.rs:15:15
+   |
+15 | use tracing::{debug, error, info};
+   |               ^^^^^
+
+warning: unused import: `std::pin::Pin`
+ --> core/synapsed-net/src/transport/traits.rs:7:5
+  |
+7 | use std::pin::Pin;
+  |     ^^^^^^^^^^^^^
+
+warning: unused imports: `Context` and `Poll`
+ --> core/synapsed-net/src/transport/traits.rs:8:17
+  |
+8 | use std::task::{Context, Poll};
+  |                 ^^^^^^^  ^^^^
+
+warning: unused doc comment
+   --> core/synapsed-net/src/transport/websocket.rs:191:1
+    |
+191 | /// WebSocket stream wrapper that can handle both TLS and non-TLS streams.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` on by default
+
+warning: unused import: `ready`
+ --> core/synapsed-net/src/transport/websocket.rs:8:79
+  |
+8 | use futures_util::{Sink, SinkExt, StreamExt, stream::Stream as FuturesStream, ready};
+  |                                                                               ^^^^^
+
+warning: unused variable: `secret_key`
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:490:26
+    |
+490 |         let (public_key, secret_key) = kex.generate_keypair()?;
+    |                          ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_secret_key`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `ciphertext`
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:494:14
+    |
+494 |         let (ciphertext, shared_secret) = kex.encapsulate(&public_key)?;
+    |              ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_ciphertext`
+
+warning: unused variable: `public`
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:517:13
+    |
+517 |         let public = x25519_dalek::PublicKey::from(&secret);
+    |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_public`
+
+warning: unused variable: `buffer`
+   --> core/synapsed-net/src/privacy/tor.rs:328:37
+    |
+328 |     pub async fn receive(&mut self, buffer: &mut [u8]) -> Result<usize> {
+    |                                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_buffer`
+
+warning: unused variable: `pq_state`
+   --> core/synapsed-net/src/security.rs:261:41
+    |
+261 |         let master_secret = if let Some(pq_state) = &state.pq_key_exchange {
+    |                                         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_pq_state`
+
+warning: unused variable: `local_peer_id`
+  --> core/synapsed-net/src/transport/signaling.rs:84:13
+   |
+84 |         let local_peer_id = self.local_peer_id.clone();
+   |             ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_local_peer_id`
+
+warning: variable does not need to be mutable
+  --> core/synapsed-net/src/transport/signaling.rs:89:17
+   |
+89 |             let mut send_task = tokio::spawn(async move {
+   |                 ----^^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` on by default
+
+error[E0382]: use of moved value: `ws_stream`
+    --> core/synapsed-net/src/transport/signaling.rs:157:17
+     |
+64   |         let (ws_stream, _) = connect_async(&self.server_url).await
+     |              --------- move occurs because `ws_stream` has type `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`, which does not implement the `Copy` trait
+...
+70   |         let (mut ws_sink, mut ws_stream_rx) = ws_stream.split();
+     |                                                         ------- `ws_stream` moved due to this method call
+...
+157  |             ws: ws_stream,
+     |                 ^^^^^^^^^ value used here after move
+     |
+note: `futures_util::StreamExt::split` takes ownership of the receiver `self`, which moves `ws_stream`
+    --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-util-0.3.31/src/stream/stream/mod.rs:1582:20
+     |
+1582 |     fn split<Item>(self) -> (SplitSink<Self, Item>, SplitStream<Self>)
+     |                    ^^^^
+
+warning: variable does not need to be mutable
+   --> core/synapsed-net/src/transport/signaling.rs:237:21
+    |
+237 |         if let Some(mut conn) = self.connection.lock().await.take() {
+    |                     ----^^^^
+    |                     |
+    |                     help: remove this `mut`
+
+error[E0308]: mismatched types
+  --> core/synapsed-net/src/crypto/certificates.rs:29:13
+   |
+28 |         match rustls_native_certs::load_native_certs() {
+   |               ---------------------------------------- this expression has type `CertificateResult`
+29 |             Ok(certs) => {
+   |             ^^^^^^^^^ expected `CertificateResult`, found `Result<_, _>`
+   |
+   = note: expected struct `CertificateResult`
+                found enum `std::result::Result<_, _>`
+
+error[E0308]: mismatched types
+  --> core/synapsed-net/src/crypto/certificates.rs:36:13
+   |
+28 |         match rustls_native_certs::load_native_certs() {
+   |               ---------------------------------------- this expression has type `CertificateResult`
+...
+36 |             Err(e) => {
+   |             ^^^^^^ expected `CertificateResult`, found `Result<_, _>`
+   |
+   = note: expected struct `CertificateResult`
+                found enum `std::result::Result<_, _>`
+
+error[E0599]: the method `zeroize_or_on_drop` exists for mutable reference `&mut KeyDerivationFunction`, but its trait bounds were not satisfied
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:277:10
+    |
+277 | #[derive(ZeroizeOnDrop)]
+    |          ^^^^^^^^^^^^^ method cannot be called on `&mut KeyDerivationFunction` due to unsatisfied trait bounds
+    |
+   ::: core/synapsed-net/src/crypto/key_derivation.rs:10:1
+    |
+10  | pub enum KeyDerivationFunction {
+    | ------------------------------ doesn't satisfy `KeyDerivationFunction: AssertZeroize`, `KeyDerivationFunction: ZeroizeOnDrop` or `KeyDerivationFunction: Zeroize`
+    |
+    = note: the following trait bounds were not satisfied:
+            `KeyDerivationFunction: Zeroize`
+            which is required by `KeyDerivationFunction: AssertZeroize`
+            `KeyDerivationFunction: ZeroizeOnDrop`
+            which is required by `&&mut KeyDerivationFunction: AssertZeroizeOnDrop`
+            `&mut KeyDerivationFunction: Zeroize`
+            which is required by `&mut KeyDerivationFunction: AssertZeroize`
+note: the traits `Zeroize` and `ZeroizeOnDrop` must be implemented
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zeroize-1.8.1/src/lib.rs:272:1
+    |
+272 | pub trait Zeroize {
+    | ^^^^^^^^^^^^^^^^^
+...
+279 | pub trait ZeroizeOnDrop {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following traits define an item `zeroize_or_on_drop`, perhaps you need to implement one of them:
+            candidate #1: `AssertZeroize`
+            candidate #2: `AssertZeroizeOnDrop`
+    = note: this error originates in the derive macro `ZeroizeOnDrop` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: the method `zeroize_or_on_drop` exists for mutable reference `&mut SystemTime`, but its trait bounds were not satisfied
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:277:10
+    |
+277 | #[derive(ZeroizeOnDrop)]
+    |          ^^^^^^^^^^^^^ method cannot be called on `&mut SystemTime` due to unsatisfied trait bounds
+    |
+   ::: /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/time.rs:251:1
+    |
+251 | pub struct SystemTime(time::SystemTime);
+    | --------------------- doesn't satisfy `SystemTime: AssertZeroize`, `SystemTime: ZeroizeOnDrop` or `SystemTime: Zeroize`
+    |
+    = note: the following trait bounds were not satisfied:
+            `SystemTime: Zeroize`
+            which is required by `SystemTime: AssertZeroize`
+            `SystemTime: ZeroizeOnDrop`
+            which is required by `&&mut SystemTime: AssertZeroizeOnDrop`
+            `&mut SystemTime: Zeroize`
+            which is required by `&mut SystemTime: AssertZeroize`
+    = note: this error originates in the derive macro `ZeroizeOnDrop` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0616]: field `keys` of struct `crypto::session::Session` is private
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:547:64
+    |
+547 |         let cipher = ChaCha20Poly1305::new_from_slice(&session.keys.client_write_key[..32])
+    |                                                                ^^^^ private field
+
+error[E0616]: field `keys` of struct `crypto::session::Session` is private
+   --> core/synapsed-net/src/crypto/enhanced_security.rs:609:64
+    |
+609 |         let cipher = ChaCha20Poly1305::new_from_slice(&session.keys.server_write_key[..32])
+    |                                                                ^^^^ private field
+
+error[E0277]: the trait bound `DefaultRng: RngCore` is not satisfied
+   --> core/synapsed-net/src/crypto/post_quantum.rs:115:75
+    |
+115 |             let secret = x25519_dalek::StaticSecret::random_from_rng(&mut self.rng);
+    |                          -------------------------------------------      ^^^^^^^^ the trait `RngCore` is not implemented for `DefaultRng`
+    |                          |
+    |                          required by a bound introduced by this call
+    |
+note: there are multiple different versions of crate `rand_core` in the dependency graph
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs:142:1
+    |
+142 | pub trait RngCore {
+    | ^^^^^^^^^^^^^^^^^ this is the required trait
+    |
+   ::: core/synapsed-net/src/crypto/enhanced_security.rs:12:5
+    |
+12  | use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, KeyInit};
+    |     ---------------- one version of crate `rand_core` used here, as a dependency of crate `crypto_common`
+    |
+   ::: core/synapsed-net/src/crypto/certificates.rs:5:5
+    |
+5   | use quinn::rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
+    |     ----- one version of crate `rand_core` used here, as a dependency of crate `rand`
+    |
+   ::: /workspaces/playground/synapsed/core/synapsed-crypto/src/random.rs:12:1
+    |
+12  | pub struct DefaultRng {
+    | --------------------- this type doesn't implement the required trait
+    |
+   ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.9.3/src/block.rs:67:1
+    |
+67  | pub trait BlockRngCore {
+    | ---------------------- this is the found trait
+    = help: you can use `cargo tree` to explore your dependency tree
+    = note: required for `&mut DefaultRng` to implement `RngCore`
+note: required by a bound in `StaticSecret::random_from_rng`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x25519-dalek-2.0.1/src/x25519.rs:218:31
+    |
+218 |     pub fn random_from_rng<T: RngCore + CryptoRng>(mut csprng: T) -> Self {
+    |                               ^^^^^^^ required by this bound in `StaticSecret::random_from_rng`
+
+error[E0277]: the trait bound `DefaultRng: CryptoRng` is not satisfied
+   --> core/synapsed-net/src/crypto/post_quantum.rs:115:75
+    |
+115 |             let secret = x25519_dalek::StaticSecret::random_from_rng(&mut self.rng);
+    |                          -------------------------------------------      ^^^^^^^^ the trait `CryptoRng` is not implemented for `DefaultRng`
+    |                          |
+    |                          required by a bound introduced by this call
+    |
+note: there are multiple different versions of crate `rand_core` in the dependency graph
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs:209:1
+    |
+209 | pub trait CryptoRng {}
+    | ^^^^^^^^^^^^^^^^^^^ this is the required trait
+    |
+   ::: core/synapsed-net/src/crypto/enhanced_security.rs:12:5
+    |
+12  | use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, KeyInit};
+    |     ---------------- one version of crate `rand_core` used here, as a dependency of crate `crypto_common`
+    |
+   ::: core/synapsed-net/src/crypto/certificates.rs:5:5
+    |
+5   | use quinn::rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
+    |     ----- one version of crate `rand_core` used here, as a dependency of crate `rand`
+    |
+   ::: /workspaces/playground/synapsed/core/synapsed-crypto/src/random.rs:12:1
+    |
+12  | pub struct DefaultRng {
+    | --------------------- this type doesn't implement the required trait
+    |
+   ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.9.3/src/block.rs:67:1
+    |
+67  | pub trait BlockRngCore {
+    | ---------------------- this is the found trait
+    = help: you can use `cargo tree` to explore your dependency tree
+    = note: required for `&mut DefaultRng` to implement `CryptoRng`
+note: required by a bound in `StaticSecret::random_from_rng`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x25519-dalek-2.0.1/src/x25519.rs:218:41
+    |
+218 |     pub fn random_from_rng<T: RngCore + CryptoRng>(mut csprng: T) -> Self {
+    |                                         ^^^^^^^^^ required by this bound in `StaticSecret::random_from_rng`
+
+error[E0277]: the trait bound `DefaultRng: RngCore` is not satisfied
+   --> core/synapsed-net/src/crypto/post_quantum.rs:154:85
+    |
+154 |             let ephemeral_secret = x25519_dalek::StaticSecret::random_from_rng(&mut self.rng);
+    |                                    -------------------------------------------      ^^^^^^^^ the trait `RngCore` is not implemented for `DefaultRng`
+    |                                    |
+    |                                    required by a bound introduced by this call
+    |
+note: there are multiple different versions of crate `rand_core` in the dependency graph
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs:142:1
+    |
+142 | pub trait RngCore {
+    | ^^^^^^^^^^^^^^^^^ this is the required trait
+    |
+   ::: core/synapsed-net/src/crypto/enhanced_security.rs:12:5
+    |
+12  | use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, KeyInit};
+    |     ---------------- one version of crate `rand_core` used here, as a dependency of crate `crypto_common`
+    |
+   ::: core/synapsed-net/src/crypto/certificates.rs:5:5
+    |
+5   | use quinn::rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
+    |     ----- one version of crate `rand_core` used here, as a dependency of crate `rand`
+    |
+   ::: /workspaces/playground/synapsed/core/synapsed-crypto/src/random.rs:12:1
+    |
+12  | pub struct DefaultRng {
+    | --------------------- this type doesn't implement the required trait
+    |
+   ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.9.3/src/block.rs:67:1
+    |
+67  | pub trait BlockRngCore {
+    | ---------------------- this is the found trait
+    = help: you can use `cargo tree` to explore your dependency tree
+    = note: required for `&mut DefaultRng` to implement `RngCore`
+note: required by a bound in `StaticSecret::random_from_rng`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x25519-dalek-2.0.1/src/x25519.rs:218:31
+    |
+218 |     pub fn random_from_rng<T: RngCore + CryptoRng>(mut csprng: T) -> Self {
+    |                               ^^^^^^^ required by this bound in `StaticSecret::random_from_rng`
+
+error[E0277]: the trait bound `DefaultRng: CryptoRng` is not satisfied
+   --> core/synapsed-net/src/crypto/post_quantum.rs:154:85
+    |
+154 |             let ephemeral_secret = x25519_dalek::StaticSecret::random_from_rng(&mut self.rng);
+    |                                    -------------------------------------------      ^^^^^^^^ the trait `CryptoRng` is not implemented for `DefaultRng`
+    |                                    |
+    |                                    required by a bound introduced by this call
+    |
+note: there are multiple different versions of crate `rand_core` in the dependency graph
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.6.4/src/lib.rs:209:1
+    |
+209 | pub trait CryptoRng {}
+    | ^^^^^^^^^^^^^^^^^^^ this is the required trait
+    |
+   ::: core/synapsed-net/src/crypto/enhanced_security.rs:12:5
+    |
+12  | use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, KeyInit};
+    |     ---------------- one version of crate `rand_core` used here, as a dependency of crate `crypto_common`
+    |
+   ::: core/synapsed-net/src/crypto/certificates.rs:5:5
+    |
+5   | use quinn::rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
+    |     ----- one version of crate `rand_core` used here, as a dependency of crate `rand`
+    |
+   ::: /workspaces/playground/synapsed/core/synapsed-crypto/src/random.rs:12:1
+    |
+12  | pub struct DefaultRng {
+    | --------------------- this type doesn't implement the required trait
+    |
+   ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand_core-0.9.3/src/block.rs:67:1
+    |
+67  | pub trait BlockRngCore {
+    | ---------------------- this is the found trait
+    = help: you can use `cargo tree` to explore your dependency tree
+    = note: required for `&mut DefaultRng` to implement `CryptoRng`
+note: required by a bound in `StaticSecret::random_from_rng`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/x25519-dalek-2.0.1/src/x25519.rs:218:41
+    |
+218 |     pub fn random_from_rng<T: RngCore + CryptoRng>(mut csprng: T) -> Self {
+    |                                         ^^^^^^^^^ required by this bound in `StaticSecret::random_from_rng`
+
+error[E0277]: the trait bound `blake3::Hasher: OutputSizeUser` is not satisfied
+   --> core/synapsed-net/src/crypto/session.rs:307:13
+    |
+307 |             hkdf::Hkdf::<blake3::Hasher>::new(Some(salt), encryption_key)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `OutputSizeUser` is not implemented for `blake3::Hasher`
+    |
+    = help: the following other types implement trait `OutputSizeUser`:
+              CoreWrapper<T>
+              CtVariableCoreWrapper<T, OutSize, O>
+              HmacCore<D>
+              Sha256VarCore
+              Sha512VarCore
+              SimpleHmac<D>
+              md5::Md5Core
+              sha1::Sha1Core
+            and 9 others
+note: required by a bound in `hkdf::Hkdf`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hkdf-0.12.4/src/lib.rs:190:20
+    |
+190 | pub struct Hkdf<H: OutputSizeUser, I: HmacImpl<H> = Hmac<H>> {
+    |                    ^^^^^^^^^^^^^^ required by this bound in `Hkdf`
+
+error[E0277]: the trait bound `blake3::Hasher: CoreProxy` is not satisfied
+   --> core/synapsed-net/src/crypto/session.rs:307:13
+    |
+307 |             hkdf::Hkdf::<blake3::Hasher>::new(Some(salt), encryption_key)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `CoreProxy` is not implemented for `blake3::Hasher`
+    |
+    = help: the trait `CoreProxy` is implemented for `CoreWrapper<T>`
+    = note: required for `HmacCore<blake3::Hasher>` to implement `BlockSizeUser`
+
+error[E0599]: the function or associated item `new` exists for struct `Hkdf<Hasher>`, but its trait bounds were not satisfied
+    --> core/synapsed-net/src/crypto/session.rs:307:43
+     |
+307  |             hkdf::Hkdf::<blake3::Hasher>::new(Some(salt), encryption_key)
+     |                                           ^^^ function or associated item cannot be called on `Hkdf<Hasher>` due to unsatisfied trait bounds
+     |
+    ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hkdf-0.12.4/src/lib.rs:190:1
+     |
+190  | pub struct Hkdf<H: OutputSizeUser, I: HmacImpl<H> = Hmac<H>> {
+     | ------------------------------------------------------------ doesn't satisfy `hkdf::Hkdf<blake3::Hasher>: InnerInit`, `hkdf::Hkdf<blake3::Hasher>: InnerUser` or `hkdf::Hkdf<blake3::Hasher>: KeyInit`
+     |
+    ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/blake3-1.8.2/src/lib.rs:1060:1
+     |
+1060 | pub struct Hasher {
+     | ----------------- doesn't satisfy `blake3::Hasher: CoreProxy` or `blake3::Hasher: OutputSizeUser`
+     |
+    ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/digest-0.10.7/src/core_api/wrapper.rs:24:1
+     |
+24   | pub struct CoreWrapper<T>
+     | ------------------------- doesn't satisfy `_: HmacImpl<Hasher>`
+     |
+     = note: the following trait bounds were not satisfied:
+             `blake3::Hasher: OutputSizeUser`
+             `blake3::Hasher: CoreProxy`
+             which is required by `CoreWrapper<HmacCore<blake3::Hasher>>: HmacImpl<blake3::Hasher>`
+             `hkdf::Hkdf<blake3::Hasher>: InnerInit`
+             which is required by `hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `hkdf::Hkdf<blake3::Hasher>: InnerUser`
+             which is required by `hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&hkdf::Hkdf<blake3::Hasher>: InnerInit`
+             which is required by `&hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&hkdf::Hkdf<blake3::Hasher>: InnerUser`
+             which is required by `&hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&mut hkdf::Hkdf<blake3::Hasher>: InnerInit`
+             which is required by `&mut hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&mut hkdf::Hkdf<blake3::Hasher>: InnerUser`
+             which is required by `&mut hkdf::Hkdf<blake3::Hasher>: KeyInit`
+
+error[E0277]: the trait bound `blake3::Hasher: OutputSizeUser` is not satisfied
+   --> core/synapsed-net/src/crypto/session.rs:356:13
+    |
+356 |             hkdf::Hkdf::<blake3::Hasher>::new(Some(salt), encryption_key)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `OutputSizeUser` is not implemented for `blake3::Hasher`
+    |
+    = help: the following other types implement trait `OutputSizeUser`:
+              CoreWrapper<T>
+              CtVariableCoreWrapper<T, OutSize, O>
+              HmacCore<D>
+              Sha256VarCore
+              Sha512VarCore
+              SimpleHmac<D>
+              md5::Md5Core
+              sha1::Sha1Core
+            and 9 others
+note: required by a bound in `hkdf::Hkdf`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hkdf-0.12.4/src/lib.rs:190:20
+    |
+190 | pub struct Hkdf<H: OutputSizeUser, I: HmacImpl<H> = Hmac<H>> {
+    |                    ^^^^^^^^^^^^^^ required by this bound in `Hkdf`
+
+error[E0277]: the trait bound `blake3::Hasher: CoreProxy` is not satisfied
+   --> core/synapsed-net/src/crypto/session.rs:356:13
+    |
+356 |             hkdf::Hkdf::<blake3::Hasher>::new(Some(salt), encryption_key)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `CoreProxy` is not implemented for `blake3::Hasher`
+    |
+    = help: the trait `CoreProxy` is implemented for `CoreWrapper<T>`
+    = note: required for `HmacCore<blake3::Hasher>` to implement `BlockSizeUser`
+
+error[E0599]: the function or associated item `new` exists for struct `Hkdf<Hasher>`, but its trait bounds were not satisfied
+    --> core/synapsed-net/src/crypto/session.rs:356:43
+     |
+356  |             hkdf::Hkdf::<blake3::Hasher>::new(Some(salt), encryption_key)
+     |                                           ^^^ function or associated item cannot be called on `Hkdf<Hasher>` due to unsatisfied trait bounds
+     |
+    ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hkdf-0.12.4/src/lib.rs:190:1
+     |
+190  | pub struct Hkdf<H: OutputSizeUser, I: HmacImpl<H> = Hmac<H>> {
+     | ------------------------------------------------------------ doesn't satisfy `hkdf::Hkdf<blake3::Hasher>: InnerInit`, `hkdf::Hkdf<blake3::Hasher>: InnerUser` or `hkdf::Hkdf<blake3::Hasher>: KeyInit`
+     |
+    ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/blake3-1.8.2/src/lib.rs:1060:1
+     |
+1060 | pub struct Hasher {
+     | ----------------- doesn't satisfy `blake3::Hasher: CoreProxy` or `blake3::Hasher: OutputSizeUser`
+     |
+    ::: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/digest-0.10.7/src/core_api/wrapper.rs:24:1
+     |
+24   | pub struct CoreWrapper<T>
+     | ------------------------- doesn't satisfy `_: HmacImpl<Hasher>`
+     |
+     = note: the following trait bounds were not satisfied:
+             `blake3::Hasher: OutputSizeUser`
+             `blake3::Hasher: CoreProxy`
+             which is required by `CoreWrapper<HmacCore<blake3::Hasher>>: HmacImpl<blake3::Hasher>`
+             `hkdf::Hkdf<blake3::Hasher>: InnerInit`
+             which is required by `hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `hkdf::Hkdf<blake3::Hasher>: InnerUser`
+             which is required by `hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&hkdf::Hkdf<blake3::Hasher>: InnerInit`
+             which is required by `&hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&hkdf::Hkdf<blake3::Hasher>: InnerUser`
+             which is required by `&hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&mut hkdf::Hkdf<blake3::Hasher>: InnerInit`
+             which is required by `&mut hkdf::Hkdf<blake3::Hasher>: KeyInit`
+             `&mut hkdf::Hkdf<blake3::Hasher>: InnerUser`
+             which is required by `&mut hkdf::Hkdf<blake3::Hasher>: KeyInit`
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/crypto/mod.rs:106:65
+    |
+106 |     let _key_pair = ring::signature::Ed25519KeyPair::from_pkcs8(&pkcs8_bytes)
+    |                     ------------------------------------------- ^^^^^^^^^^^^ expected `&[u8]`, found `&Document`
+    |                     |
+    |                     arguments to this function are incorrect
+    |
+    = note: expected reference `&[u8]`
+               found reference `&Document`
+note: associated function defined here
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ring-0.17.14/src/ec/curve25519/ed25519/signing.rs:81:12
+    |
+81  |     pub fn from_pkcs8(pkcs8: &[u8]) -> Result<Self, error::KeyRejected> {
+    |            ^^^^^^^^^^
+
+error[E0277]: `PQKeyExchangeState` doesn't implement `std::fmt::Debug`
+   --> core/synapsed-net/src/security.rs:137:5
+    |
+116 | #[derive(Debug, Clone)]
+    |          ----- in this derive macro expansion
+...
+137 |     pq_key_exchange: Option<Box<PQKeyExchangeState>>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `PQKeyExchangeState` cannot be formatted using `{:?}`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `PQKeyExchangeState`
+    = note: add `#[derive(Debug)]` to `PQKeyExchangeState` or manually `impl std::fmt::Debug for PQKeyExchangeState`
+    = help: the trait `std::fmt::Debug` is implemented for `std::option::Option<T>`
+
+error[E0277]: the trait bound `PQKeyExchangeState: Clone` is not satisfied
+   --> core/synapsed-net/src/security.rs:137:5
+    |
+116 | #[derive(Debug, Clone)]
+    |                 ----- in this derive macro expansion
+...
+137 |     pq_key_exchange: Option<Box<PQKeyExchangeState>>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `PQKeyExchangeState`
+    |
+    = note: required for `Box<PQKeyExchangeState>` to implement `Clone`
+    = note: 1 redundant requirement hidden
+    = note: required for `std::option::Option<Box<PQKeyExchangeState>>` to implement `Clone`
+
+error[E0616]: field `keys` of struct `crypto::session::Session` is private
+   --> core/synapsed-net/src/security.rs:295:64
+    |
+295 |         let cipher = ChaCha20Poly1305::new_from_slice(&session.keys.client_write_key[..32])
+    |                                                                ^^^^ private field
+
+error[E0616]: field `keys` of struct `crypto::session::Session` is private
+   --> core/synapsed-net/src/security.rs:330:64
+    |
+330 |         let cipher = ChaCha20Poly1305::new_from_slice(&session.keys.server_write_key[..32])
+    |                                                                ^^^^ private field
+
+error[E0560]: struct `SessionState` has no field named `key`
+   --> core/synapsed-net/src/security.rs:399:13
+    |
+399 |             key,
+    |             ^^^ `SessionState` does not have this field
+    |
+    = note: available fields are: `id`, `last_activity`, `rotation_count`, `authenticated`
+
+error[E0560]: struct `SessionState` has no field named `kdf`
+   --> core/synapsed-net/src/security.rs:400:13
+    |
+400 |             kdf: "blake3".to_string(),
+    |             ^^^ `SessionState` does not have this field
+    |
+    = note: available fields are: `id`, `last_activity`, `rotation_count`, `authenticated`
+
+error[E0277]: `dyn Fn(&TransportRequirements, &...) -> ... + Send + Sync` doesn't implement `std::fmt::Debug`
+   --> core/synapsed-net/src/transport/manager.rs:101:12
+    |
+86  | #[derive(Debug, Clone, PartialEq)]
+    |          ----- in this derive macro expansion
+...
+101 |     Custom(Arc<dyn Fn(&TransportRequirements, &HashMap<TransportType, TransportScore>) -> Option<TransportType> + Send + Sync>),
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `dyn Fn(&TransportRequirements, &...) -> ... + Send + Sync` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `dyn Fn(&TransportRequirements, &...) -> ... + Send + Sync`
+    = note: the full name for the type has been written to '/workspaces/playground/synapsed/target/debug/deps/synapsed_net-946e2895dfb97795.long-type-13657134113117912892.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0369]: binary operation `==` cannot be applied to type `&Arc<dyn Fn(&TransportRequirements, &...) -> ... + Send + Sync>`
+   --> core/synapsed-net/src/transport/manager.rs:101:12
+    |
+86  | #[derive(Debug, Clone, PartialEq)]
+    |                        --------- in this derive macro expansion
+...
+101 |     Custom(Arc<dyn Fn(&TransportRequirements, &HashMap<TransportType, TransportScore>) -> Option<TransportType> + Send + Sync>),
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: the full name for the type has been written to '/workspaces/playground/synapsed/target/debug/deps/synapsed_net-946e2895dfb97795.long-type-13011183512784138260.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0277]: the trait bound `rustls::ClientConfig: quinn::crypto::ClientConfig` is not satisfied
+  --> core/synapsed-net/src/transport/quic.rs:64:51
+   |
+64 |         let mut client_config = ClientConfig::new(Arc::new(client_crypto));
+   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^ the trait `quinn::crypto::ClientConfig` is not implemented for `rustls::ClientConfig`
+   |
+   = help: the trait `quinn::crypto::ClientConfig` is implemented for `QuicClientConfig`
+   = note: required for the cast from `Arc<rustls::ClientConfig>` to `Arc<(dyn quinn::crypto::ClientConfig + 'static)>`
+
+error[E0599]: no variant or associated item named `Configuration` found for enum `error::TransportError` in the current scope
+  --> core/synapsed-net/src/transport/quic.rs:73:37
+   |
+73 |                     TransportError::Configuration("Invalid idle timeout duration".to_string())
+   |                                     ^^^^^^^^^^^^^ variant or associated item not found in `TransportError`
+   |
+  ::: core/synapsed-net/src/error.rs:55:1
+   |
+55 | pub enum TransportError {
+   | ----------------------- variant or associated item `Configuration` not found for this enum
+
+error[E0277]: the trait bound `rustls::ServerConfig: quinn::crypto::ServerConfig` is not satisfied
+  --> core/synapsed-net/src/transport/quic.rs:90:59
+   |
+90 |         let mut server_config = ServerConfig::with_crypto(Arc::new(server_crypto));
+   |                                                           ^^^^^^^^^^^^^^^^^^^^^^^ the trait `quinn::crypto::ServerConfig` is not implemented for `rustls::ServerConfig`
+   |
+   = help: the trait `quinn::crypto::ServerConfig` is implemented for `QuicServerConfig`
+   = note: required for the cast from `Arc<rustls::ServerConfig>` to `Arc<(dyn quinn::crypto::ServerConfig + 'static)>`
+
+error[E0599]: no method named `clone` found for struct `quinn::TransportConfig` in the current scope
+  --> core/synapsed-net/src/transport/quic.rs:91:66
+   |
+91 |         server_config.transport_config(Arc::new(transport_config.clone()));
+   |                                                                  ^^^^^ method not found in `TransportConfig`
+
+error[E0277]: the trait bound `rustls::ClientConfig: quinn::crypto::ClientConfig` is not satisfied
+   --> core/synapsed-net/src/transport/quic.rs:125:51
+    |
+125 |         let mut client_config = ClientConfig::new(Arc::new(client_crypto));
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^ the trait `quinn::crypto::ClientConfig` is not implemented for `rustls::ClientConfig`
+    |
+    = help: the trait `quinn::crypto::ClientConfig` is implemented for `QuicClientConfig`
+    = note: required for the cast from `Arc<rustls::ClientConfig>` to `Arc<(dyn quinn::crypto::ClientConfig + 'static)>`
+
+error[E0599]: no variant or associated item named `Configuration` found for enum `error::TransportError` in the current scope
+   --> core/synapsed-net/src/transport/quic.rs:134:37
+    |
+134 |                     TransportError::Configuration("Invalid idle timeout duration".to_string())
+    |                                     ^^^^^^^^^^^^^ variant or associated item not found in `TransportError`
+    |
+   ::: core/synapsed-net/src/error.rs:55:1
+    |
+55  | pub enum TransportError {
+    | ----------------------- variant or associated item `Configuration` not found for this enum
+
+error[E0277]: the trait bound `rustls::ServerConfig: quinn::crypto::ServerConfig` is not satisfied
+   --> core/synapsed-net/src/transport/quic.rs:151:59
+    |
+151 |         let mut server_config = ServerConfig::with_crypto(Arc::new(server_crypto));
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^ the trait `quinn::crypto::ServerConfig` is not implemented for `rustls::ServerConfig`
+    |
+    = help: the trait `quinn::crypto::ServerConfig` is implemented for `QuicServerConfig`
+    = note: required for the cast from `Arc<rustls::ServerConfig>` to `Arc<(dyn quinn::crypto::ServerConfig + 'static)>`
+
+error[E0599]: no method named `clone` found for struct `quinn::TransportConfig` in the current scope
+   --> core/synapsed-net/src/transport/quic.rs:152:66
+    |
+152 |         server_config.transport_config(Arc::new(transport_config.clone()));
+    |                                                                  ^^^^^ method not found in `TransportConfig`
+
+error[E0599]: no method named `enable_0rtt` found for struct `quinn::ClientConfig` in the current scope
+   --> core/synapsed-net/src/transport/quic.rs:202:37
+    |
+202 |                 config_with_session.enable_0rtt();
+    |                                     ^^^^^^^^^^^ method not found in `ClientConfig`
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/quic.rs:291:54
+    |
+291 |         match Pin::new(&mut self.recv).poll_read(cx, &mut quinn_buf) {
+    |                                        ---------     ^^^^^^^^^^^^^^ expected `&mut ReadBuf<'_>`, found `&mut Vec<u8>`
+    |                                        |
+    |                                        arguments to this method are incorrect
+    |
+    = note: expected mutable reference `&mut ReadBuf<'_>`
+               found mutable reference `&mut Vec<u8>`
+note: method defined here
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.47.0/src/io/async_read.rs:54:8
+    |
+54  |     fn poll_read(
+    |        ^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/quic.rs:292:28
+    |
+291 |         match Pin::new(&mut self.recv).poll_read(cx, &mut quinn_buf) {
+    |               ------------------------------------------------------ this expression has type `Poll<std::result::Result<(), std::io::Error>>`
+292 |             Poll::Ready(Ok(Some(n))) => {
+    |                            ^^^^^^^ expected `()`, found `Option<_>`
+    |
+    = note: expected unit type `()`
+                    found enum `std::option::Option<_>`
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/quic.rs:296:28
+    |
+291 |         match Pin::new(&mut self.recv).poll_read(cx, &mut quinn_buf) {
+    |               ------------------------------------------------------ this expression has type `Poll<std::result::Result<(), std::io::Error>>`
+...
+296 |             Poll::Ready(Ok(None)) => Poll::Ready(Err(std::io::Error::new(
+    |                            ^^^^ expected `()`, found `Option<_>`
+    |
+    = note: expected unit type `()`
+                    found enum `std::option::Option<_>`
+
+error[E0599]: no method named `poll_finish` found for struct `Pin<&mut SendStream>` in the current scope
+   --> core/synapsed-net/src/transport/quic.rs:337:40
+    |
+337 |         match Pin::new(&mut self.send).poll_finish(cx) {
+    |                                        ^^^^^^^^^^^
+    |
+help: there is a method `finish` with a similar name, but with different arguments
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/quinn-0.11.8/src/send_stream.rs:140:5
+    |
+140 |     pub fn finish(&mut self) -> Result<(), ClosedStream> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/quic.rs:454:16
+    |
+454 |         if let Ok(certs) = rustls_native_certs::load_native_certs() {
+    |                ^^^^^^^^^   ---------------------------------------- this expression has type `CertificateResult`
+    |                |
+    |                expected `CertificateResult`, found `Result<_, _>`
+    |
+    = note: expected struct `CertificateResult`
+                 found enum `std::result::Result<_, _>`
+
+error[E0599]: no method named `try_clone` found for struct `tokio::net::TcpStream` in the current scope
+    --> core/synapsed-net/src/transport/tcp.rs:63:31
+     |
+63   |             conns.push(stream.try_clone().map_err(|e| NetworkError::Transport(TransportError::Tcp(e.to_string())))?);
+     |                               ^^^^^^^^^
+     |
+help: there is a method `try_io` with a similar name, but with different arguments
+    --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.47.0/src/net/tcp/stream.rs:1020:5
+     |
+1020 | /     pub fn try_io<R>(
+1021 | |         &self,
+1022 | |         interest: Interest,
+1023 | |         f: impl FnOnce() -> io::Result<R>,
+1024 | |     ) -> io::Result<R> {
+     | |______________________^
+
+error[E0599]: no method named `try_clone` found for struct `tokio::net::TcpListener` in the current scope
+   --> core/synapsed-net/src/transport/tcp.rs:171:39
+    |
+171 |         let listener_clone = listener.try_clone().expect("Failed to clone listener");
+    |                                       ^^^^^^^^^ method not found in `TcpListener`
+
+error[E0277]: the trait bound `(): IntoHeaderName` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:102:17
+     |
+101  |               request.headers_mut().insert(
+     |                                     ------ required by a bound introduced by this call
+102  | /                 key.parse().map_err(|e: tokio_tungstenite::tungstenite::http::header::InvalidHeaderName| 
+103  | |                     NetworkError::Transport(TransportError::WebSocket(e.to_string())))?,
+     | |_______________________________________________________________________________________^ the trait `IntoHeaderName` is not implemented for `()`
+     |
+     = help: the following other types implement trait `IntoHeaderName`:
+               &'a HeaderName
+               &'static str
+               HeaderName
+note: required by a bound in `HeaderMap::<T>::insert`
+    --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.3.1/src/header/map.rs:1230:12
+     |
+1228 |     pub fn insert<K>(&mut self, key: K, val: T) -> Option<T>
+     |            ------ required by a bound in this associated function
+1229 |     where
+1230 |         K: IntoHeaderName,
+     |            ^^^^^^^^^^^^^^ required by this bound in `HeaderMap::<T>::insert`
+
+error[E0277]: the trait bound `(): FromStr` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:102:21
+     |
+102  |                 key.parse().map_err(|e: tokio_tungstenite::tungstenite::http::header::InvalidHeaderName| 
+     |                     ^^^^^ the trait `FromStr` is not implemented for `()`
+     |
+     = help: the following other types implement trait `FromStr`:
+               Authority
+               Braced
+               ByteString
+               CString
+               HeaderName
+               HeaderValue
+               Hyphenated
+               ObjectIdentifier
+             and 112 others
+note: required by a bound in `core::str::<impl str>::parse`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/str/mod.rs:2601:21
+     |
+2601 |     pub fn parse<F: FromStr>(&self) -> Result<F, F::Err> {
+     |                     ^^^^^^^ required by this bound in `core::str::<impl str>::parse`
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:238:20
+    |
+238 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0599]: no method named `as_mut` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:249:26
+    |
+249 |                 match ws.as_mut().poll_next(cx) {
+    |                          ^^^^^^ method not found in `WebSocketStream<MaybeTlsStream<TcpStream>>`
+    |
+   ::: /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/convert/mod.rs:372:8
+    |
+372 |     fn as_mut(&mut self) -> &mut T;
+    |        ------
+    |        |
+    |        the method is available for `Box<WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>` here
+    |        the method is available for `Box<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>` here
+    |        the method is available for `Box<&WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>` here
+    |
+help: consider wrapping the receiver expression with the appropriate type
+    |
+249 |                 match Box::new(ws).as_mut().poll_next(cx) {
+    |                       +++++++++  +
+help: consider wrapping the receiver expression with the appropriate type
+    |
+249 |                 match Box::new(&mut ws).as_mut().poll_next(cx) {
+    |                       +++++++++++++   +
+help: consider wrapping the receiver expression with the appropriate type
+    |
+249 |                 match Box::new(&ws).as_mut().poll_next(cx) {
+    |                       ++++++++++  +
+
+error[E0599]: no method named `as_mut` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:309:26
+    |
+309 |                 match ws.as_mut().poll_next(cx) {
+    |                          ^^^^^^ method not found in `WebSocketStream<TcpStream>`
+    |
+   ::: /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/convert/mod.rs:372:8
+    |
+372 |     fn as_mut(&mut self) -> &mut T;
+    |        ------
+    |        |
+    |        the method is available for `Box<WebSocketStream<tokio::net::TcpStream>>` here
+    |        the method is available for `Box<&mut WebSocketStream<tokio::net::TcpStream>>` here
+    |        the method is available for `Box<&WebSocketStream<tokio::net::TcpStream>>` here
+    |
+help: consider wrapping the receiver expression with the appropriate type
+    |
+309 |                 match Box::new(ws).as_mut().poll_next(cx) {
+    |                       +++++++++  +
+help: consider wrapping the receiver expression with the appropriate type
+    |
+309 |                 match Box::new(&mut ws).as_mut().poll_next(cx) {
+    |                       +++++++++++++   +
+help: consider wrapping the receiver expression with the appropriate type
+    |
+309 |                 match Box::new(&ws).as_mut().poll_next(cx) {
+    |                       ++++++++++  +
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:369:20
+    |
+369 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/websocket.rs:376:47
+    |
+376 |                     let data = std::mem::take(write_buffer);
+    |                                -------------- ^^^^^^^^^^^^ expected `&mut _`, found `Vec<u8>`
+    |                                |
+    |                                arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut _`
+                          found struct `Vec<u8>`
+note: function defined here
+   --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/mem/mod.rs:783:8
+    |
+783 | pub fn take<T: Default>(dest: &mut T) -> T {
+    |        ^^^^
+help: consider mutably borrowing here
+    |
+376 |                     let data = std::mem::take(&mut write_buffer);
+    |                                               ++++
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:379:36
+     |
+379  |                     match Pin::new(ws).poll_ready(cx) {
+     |                           -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                           |
+     |                           required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+379  |                     match Pin::new(&ws).poll_ready(cx) {
+     |                                    +
+379  |                     match Pin::new(&mut ws).poll_ready(cx) {
+     |                                    ++++
+
+error[E0599]: no method named `poll_ready` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:379:40
+    |
+379 |                     match Pin::new(ws).poll_ready(cx) {
+    |                                        ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:68:5
+    |
+68  |     fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:381:44
+     |
+381  | ...                   match Pin::new(ws).start_send(message) {
+     |                             -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                             |
+     |                             required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+381  |                             match Pin::new(&ws).start_send(message) {
+     |                                            +
+381  |                             match Pin::new(&mut ws).start_send(message) {
+     |                                            ++++
+
+error[E0599]: no method named `start_send` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:381:48
+    |
+381 | ...                   match Pin::new(ws).start_send(message) {
+    |                                          ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:89:5
+    |
+89  |     fn start_send(self: Pin<&mut Self>, item: Item) -> Result<(), Self::Error>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+   --> core/synapsed-net/src/transport/websocket.rs:397:29
+    |
+397 | ...                   *write_buffer = data;
+    |                       ^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[u8]`
+    = note: the left-hand-side of an assignment must have a statically known size
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/websocket.rs:411:47
+    |
+411 |                     let data = std::mem::take(write_buffer);
+    |                                -------------- ^^^^^^^^^^^^ expected `&mut _`, found `Vec<u8>`
+    |                                |
+    |                                arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut _`
+                          found struct `Vec<u8>`
+note: function defined here
+   --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/mem/mod.rs:783:8
+    |
+783 | pub fn take<T: Default>(dest: &mut T) -> T {
+    |        ^^^^
+help: consider mutably borrowing here
+    |
+411 |                     let data = std::mem::take(&mut write_buffer);
+    |                                               ++++
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:414:36
+     |
+414  |                     match Pin::new(ws).poll_ready(cx) {
+     |                           -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                           |
+     |                           required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+414  |                     match Pin::new(&ws).poll_ready(cx) {
+     |                                    +
+414  |                     match Pin::new(&mut ws).poll_ready(cx) {
+     |                                    ++++
+
+error[E0599]: no method named `poll_ready` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:414:40
+    |
+414 |                     match Pin::new(ws).poll_ready(cx) {
+    |                                        ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:68:5
+    |
+68  |     fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:416:44
+     |
+416  | ...                   match Pin::new(ws).start_send(message) {
+     |                             -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                             |
+     |                             required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+416  |                             match Pin::new(&ws).start_send(message) {
+     |                                            +
+416  |                             match Pin::new(&mut ws).start_send(message) {
+     |                                            ++++
+
+error[E0599]: no method named `start_send` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:416:48
+    |
+416 | ...                   match Pin::new(ws).start_send(message) {
+    |                                          ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:89:5
+    |
+89  |     fn start_send(self: Pin<&mut Self>, item: Item) -> Result<(), Self::Error>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+   --> core/synapsed-net/src/transport/websocket.rs:432:29
+    |
+432 | ...                   *write_buffer = data;
+    |                       ^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[u8]`
+    = note: the left-hand-side of an assignment must have a statically known size
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:444:20
+    |
+444 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/websocket.rs:448:47
+    |
+448 |                     let data = std::mem::take(write_buffer);
+    |                                -------------- ^^^^^^^^^^^^ expected `&mut _`, found `Vec<u8>`
+    |                                |
+    |                                arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut _`
+                          found struct `Vec<u8>`
+note: function defined here
+   --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/mem/mod.rs:783:8
+    |
+783 | pub fn take<T: Default>(dest: &mut T) -> T {
+    |        ^^^^
+help: consider mutably borrowing here
+    |
+448 |                     let data = std::mem::take(&mut write_buffer);
+    |                                               ++++
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:451:36
+     |
+451  |                     match Pin::new(ws).poll_ready(cx) {
+     |                           -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                           |
+     |                           required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+451  |                     match Pin::new(&ws).poll_ready(cx) {
+     |                                    +
+451  |                     match Pin::new(&mut ws).poll_ready(cx) {
+     |                                    ++++
+
+error[E0599]: no method named `poll_ready` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:451:40
+    |
+451 |                     match Pin::new(ws).poll_ready(cx) {
+    |                                        ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:68:5
+    |
+68  |     fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:453:54
+     |
+453  | ...                   if let Err(e) = Pin::new(ws).start_send(message) {
+     |                                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                                       |
+     |                                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+453  |                             if let Err(e) = Pin::new(&ws).start_send(message) {
+     |                                                      +
+453  |                             if let Err(e) = Pin::new(&mut ws).start_send(message) {
+     |                                                      ++++
+
+error[E0599]: no method named `start_send` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:453:58
+    |
+453 | ...                   if let Err(e) = Pin::new(ws).start_send(message) {
+    |                                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:89:5
+    |
+89  |     fn start_send(self: Pin<&mut Self>, item: Item) -> Result<(), Self::Error>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+   --> core/synapsed-net/src/transport/websocket.rs:468:29
+    |
+468 | ...                   *write_buffer = data;
+    |                       ^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[u8]`
+    = note: the left-hand-side of an assignment must have a statically known size
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:475:32
+     |
+475  |                 match Pin::new(ws).poll_flush(cx) {
+     |                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                       |
+     |                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+475  |                 match Pin::new(&ws).poll_flush(cx) {
+     |                                +
+475  |                 match Pin::new(&mut ws).poll_flush(cx) {
+     |                                ++++
+
+error[E0599]: no method named `poll_flush` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:475:36
+    |
+475 |                 match Pin::new(ws).poll_flush(cx) {
+    |                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:103:5
+    |
+103 |     fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> core/synapsed-net/src/transport/websocket.rs:487:47
+    |
+487 |                     let data = std::mem::take(write_buffer);
+    |                                -------------- ^^^^^^^^^^^^ expected `&mut _`, found `Vec<u8>`
+    |                                |
+    |                                arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut _`
+                          found struct `Vec<u8>`
+note: function defined here
+   --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/mem/mod.rs:783:8
+    |
+783 | pub fn take<T: Default>(dest: &mut T) -> T {
+    |        ^^^^
+help: consider mutably borrowing here
+    |
+487 |                     let data = std::mem::take(&mut write_buffer);
+    |                                               ++++
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:490:36
+     |
+490  |                     match Pin::new(ws).poll_ready(cx) {
+     |                           -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                           |
+     |                           required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+490  |                     match Pin::new(&ws).poll_ready(cx) {
+     |                                    +
+490  |                     match Pin::new(&mut ws).poll_ready(cx) {
+     |                                    ++++
+
+error[E0599]: no method named `poll_ready` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:490:40
+    |
+490 |                     match Pin::new(ws).poll_ready(cx) {
+    |                                        ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:68:5
+    |
+68  |     fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:492:54
+     |
+492  | ...                   if let Err(e) = Pin::new(ws).start_send(message) {
+     |                                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                                       |
+     |                                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+492  |                             if let Err(e) = Pin::new(&ws).start_send(message) {
+     |                                                      +
+492  |                             if let Err(e) = Pin::new(&mut ws).start_send(message) {
+     |                                                      ++++
+
+error[E0599]: no method named `start_send` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:492:58
+    |
+492 | ...                   if let Err(e) = Pin::new(ws).start_send(message) {
+    |                                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:89:5
+    |
+89  |     fn start_send(self: Pin<&mut Self>, item: Item) -> Result<(), Self::Error>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+   --> core/synapsed-net/src/transport/websocket.rs:507:29
+    |
+507 | ...                   *write_buffer = data;
+    |                       ^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[u8]`
+    = note: the left-hand-side of an assignment must have a statically known size
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:514:32
+     |
+514  |                 match Pin::new(ws).poll_flush(cx) {
+     |                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                       |
+     |                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+514  |                 match Pin::new(&ws).poll_flush(cx) {
+     |                                +
+514  |                 match Pin::new(&mut ws).poll_flush(cx) {
+     |                                ++++
+
+error[E0599]: no method named `poll_flush` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:514:36
+    |
+514 |                 match Pin::new(ws).poll_flush(cx) {
+    |                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:103:5
+    |
+103 |     fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:527:20
+    |
+527 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:529:32
+     |
+529  |                 match Pin::new(ws).poll_close(cx) {
+     |                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                       |
+     |                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+529  |                 match Pin::new(&ws).poll_close(cx) {
+     |                                +
+529  |                 match Pin::new(&mut ws).poll_close(cx) {
+     |                                ++++
+
+error[E0599]: no method named `poll_close` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:529:36
+    |
+529 |                 match Pin::new(ws).poll_close(cx) {
+    |                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:116:5
+    |
+116 |     fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:539:32
+     |
+539  |                 match Pin::new(ws).poll_close(cx) {
+     |                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                       |
+     |                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+539  |                 match Pin::new(&ws).poll_close(cx) {
+     |                                +
+539  |                 match Pin::new(&mut ws).poll_close(cx) {
+     |                                ++++
+
+error[E0599]: no method named `poll_close` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:539:36
+    |
+539 |                 match Pin::new(ws).poll_close(cx) {
+    |                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:116:5
+    |
+116 |     fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:574:20
+    |
+574 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0599]: no method named `poll_ready` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:575:58
+    |
+575 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_ready(cx),
+    |                                                          ^^^^^^^^^^
+    |
+help: consider pinning the expression with `std::pin::pin!()` and assigning that to a new binding
+   --> core/synapsed-net/src/transport/websocket.rs:575:55
+    |
+575 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_ready(cx),
+    |                                                       ^^
+help: there is a method `poll_ready_unpin` with a similar name
+    |
+575 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_ready_unpin(cx),
+    |                                                                    ++++++
+
+error[E0599]: no method named `poll_ready` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:576:60
+    |
+576 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_ready(cx),
+    |                                                            ^^^^^^^^^^
+    |
+help: consider pinning the expression with `std::pin::pin!()` and assigning that to a new binding
+   --> core/synapsed-net/src/transport/websocket.rs:576:57
+    |
+576 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_ready(cx),
+    |                                                         ^^
+help: there is a method `poll_ready_unpin` with a similar name
+    |
+576 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_ready_unpin(cx),
+    |                                                                      ++++++
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:581:20
+    |
+581 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0277]: the trait bound `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:582:64
+     |
+582  |             WebSocketStreamWrapper::Tls { ws, .. } => Pin::new(ws).start_send(item),
+     |                                                       -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>`
+     |                                                       |
+     |                                                       required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+582  |             WebSocketStreamWrapper::Tls { ws, .. } => Pin::new(&ws).start_send(item),
+     |                                                                +
+582  |             WebSocketStreamWrapper::Tls { ws, .. } => Pin::new(&mut ws).start_send(item),
+     |                                                                ++++
+
+error[E0599]: no method named `start_send` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:582:68
+    |
+582 |             WebSocketStreamWrapper::Tls { ws, .. } => Pin::new(ws).start_send(item),
+    |                                                                    ^^^^^^^^^^ method not found in `Pin<WebSocketStream<MaybeTlsStream<TcpStream>>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:89:5
+    |
+89  |     fn start_send(self: Pin<&mut Self>, item: Item) -> Result<(), Self::Error>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `WebSocketStream<tokio::net::TcpStream>: Deref` is not satisfied
+    --> core/synapsed-net/src/transport/websocket.rs:583:66
+     |
+583  |             WebSocketStreamWrapper::Plain { ws, .. } => Pin::new(ws).start_send(item),
+     |                                                         -------- ^^ the trait `Deref` is not implemented for `WebSocketStream<tokio::net::TcpStream>`
+     |                                                         |
+     |                                                         required by a bound introduced by this call
+     |
+note: required by a bound in `Pin::<Ptr>::new`
+    --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/pin.rs:1165:11
+     |
+1165 | impl<Ptr: Deref<Target: Unpin>> Pin<Ptr> {
+     |           ^^^^^^^^^^^^^^^^^^^^ required by this bound in `Pin::<Ptr>::new`
+...
+1187 |     pub const fn new(pointer: Ptr) -> Pin<Ptr> {
+     |                  --- required by a bound in this associated function
+help: consider borrowing here
+     |
+583  |             WebSocketStreamWrapper::Plain { ws, .. } => Pin::new(&ws).start_send(item),
+     |                                                                  +
+583  |             WebSocketStreamWrapper::Plain { ws, .. } => Pin::new(&mut ws).start_send(item),
+     |                                                                  ++++
+
+error[E0599]: no method named `start_send` found for struct `Pin` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:583:70
+    |
+583 |             WebSocketStreamWrapper::Plain { ws, .. } => Pin::new(ws).start_send(item),
+    |                                                                      ^^^^^^^^^^ method not found in `Pin<WebSocketStream<TcpStream>>`
+    |
+note: method is available for `Pin<&mut WebSocketStream<tokio::net::TcpStream>>`
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-sink-0.3.31/src/lib.rs:89:5
+    |
+89  |     fn start_send(self: Pin<&mut Self>, item: Item) -> Result<(), Self::Error>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:588:20
+    |
+588 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0599]: no method named `poll_flush` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:589:58
+    |
+589 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_flush(cx),
+    |                                                          ^^^^^^^^^^
+    |
+help: consider pinning the expression with `std::pin::pin!()` and assigning that to a new binding
+   --> core/synapsed-net/src/transport/websocket.rs:589:55
+    |
+589 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_flush(cx),
+    |                                                       ^^
+help: there is a method `flush` with a similar name, but with different arguments
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-util-0.3.31/src/sink/mod.rs:207:5
+    |
+207 | /     fn flush(&mut self) -> Flush<'_, Self, Item>
+208 | |     where
+209 | |         Self: Unpin,
+    | |____________________^
+
+error[E0599]: no method named `poll_flush` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:590:60
+    |
+590 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_flush(cx),
+    |                                                            ^^^^^^^^^^
+    |
+help: consider pinning the expression with `std::pin::pin!()` and assigning that to a new binding
+   --> core/synapsed-net/src/transport/websocket.rs:590:57
+    |
+590 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_flush(cx),
+    |                                                         ^^
+help: there is a method `flush` with a similar name, but with different arguments
+   --> /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-util-0.3.31/src/sink/mod.rs:207:5
+    |
+207 | /     fn flush(&mut self) -> Flush<'_, Self, Item>
+208 | |     where
+209 | |         Self: Unpin,
+    | |____________________^
+
+error[E0599]: no method named `project` found for struct `Pin<&mut WebSocketStreamWrapper>` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:595:20
+    |
+595 |         match self.project() {
+    |                    ^^^^^^^ method not found in `Pin<&mut WebSocketStreamWrapper>`
+
+error[E0599]: no method named `poll_close` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:596:58
+    |
+596 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_close(cx),
+    |                                                          ^^^^^^^^^^
+    |
+help: consider pinning the expression with `std::pin::pin!()` and assigning that to a new binding
+   --> core/synapsed-net/src/transport/websocket.rs:596:55
+    |
+596 |             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_close(cx),
+    |                                                       ^^
+help: there is a method `close` with a similar name
+    |
+596 -             WebSocketStreamWrapper::Tls { ws, .. } => ws.poll_close(cx),
+596 +             WebSocketStreamWrapper::Tls { ws, .. } => ws.close(cx),
+    |
+
+error[E0599]: no method named `poll_close` found for struct `WebSocketStream` in the current scope
+   --> core/synapsed-net/src/transport/websocket.rs:597:60
+    |
+597 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_close(cx),
+    |                                                            ^^^^^^^^^^
+    |
+help: consider pinning the expression with `std::pin::pin!()` and assigning that to a new binding
+   --> core/synapsed-net/src/transport/websocket.rs:597:57
+    |
+597 |             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_close(cx),
+    |                                                         ^^
+help: there is a method `close` with a similar name
+    |
+597 -             WebSocketStreamWrapper::Plain { ws, .. } => ws.poll_close(cx),
+597 +             WebSocketStreamWrapper::Plain { ws, .. } => ws.close(cx),
+    |
+
+warning: unused import: `Zeroize`
+  --> core/synapsed-net/src/crypto/enhanced_security.rs:21:15
+   |
+21 | use zeroize::{Zeroize, ZeroizeOnDrop};
+   |               ^^^^^^^
+
+warning: unused import: `KeyInit`
+  --> core/synapsed-net/src/security.rs:12:26
+   |
+12 | use aes_gcm::{Aes256Gcm, KeyInit as AesKeyInit};
+   |                          ^^^^^^^
+
+warning: unused import: `StreamExt`
+ --> core/synapsed-net/src/transport/websocket.rs:8:35
+  |
+8 | use futures_util::{Sink, SinkExt, StreamExt, stream::Stream as FuturesStream, ready};
+  |                                   ^^^^^^^^^
+
+warning: unused import: `SinkExt`
+ --> core/synapsed-net/src/transport/websocket.rs:8:26
+  |
+8 | use futures_util::{Sink, SinkExt, StreamExt, stream::Stream as FuturesStream, ready};
+  |                          ^^^^^^^
+
+warning: variable does not need to be mutable
+   --> core/synapsed-net/src/transport/libp2p_simple.rs:113:9
+    |
+113 |         mut self: Pin<&mut Self>,
+    |         ----^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> core/synapsed-net/src/transport/libp2p_simple.rs:129:9
+    |
+129 |         mut self: Pin<&mut Self>,
+    |         ----^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: unused variable: `addr`
+   --> core/synapsed-net/src/transport/quic.rs:243:28
+    |
+243 |     async fn listen(&self, addr: SocketAddr) -> Result<Box<dyn Listener>> {
+    |                            ^^^^ help: if this is intentional, prefix it with an underscore: `_addr`
+
+warning: unused variable: `tls_config`
+  --> core/synapsed-net/src/transport/websocket.rs:74:46
+   |
+74 |     pub fn with_tls(config: WebSocketConfig, tls_config: rustls::ClientConfig) -> Self {
+   |                                              ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_tls_config`
+
+warning: unused variable: `config`
+   --> core/synapsed-net/src/transport/websocket.rs:626:29
+    |
+626 |                         let config = config_clone.clone();
+    |                             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_config`
+
+warning: unused variable: `connections`
+  --> core/synapsed-net/src/transport/webrtc.rs:89:13
+   |
+89 |         let connections = self.connections.clone();
+   |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_connections`
+
+Some errors have detailed explanations: E0277, E0308, E0369, E0382, E0560, E0599, E0616.
+For more information about an error, try `rustc --explain E0277`.
+warning: `synapsed-net` (lib) generated 30 warnings
+error: could not compile `synapsed-net` (lib) due to 96 previous errors; 30 warnings emitted

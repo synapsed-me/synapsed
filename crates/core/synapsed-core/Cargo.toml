@@ -1,0 +1,69 @@
+[package]
+name = "synapsed-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Core traits, utilities, and shared functionality for the Synapsed ecosystem"
+keywords = ["synapsed", "core", "traits", "utilities", "p2p"]
+categories = ["development-tools", "async", "network-programming"]
+
+[dependencies]
+# Async runtime and traits
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging and tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Common utilities
+uuid = { workspace = true }
+chrono = { workspace = true }
+once_cell = { workspace = true }
+parking_lot = { workspace = true }
+
+# Configuration
+config = { version = "0.14", optional = true }
+toml = { version = "0.8", optional = true }
+serde_yaml = { version = "0.9", optional = true }
+
+# Observability
+metrics = { version = "0.23", optional = true }
+opentelemetry = { version = "0.24", features = ["trace", "metrics"], optional = true }
+
+# Testing dependencies (some are also optional for testing feature)
+mockall = { workspace = true, optional = true }
+proptest = { workspace = true, optional = true }
+
+[dev-dependencies]
+mockall = { workspace = true }
+proptest = { workspace = true }
+criterion = { workspace = true }
+tokio-test = "0.4"
+temp-env = "0.3"
+env_logger = "0.11"
+fastrand = "2.0"
+log = "0.4"
+
+[features]
+default = ["observability", "config"]
+observability = ["dep:metrics", "dep:opentelemetry"]
+config = ["dep:config", "dep:toml"]
+yaml = ["dep:serde_yaml"]
+testing = ["dep:mockall", "dep:proptest"]
+
+[[bench]]
+name = "core_benchmarks"
+harness = false

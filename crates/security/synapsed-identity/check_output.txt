@@ -1,0 +1,680 @@
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /workspaces/playground/synapsed/core/synapsed-storage/Cargo.toml
+workspace: /workspaces/playground/synapsed/Cargo.toml
+    Checking futures-util v0.3.31
+    Checking num-integer v0.1.46
+    Checking num-iter v0.1.45
+    Checking num-bigint-dig v0.8.4
+    Checking rsa v0.9.8
+    Checking combine v4.6.7
+    Checking sqlx-core v0.8.6
+    Checking hyper v1.6.0
+    Checking hyper-util v0.1.16
+    Checking futures-executor v0.3.31
+    Checking tower v0.5.2
+    Checking tower-http v0.6.6
+    Checking sqlx-sqlite v0.8.6
+    Checking hyper-tls v0.6.0
+    Checking sqlx-mysql v0.8.6
+    Checking sqlx-postgres v0.8.6
+    Checking num-bigint v0.4.6
+    Checking socket2 v0.5.10
+    Checking reqwest v0.12.22
+    Checking sqlx v0.8.6
+    Checking redis v0.27.6
+    Checking synapsed-identity v0.1.0 (/workspaces/playground/synapsed/core/synapsed-identity)
+error[E0583]: file not found for module `oauth`
+  --> core/synapsed-identity/src/auth/mod.rs:24:1
+   |
+24 | pub mod oauth;
+   | ^^^^^^^^^^^^^^
+   |
+   = help: to create the module `oauth`, create file "core/synapsed-identity/src/auth/oauth.rs" or "core/synapsed-identity/src/auth/oauth/mod.rs"
+   = note: if there is a `mod oauth` elsewhere in the crate already, import it with `use crate::...` instead
+
+warning: unexpected `cfg` condition value: `std`
+   --> core/synapsed-identity/src/authorization/mod.rs:289:11
+    |
+289 | #[cfg(not(feature = "std"))]
+    |           ^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+    = help: consider adding `std` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `std`
+   --> core/synapsed-identity/src/authorization/mod.rs:291:7
+    |
+291 | #[cfg(feature = "std")]
+    |       ^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+    = help: consider adding `std` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/rbac.rs:12:11
+   |
+12 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/rbac.rs:14:7
+   |
+14 | #[cfg(feature = "std")]
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/policy.rs:12:11
+   |
+12 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/policy.rs:14:7
+   |
+14 | #[cfg(feature = "std")]
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused import: `Error`
+ --> core/synapsed-identity/src/authorization/policy.rs:9:13
+  |
+9 | use crate::{Error, Result};
+  |             ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: hidden lifetime parameters in types are deprecated
+  --> core/synapsed-identity/src/authorization/policy.rs:66:62
+   |
+66 |     pub fn evaluate(condition: &serde_json::Value, context: &EvaluationContext) -> Result<bool> {
+   |                                                              ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+   |
+note: the lint level is defined here
+  --> core/synapsed-identity/src/lib.rs:46:9
+   |
+46 | #![warn(rust_2018_idioms)]
+   |         ^^^^^^^^^^^^^^^^
+   = note: `#[warn(elided_lifetimes_in_paths)]` implied by `#[warn(rust_2018_idioms)]`
+help: indicate the anonymous lifetime
+   |
+66 |     pub fn evaluate(condition: &serde_json::Value, context: &EvaluationContext<'_>) -> Result<bool> {
+   |                                                                               ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:120:19
+    |
+120 |         context: &EvaluationContext,
+    |                   ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+120 |         context: &EvaluationContext<'_>,
+    |                                    ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:137:66
+    |
+137 |     fn evaluate_contains(contains: &serde_json::Value, context: &EvaluationContext) -> Result<bool> {
+    |                                                                  ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+137 |     fn evaluate_contains(contains: &serde_json::Value, context: &EvaluationContext<'_>) -> Result<bool> {
+    |                                                                                   ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:156:59
+    |
+156 |     fn resolve_value(value: &serde_json::Value, context: &EvaluationContext) -> Result<serde_json::Value> {
+    |                                                           ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+156 |     fn resolve_value(value: &serde_json::Value, context: &EvaluationContext<'_>) -> Result<serde_json::Value> {
+    |                                                                            ++++
+
+warning: hidden lifetime parameters in types are deprecated
+   --> core/synapsed-identity/src/authorization/policy.rs:231:58
+    |
+231 |     fn evaluate_policy(&self, policy: &Policy, context: &EvaluationContext) -> Result<AuthzDecision> {
+    |                                                          ^^^^^^^^^^^^^^^^^ expected lifetime parameter
+    |
+help: indicate the anonymous lifetime
+    |
+231 |     fn evaluate_policy(&self, policy: &Policy, context: &EvaluationContext<'_>) -> Result<AuthzDecision> {
+    |                                                                           ++++
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/resource.rs:12:11
+   |
+12 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/authorization/resource.rs:14:7
+   |
+14 | #[cfg(feature = "std")]
+   |       ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `std`
+  --> core/synapsed-identity/src/storage/mod.rs:11:11
+   |
+11 | #[cfg(not(feature = "std"))]
+   |           ^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-jwt`, `audit-logging`, `default`, `full`, `jwt-hs256`, `jwt-rs256`, `mysql`, `oauth`, `password-strength`, `postgres`, `redis`, `reqwest`, `sqlite`, `sqlx`, and `two-factor`
+   = help: consider adding `std` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+error[E0277]: the trait bound `Identity: identity::Identity` is not satisfied
+   --> core/synapsed-identity/src/lib.rs:150:13
+    |
+150 |             identity as &dyn crate::identity::Identity,
+    |             ^^^^^^^^ the trait `identity::Identity` is not implemented for `Identity`
+    |
+    = help: the following other types implement trait `identity::Identity`:
+              BasicIdentity
+              DecentralizedIdentity
+    = note: required for the cast from `&Identity` to `&dyn identity::Identity`
+
+warning: unused variable: `session`
+   --> core/synapsed-identity/src/lib.rs:158:13
+    |
+158 |         let session = self.session_manager.get_session(token)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_session`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/auth/password.rs:77:31
+   |
+77 |             return Err(Error::InvalidParameter("Invalid hash format".into()));
+   |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/auth/password.rs:82:33
+   |
+82 |             .map_err(|_| Error::InvalidParameter("Invalid salt encoding".into()))?;
+   |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/auth/password.rs:84:33
+   |
+84 |             .map_err(|_| Error::InvalidParameter("Invalid hash encoding".into()))?;
+   |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0061]: this function takes 1 argument but 0 arguments were supplied
+   --> core/synapsed-identity/src/auth/password.rs:149:21
+    |
+149 |             hasher: PasswordHasher::new(),
+    |                     ^^^^^^^^^^^^^^^^^^^-- argument #1 of type `PasswordConfig` is missing
+    |
+note: associated function defined here
+   --> core/synapsed-identity/src/auth/password.rs:45:12
+    |
+45  |     pub fn new(config: PasswordConfig) -> Self {
+    |            ^^^ ----------------------
+help: provide the argument
+    |
+149 |             hasher: PasswordHasher::new(/* PasswordConfig */),
+    |                                         ++++++++++++++++++++
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/password.rs:216:31
+    |
+216 |             return Err(Error::InvalidParameter(
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/password.rs:222:31
+    |
+222 |             return Err(Error::InvalidParameter(
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/password.rs:228:31
+    |
+228 |             return Err(Error::InvalidParameter(
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/password.rs:234:31
+    |
+234 |             return Err(Error::InvalidParameter(
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/password.rs:240:31
+    |
+240 |             return Err(Error::InvalidParameter(
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `CryptoError` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/auth/token.rs:85:33
+   |
+85 |             .map_err(|e| Error::CryptoError(format!("Failed to serialize header: {}", e)))?;
+   |                                 ^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `CryptoError` not found for this enum
+
+error[E0599]: no variant or associated item named `CryptoError` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/auth/token.rs:87:33
+   |
+87 |             .map_err(|e| Error::CryptoError(format!("Failed to serialize claims: {}", e)))?;
+   |                                 ^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `CryptoError` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:106:31
+    |
+106 |             return Err(Error::InvalidParameter("Invalid JWT format".into()));
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:111:33
+    |
+111 |             .map_err(|_| Error::InvalidParameter("Invalid header encoding".into()))?;
+    |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:113:33
+    |
+113 |             .map_err(|_| Error::InvalidParameter("Invalid header format".into()))?;
+    |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:117:31
+    |
+117 |             return Err(Error::InvalidParameter("Algorithm mismatch".into()));
+    |                               ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:123:33
+    |
+123 |             .map_err(|_| Error::InvalidParameter("Invalid signature encoding".into()))?;
+    |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `SignatureVerificationFailed` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:127:31
+    |
+127 |             return Err(Error::SignatureVerificationFailed);
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `SignatureVerificationFailed` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:132:33
+    |
+132 |             .map_err(|_| Error::InvalidParameter("Invalid claims encoding".into()))?;
+    |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `InvalidParameter` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:134:33
+    |
+134 |             .map_err(|_| Error::InvalidParameter("Invalid claims format".into()))?;
+    |                                 ^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `InvalidParameter` not found for this enum
+
+error[E0599]: no variant or associated item named `NotSupported` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/auth/token.rs:176:29
+    |
+176 |             _ => Err(Error::NotSupported("Algorithm not implemented".into())),
+    |                             ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `NotSupported` not found for this enum
+
+error[E0277]: the trait bound `RoleAssignment: std::cmp::Ord` is not satisfied
+   --> core/synapsed-identity/src/authorization/rbac.rs:112:14
+    |
+112 |             .insert(assignment);
+    |              ^^^^^^ the trait `std::cmp::Ord` is not implemented for `RoleAssignment`
+    |
+note: required by a bound in `BTreeSet::<T, A>::insert`
+   --> /usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/collections/btree/set.rs:907:12
+    |
+905 |     pub fn insert(&mut self, value: T) -> bool
+    |            ------ required by a bound in this associated function
+906 |     where
+907 |         T: Ord,
+    |            ^^^ required by this bound in `BTreeSet::<T, A>::insert`
+help: consider annotating `RoleAssignment` with `#[derive(Ord)]`
+    |
+33  + #[derive(Ord)]
+34  | pub struct RoleAssignment {
+    |
+
+error[E0599]: no method named `iter_mut` found for mutable reference `&mut BTreeSet<RoleAssignment>` in the current scope
+   --> core/synapsed-identity/src/authorization/rbac.rs:125:43
+    |
+125 |             for assignment in assignments.iter_mut() {
+    |                                           ^^^^^^^^
+    |
+help: there is a method `iter` with a similar name
+    |
+125 -             for assignment in assignments.iter_mut() {
+125 +             for assignment in assignments.iter() {
+    |
+
+error[E0599]: no variant or associated item named `AuthorizationFailed` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/authorization/rbac.rs:156:47
+    |
+156 | ...                   return Err(Error::AuthorizationFailed(
+    |                                         ^^^^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `AuthorizationFailed` not found for this enum
+    |
+help: there is a variant with a similar name
+    |
+156 -                             return Err(Error::AuthorizationFailed(
+156 +                             return Err(Error::AuthenticationFailed(
+    |
+
+error[E0599]: no variant or associated item named `AuthorizationFailed` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/authorization/resource.rs:168:31
+    |
+168 |             return Err(Error::AuthorizationFailed(
+    |                               ^^^^^^^^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `AuthorizationFailed` not found for this enum
+    |
+help: there is a variant with a similar name
+    |
+168 -             return Err(Error::AuthorizationFailed(
+168 +             return Err(Error::AuthenticationFailed(
+    |
+
+error[E0599]: no variant or associated item named `NotSupported` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/crypto/mod.rs:148:29
+    |
+148 |             _ => Err(Error::NotSupported("Key type not supported for signing".into())),
+    |                             ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `NotSupported` not found for this enum
+
+error[E0599]: no variant or associated item named `NotSupported` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/crypto/mod.rs:163:29
+    |
+163 |             _ => Err(Error::NotSupported("Key type not supported for verification".into())),
+    |                             ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `NotSupported` not found for this enum
+
+error[E0599]: no variant or associated item named `NotSupported` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/crypto/mod.rs:176:29
+    |
+176 |             _ => Err(Error::NotSupported("Key type not supported for encryption".into())),
+    |                             ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `NotSupported` not found for this enum
+
+error[E0599]: no variant or associated item named `CryptoError` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/crypto/mod.rs:188:32
+    |
+188 |                     Err(Error::CryptoError("Invalid ciphertext".into()))
+    |                                ^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `CryptoError` not found for this enum
+
+error[E0599]: no variant or associated item named `NotSupported` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/crypto/mod.rs:191:29
+    |
+191 |             _ => Err(Error::NotSupported("Key type not supported for decryption".into())),
+    |                             ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `NotSupported` not found for this enum
+
+error[E0599]: no variant or associated item named `SessionError` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/session/mod.rs:179:39
+    |
+179 |                     return Err(Error::SessionError(
+    |                                       ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `SessionError` not found for this enum
+
+error[E0599]: no variant or associated item named `SessionError` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/session/mod.rs:252:31
+    |
+252 |             return Err(Error::SessionError("Session refresh not allowed".into()));
+    |                               ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `SessionError` not found for this enum
+
+error[E0599]: no variant or associated item named `SessionError` found for enum `error::Error` in the current scope
+   --> core/synapsed-identity/src/session/mod.rs:259:35
+    |
+259 |                 return Err(Error::SessionError("Cannot refresh inactive session".into()));
+    |                                   ^^^^^^^^^^^^ variant or associated item not found in `Error`
+    |
+   ::: core/synapsed-identity/src/error/mod.rs:10:1
+    |
+10  | pub enum Error {
+    | -------------- variant or associated item `SessionError` not found for this enum
+
+error[E0599]: no variant or associated item named `AlreadyExists` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/storage/memory.rs:75:31
+   |
+75 |             return Err(Error::AlreadyExists(format!("User {} already exists", user.id)));
+   |                               ^^^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `AlreadyExists` not found for this enum
+
+error[E0599]: no variant or associated item named `AlreadyExists` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/storage/memory.rs:80:31
+   |
+80 |             return Err(Error::AlreadyExists(format!("Username {} already taken", user.username)));
+   |                               ^^^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `AlreadyExists` not found for this enum
+
+error[E0599]: no variant or associated item named `AlreadyExists` found for enum `error::Error` in the current scope
+  --> core/synapsed-identity/src/storage/memory.rs:86:35
+   |
+86 |                 return Err(Error::AlreadyExists(format!("Email {} already registered", email)));
+   |                                   ^^^^^^^^^^^^^ variant or associated item not found in `Error`
+   |
+  ::: core/synapsed-identity/src/error/mod.rs:10:1
+   |
+10 | pub enum Error {
+   | -------------- variant or associated item `AlreadyExists` not found for this enum
+
+warning: unused variable: `identity`
+   --> core/synapsed-identity/src/auth/token.rs:302:13
+    |
+302 |         let identity = self.storage
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_identity`
+
+error[E0515]: cannot return value referencing temporary value
+   --> core/synapsed-identity/src/authorization/policy.rs:192:26
+    |
+192 |             "subject" => Some(&serde_json::Value::String(self.request.subject.clone())),
+    |                          ^^^^^^-------------------------------------------------------^
+    |                          |     |
+    |                          |     temporary value created here
+    |                          returns a value referencing data owned by the current function
+
+error[E0515]: cannot return value referencing temporary value
+   --> core/synapsed-identity/src/authorization/policy.rs:193:25
+    |
+193 |             "action" => Some(&serde_json::Value::String(self.request.action.clone())),
+    |                         ^^^^^^------------------------------------------------------^
+    |                         |     |
+    |                         |     temporary value created here
+    |                         returns a value referencing data owned by the current function
+
+error[E0515]: cannot return value referencing temporary value
+   --> core/synapsed-identity/src/authorization/policy.rs:194:27
+    |
+194 |             "resource" => Some(&serde_json::Value::String(self.request.resource.clone())),
+    |                           ^^^^^^--------------------------------------------------------^
+    |                           |     |
+    |                           |     temporary value created here
+    |                           returns a value referencing data owned by the current function
+
+warning: unused variable: `group`
+   --> core/synapsed-identity/src/authorization/resource.rs:185:30
+    |
+185 |             Principal::Group(group) => {
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_group`
+
+warning: unused variable: `subject`
+   --> core/synapsed-identity/src/authorization/resource.rs:287:31
+    |
+287 |     fn get_permissions(&self, subject: &str) -> Result<Vec<Permission>> {
+    |                               ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_subject`
+
+warning: unused variable: `subject`
+   --> core/synapsed-identity/src/authorization/resource.rs:292:25
+    |
+292 |     fn get_roles(&self, subject: &str) -> Result<Vec<super::Role>> {
+    |                         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_subject`
+
+Some errors have detailed explanations: E0061, E0277, E0515, E0583, E0599.
+For more information about an error, try `rustc --explain E0061`.
+warning: `synapsed-identity` (lib) generated 20 warnings
+error: could not compile `synapsed-identity` (lib) due to 40 previous errors; 20 warnings emitted

@@ -1,0 +1,53 @@
+[package]
+name = "synapsed-consensus"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Byzantine fault tolerant consensus algorithms for Synapsed ecosystem"
+keywords = ["consensus", "byzantine", "fault-tolerance", "distributed", "p2p"]
+categories = ["algorithms", "cryptography", "network-programming"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+parking_lot = { workspace = true }
+
+# Cryptography
+ed25519-dalek = { workspace = true }
+ring = { workspace = true }
+
+# Networking
+bytes = "1.7"
+futures = "0.3"
+
+# Internal dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-crypto = { path = "../../core/synapsed-crypto" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+rand = "0.8"
+
+[[bench]]
+name = "hotstuff_benchmarks"
+harness = false
+
+[features]
+default = ["hotstuff", "pbft"]
+hotstuff = []
+pbft = []
+tendermint = []
+avalanche = []

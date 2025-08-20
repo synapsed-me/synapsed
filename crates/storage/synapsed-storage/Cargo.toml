@@ -1,0 +1,136 @@
+[package]
+name = "synapsed-storage"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Team"]
+description = "Flexible storage abstraction layer for the Synapsed ecosystem"
+repository = "https://github.com/synapsed-ai/synapsed"
+license = "MIT OR Apache-2.0"
+keywords = ["storage", "database", "key-value", "distributed", "async"]
+categories = ["database", "asynchronous", "data-structures"]
+
+[dependencies]
+# Core async runtime (use workspace versions)
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Error handling (use workspace versions)
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Serialization (use workspace versions)
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+
+# Data structures
+bytes = "1.5"
+parking_lot = "0.12"
+dashmap = "6.0"
+
+# Storage backends (simplified for compatibility)
+# rocksdb = { version = "0.22", optional = true }
+# sled = { version = "0.34", optional = true }
+# rusqlite = { version = "0.32", features = ["bundled"], optional = true }
+# redis = { version = "0.26", features = ["tokio-comp", "connection-manager"], optional = true }
+
+# Compression (simplified for compatibility)
+# lz4 = { version = "1.26", optional = true }
+# zstd = { version = "0.13", optional = true }
+# snap = { version = "1.1", optional = true }
+
+# Distributed features - Updated for security
+raft = { version = "0.7", optional = true }  # Using 0.7 as 0.8 is not available yet
+tonic = { version = "0.12", optional = true }
+prost = "0.14"  # Updated from 0.13 for recursion crash security
+
+# Cache implementations
+lru = "0.12"
+moka = { version = "0.12", features = ["future"], optional = true }
+
+# Metrics and monitoring
+metrics = "0.23"
+prometheus = { version = "0.13", optional = true }
+opentelemetry = { version = "0.25", optional = true }
+
+# Utilities
+futures = "0.3"
+pin-project = "1.1"
+uuid = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+once_cell = "1.19"
+regex = "1.11"
+num_cpus = "1.16"
+
+# Synapsed dependencies - use core for common functionality
+synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability", "config"] }
+# synapsed-crypto = { version = "0.1", path = "../../core/synapsed-crypto", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio"] }
+proptest = "1.5"
+tempfile = "3.12"
+rand = "0.8"
+pretty_assertions = "1.4"
+
+[features]
+default = ["memory"]
+
+# Storage backends
+memory = []
+rocksdb = []  # Feature flag only, no actual dependency for now
+sled = []     # Feature flag only, no actual dependency for now
+sqlite = []   # Feature flag only, no actual dependency for now
+redis = []    # Feature flag only, no actual dependency for now
+all-backends = ["memory", "rocksdb", "sled", "sqlite", "redis"]
+
+# Compression algorithms (disabled for compatibility)
+# compression = ["lz4", "zstd", "snap"]
+lz4 = []    # Feature flag only, no actual dependency for now
+zstd = []   # Feature flag only, no actual dependency for now
+snap = []   # Feature flag only, no actual dependency for now
+
+# Distributed features
+distributed = ["dep:raft", "dep:tonic"]
+raft-consensus = ["distributed"]
+
+# Cache features
+advanced-cache = ["moka"]
+
+# Monitoring
+metrics = ["dep:prometheus"]
+telemetry = ["dep:opentelemetry"]
+
+# Security
+encryption = []  # Will use synapsed-crypto when available
+
+# Testing utilities
+test-utils = []
+
+[[bench]]
+name = "storage_bench"
+harness = false
+
+[[bench]]
+name = "compression_bench"
+harness = false
+
+[[example]]
+name = "basic_usage"
+
+[[example]]
+name = "distributed"
+required-features = ["distributed"]
+
+[[example]]
+name = "custom_backend"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+
+[profile.bench]
+debug = true

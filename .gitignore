@@ -1,0 +1,79 @@
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+*.env*
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+*.profraw
+*.profdata
+coverage/
+tarpaulin-report.html
+
+# Backup files
+*.bak
+*.backup
+
+# Build artifacts
+pkg/
+dist/
+*.wasm
+
+# Documentation
+docs/_build/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+Thumbs.db
+.DS_Store?
+._*
+
+# Python (for any scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Benchmark results
+benches/target/
+criterion/
+
+# Debug
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Editor backup files
+*~
+\#*\#
+.\#*
+
+# WASM specific
+wasm32-unknown-unknown/
+.wasm-pack/
+
+# Node (if using wasm-pack)
+node_modules/
+package-lock.json
+yarn.lock

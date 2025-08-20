@@ -1,0 +1,61 @@
+[package]
+name = "synapsed-neural-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Neural network architectures and cognitive patterns for AI agents in Synapsed ecosystem"
+keywords = ["neural", "ai", "cognitive", "patterns", "architectures"]
+categories = ["science", "algorithms", "wasm"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+parking_lot = { workspace = true }
+
+# Neural network specific
+ndarray = "0.16"
+rand = "0.8"
+rand_distr = "0.4"
+
+# WASM support
+wasm-bindgen = { workspace = true, optional = true }
+web-sys = { workspace = true, optional = true }
+
+# SIMD acceleration
+wide = "0.7"
+
+# Internal dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-crypto = { path = "../../core/synapsed-crypto" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+approx = "0.5"
+
+# Benchmarks will be added later
+# [[bench]]
+# name = "neural_bench"
+# harness = false
+
+[features]
+default = ["feedforward", "recurrent", "transformer", "cognitive-patterns"]
+feedforward = []
+recurrent = []
+transformer = []
+convolutional = []
+cognitive-patterns = []
+wasm = ["wasm-bindgen", "web-sys"]
+simd = []

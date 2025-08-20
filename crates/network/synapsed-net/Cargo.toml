@@ -1,0 +1,106 @@
+[package]
+name = "synapsed-net"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Team"]
+description = "Core networking layer for the Synapsed ecosystem with built-in observability"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/synapsed/synapsed"
+keywords = ["networking", "p2p", "observability", "privacy", "security"]
+categories = ["network-programming", "cryptography"]
+
+[dependencies]
+# Core dependencies (use workspace versions)
+tokio = { workspace = true }
+async-trait = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+bytes = "1.5"
+futures = "0.3"
+pin-project = "1.1"
+pin-project-lite = "0.2"
+
+# Transport protocols
+quinn = "0.11"  # QUIC implementation
+webrtc = "0.11"  # WebRTC implementation - Updated for security
+libp2p = { version = "0.54", features = ["kad", "noise", "tcp", "websocket", "identify", "yamux", "dns", "mdns"] }
+rcgen = "0.13"  # Certificate generation for QUIC - Updated to use ring 0.17
+tokio-tungstenite = "0.24"  # WebSocket for signaling
+futures-util = "0.3"  # For stream utilities
+
+# Security
+rustls = { version = "0.23" }  # Updated for security
+rustls-native-certs = "0.8"  # For proper certificate validation
+ring = "0.17.14"  # Updated from 0.17 for security
+snow = "0.9"  # Noise protocol framework
+x25519-dalek = "2.0"
+hkdf = "0.12"  # HKDF key derivation
+chacha20poly1305 = "0.10"  # AEAD cipher
+aes-gcm = "0.10"  # AEAD cipher
+constant_time_eq = "0.3"  # Constant-time comparisons
+ed25519-dalek = "2.1"  # Signatures
+webpki = "0.22"  # Certificate validation
+sha2 = "0.10"  # SHA-2 hash functions
+zeroize = { version = "1.8", features = ["derive"] }  # Secure memory clearing
+subtle = "2.5"  # Constant-time operations
+
+# Synapsed dependencies - use core for common functionality
+synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability", "config"] }
+
+# Observability - Internal packages
+synapsed-substrates = { path = "../../observability/synapsed-substrates" }
+synapsed-serventis = { path = "../../observability/synapsed-serventis" }
+synapsed-crypto = { path = "../../core/synapsed-crypto" }
+
+# Privacy layers
+# arti-client = { version = "0.11", optional = true }  # Tor client - disabled due to dependency conflicts
+blake3 = "1.5"  # Fast hashing for anonymization
+hex = "0.4"  # For hexadecimal encoding
+
+# Networking utilities
+socket2 = "0.5"
+if-watch = "3.2"  # Network interface monitoring
+hickory-resolver = "0.24"  # Updated from trust-dns-resolver (security)
+
+# Data structures
+dashmap = "5.5"
+parking_lot = "0.12"
+rand = "0.8"  # For transport selection
+
+# Compression
+zstd = "0.13"  # Zstandard compression
+lz4_flex = "0.11"  # LZ4 compression
+
+# Additional dependencies for enhanced security
+
+# Note: We use Substrates and Serventis for observability, not prometheus/opentelemetry
+# These are different paradigms - Substrates/Serventis follow Humanitary.io patterns
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.4"
+test-log = "0.2"
+env_logger = "0.11"
+tempfile = "3.9"
+wiremock = "0.5"
+
+[features]
+default = []
+# tor = ["arti-client"]  # Disabled due to dependency conflicts
+# Note: No metrics feature needed - we use Substrates/Serventis directly
+full = []  # Core functionality only
+
+# [[bench]]
+# name = "transport_benchmarks"
+# harness = false
+
+# [[example]]
+# name = "basic_chat"
+# required-features = ["full"]
+
+# [[example]]
+# name = "secure_transfer"

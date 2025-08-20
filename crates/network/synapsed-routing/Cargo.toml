@@ -1,0 +1,57 @@
+[package]
+name = "synapsed-routing"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Anonymous onion routing and P2P communication for Synapsed ecosystem"
+keywords = ["routing", "onion", "p2p", "anonymous", "privacy"]
+categories = ["network-programming", "cryptography"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+parking_lot = { workspace = true }
+
+# Cryptography
+ed25519-dalek = { workspace = true }
+x25519-dalek = { workspace = true }
+ring = { workspace = true }
+aes-gcm = { workspace = true }
+chacha20poly1305 = { workspace = true }
+
+# Networking
+bytes = "1.7"
+futures = "0.3"
+rand = "0.8"
+
+# Internal dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-crypto = { path = "../../core/synapsed-crypto" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+# Benchmarks will be added later
+# [[bench]]
+# name = "routing_bench"
+# harness = false
+
+[features]
+default = ["onion", "kademlia", "mixnet"]
+onion = []
+kademlia = []
+mixnet = []
+tor-compatible = []

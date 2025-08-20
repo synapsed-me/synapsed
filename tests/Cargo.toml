@@ -1,0 +1,26 @@
+[package]
+name = "synapsed-tests"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+# All crates for integration testing
+synapsed-core = { workspace = true }
+synapsed-substrates = { workspace = true }
+synapsed-serventis = { workspace = true }
+synapsed-crypto = { workspace = true }
+synapsed-storage = { workspace = true }
+synapsed-net = { workspace = true }
+synapsed-identity = { workspace = true }
+
+# Testing dependencies
+tokio = { workspace = true }
+tokio-test = { workspace = true }
+proptest = { workspace = true }
+criterion = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

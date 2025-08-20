@@ -1,0 +1,50 @@
+[package]
+name = "synapsed-crdt"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Conflict-free Replicated Data Types for distributed collaboration in Synapsed ecosystem"
+keywords = ["crdt", "distributed", "collaboration", "conflict-free", "replication"]
+categories = ["data-structures", "algorithms", "network-programming"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+parking_lot = { workspace = true }
+
+# CRDT specific
+bytes = "1.7"
+futures = "0.3"
+dashmap = "6.0"
+
+# Internal dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-crypto = { path = "../../core/synapsed-crypto" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "crdt_benchmarks"
+harness = false
+
+[features]
+default = ["lww", "orset", "pncounter", "rga"]
+lww = []           # Last-Writer-Wins registers
+orset = []         # Observed-Remove Sets
+pncounter = []     # PN-Counters
+rga = []           # Replicated Growable Arrays
+merkle-tree = []   # Merkle tree verification

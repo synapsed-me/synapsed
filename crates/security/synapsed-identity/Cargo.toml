@@ -1,0 +1,133 @@
+[package]
+name = "synapsed-identity"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Contributors"]
+description = "Identity and access management for the Synapsed framework"
+repository = "https://github.com/synapsed/synapsed"
+license = "MIT OR Apache-2.0"
+keywords = ["identity", "authentication", "authorization", "security", "synapsed"]
+categories = ["authentication", "web-programming"]
+
+[dependencies]
+# Core dependencies - use synapsed-core for common functionality
+synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability", "config"] }
+
+# Core async runtime (from synapsed-core workspace)
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Authentication & Cryptography
+synapsed-crypto = { path = "../../core/synapsed-crypto", version = "0.1.0" }
+argon2 = "0.5"  # Password hashing (legacy)
+bcrypt = "0.15"  # Alternative password hashing (legacy)
+sha2 = "0.10"  # SHA-256/512 hashing
+sha3 = "0.10"  # SHA3 hashing
+hmac = "0.12"  # HMAC for tokens
+jwt = "0.16"  # JWT token support (legacy)
+rand = "0.8"  # Secure random generation
+rand_core = "0.6"  # Core random traits
+# Removed - using workspace version above
+base64 = "0.22"
+zeroize = { version = "1.7", features = ["derive"] }
+
+# DID and W3C Standards
+multibase = "0.9"  # Multibase encoding for DIDs
+multihash = "0.18"  # Multihash for content addressing
+bech32 = "0.9"  # Bech32 encoding for did:key
+bs58 = "0.5"  # Base58 encoding
+
+# Zero-Knowledge Proofs
+ark-std = "0.4"  # Arkworks standard library
+ark-ff = "0.4"  # Finite field arithmetic
+ark-ec = "0.4"  # Elliptic curve cryptography
+ark-serialize = "0.4"  # Serialization
+
+# WebAuthn and PWA Support
+webauthn-rs = { version = "0.5", optional = true }  # WebAuthn support
+web-sys = { version = "0.3", optional = true }  # Web APIs
+wasm-bindgen = { version = "0.2", optional = true }  # WASM bindings
+js-sys = { version = "0.3", optional = true }  # JavaScript APIs
+
+# Enhanced Cryptography
+chacha20poly1305 = "0.10"  # AEAD encryption
+scrypt = "0.11"  # Key derivation
+hkdf = "0.12"  # HMAC-based key derivation
+aes-gcm = "0.10"  # AES-GCM encryption
+
+# Use common dependencies from synapsed-core workspace
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+
+# Storage backends (optional)
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite", "postgres", "mysql"], optional = true }
+redis = { version = "0.27", features = ["tokio-comp"], optional = true }
+
+# Validation - Updated for security
+validator = { version = "0.19", features = ["derive"] }  # Updated from 0.18 for idna security
+regex = "1.11"
+
+# Logging (tracing from workspace, tracing-subscriber for identity-specific features)
+tracing-subscriber = { workspace = true }
+
+# HTTP support (for OAuth, etc.)
+reqwest = { version = "0.12", features = ["json"], optional = true }
+
+# Email validation
+email_address = "0.2"
+
+# Password strength checking
+zxcvbn = "3.1"
+
+# Additional dependencies for ZKP and recovery
+lazy_static = "1.4"
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.6"
+criterion = { version = "0.6", features = ["html_reports"] }
+mockall = "0.13"
+wiremock = "0.6"
+test-case = "3.3"
+pretty_assertions = "1.4"
+
+[features]
+default = ["sqlite", "did-core", "did-key", "key-rotation", "local-first"]
+full = ["sqlite", "postgres", "mysql", "redis", "oauth", "all-jwt", "did-core", "did-key", "did-web", "key-rotation", "zkp-support", "local-first", "pwa-support", "webauthn", "offline-support"]
+
+# Storage backends
+sqlite = ["sqlx"]
+postgres = ["sqlx"]
+mysql = ["sqlx"]
+redis = ["dep:redis"]
+
+# Authentication methods
+oauth = ["reqwest"]
+jwt-hs256 = []
+jwt-rs256 = []
+all-jwt = ["jwt-hs256", "jwt-rs256"]
+
+# DID and Identity features
+did-core = []  # W3C DID Core v1.0 support
+did-key = []  # did:key method implementation
+did-web = []  # did:web method implementation
+key-rotation = []  # Hierarchical key management
+zkp-support = []  # Zero-knowledge proof integration
+local-first = []  # Local-first storage with encryption
+
+# PWA and Browser features
+pwa-support = ["webauthn-rs", "web-sys", "wasm-bindgen", "js-sys"]
+webauthn = ["webauthn-rs"]
+offline-support = []
+service-worker = []
+
+# Legacy features (maintained for backward compatibility)
+password-strength = []
+two-factor = []
+audit-logging = []
+
