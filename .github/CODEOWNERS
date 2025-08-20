@@ -1,0 +1,25 @@
+# This file defines code ownership for automatic review requests
+# Each line is a file pattern followed by one or more owners
+
+# Global owners (will be requested for review on all PRs)
+* @milesfuller
+
+# Core infrastructure
+/crates/core/ @milesfuller
+/crates/observability/ @milesfuller
+
+# Critical security components
+/crates/security/ @milesfuller
+/crates/core/synapsed-crypto/ @milesfuller
+
+# Intent verification system
+/crates/intent/ @milesfuller
+
+# CI/CD and build configuration
+/.github/ @milesfuller
+/Cargo.toml @milesfuller
+/rust-toolchain.toml @milesfuller
+
+# Documentation
+/README.md @milesfuller
+/docs/ @milesfuller
