@@ -1,0 +1,64 @@
+[package]
+name = "synapsed-verify"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Team"]
+description = "Multi-strategy verification for intent execution and agent claims"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/synapsed-me/synapsed"
+keywords = ["verification", "intent", "testing", "validation", "proof"]
+categories = ["development-tools::testing", "asynchronous"]
+
+[dependencies]
+# Core dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-intent = { path = "../synapsed-intent" }
+synapsed-promise = { path = "../synapsed-promise" }
+synapsed-substrates = { path = "../../observability/synapsed-substrates" }
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# Process execution
+tokio-process = "0.2"
+which = "6.0"
+
+# File system
+walkdir = "2.4"
+notify = "6.1"
+tempfile = "3.8"
+
+# Network
+reqwest = { version = "0.11", features = ["json"] }
+hyper = "0.14"
+
+# Data structures
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+regex = "1.10"
+
+# Cryptography for proofs
+sha2 = "0.10"
+blake3 = "1.5"
+ed25519-dalek = "2.1"
+rand = "0.8"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.4"
+criterion = "0.5"
+mockito = "1.2"
+
+[[bench]]
+name = "verify_bench"
+harness = false
