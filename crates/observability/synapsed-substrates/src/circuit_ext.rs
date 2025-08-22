@@ -1,7 +1,8 @@
 //! Extension trait for Circuit with generic methods
 //! This pattern allows the core Circuit trait to remain object-safe while providing the full Java API
 
-use crate::circuit::{Circuit, Closure, Composer, Conduit, Container, Current};
+use crate::circuit::{Circuit, Closure, Conduit, Container, Current};
+use crate::percept::Composer;
 use crate::pipe::{Path, Sequencer};
 use crate::types::{Name, SubstratesResult};
 use crate::{async_trait, Subject};

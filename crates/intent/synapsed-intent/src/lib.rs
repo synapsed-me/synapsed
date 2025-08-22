@@ -8,12 +8,14 @@ pub mod tree;
 pub mod context;
 pub mod checkpoint;
 pub mod types;
+pub mod observability;
 
 pub use intent::{HierarchicalIntent, IntentBuilder};
 pub use tree::{IntentTree, IntentForest, IntentRelation};
 pub use context::{IntentContext, ContextBuilder};
 pub use checkpoint::{IntentCheckpoint, CheckpointManager};
 pub use types::*;
+pub use observability::{ObservableIntent, ObservableIntentBuilder, IntentMonitor};
 
 // Re-export commonly used types
 pub use crate::types::Step;

@@ -15,33 +15,49 @@
 //! - **Subject**: Hierarchical reference system for observing and addressing entities
 //! - **Cortex**: Bootstrap entry point into the Substrates runtime
 
+pub mod channel;
 pub mod circuit;
 pub mod circuit_ext;
 pub mod cortex;
 pub mod cortex_ext;
+pub mod percept;
 pub mod pipe;
 pub mod path_ext;
+pub mod queue;
 pub mod scope_ext;
+pub mod sink;
 pub mod source;
 pub mod subject;
 pub mod subject_ext;
+pub mod subscription;
 pub mod types;
 
 // Re-export main interfaces - avoiding conflicts
+pub use channel::{BasicChannel, BasicConduit};
 pub use circuit::{
-    BasicChannel, BasicCircuit, BasicCurrent, BasicQueue, BasicScope, Channel, Circuit, Clock, 
-    ClockCycle, Closure, Composer, Conduit, Container, Current, IdentityComposer, Inlet, 
-    PipeComposer, Pool, Queue, Scope, Script, Sink, Tap,
+    BasicCircuit, BasicCurrent, BasicQueue, BasicScope, Channel, Circuit, Clock, 
+    ClockCycle, Closure, Conduit, Container, Current, Inlet, 
+    Pool, Queue, Scope, Script, Sink, Tap,
 };
 pub use circuit_ext::{CircuitExt, ClosureExt, CurrentExt};
 pub use cortex::{create_cortex, Cortex, DefaultCortex};
 pub use cortex_ext::CortexExt;
 pub use path_ext::PathExt;
+pub use percept::{
+    Composer, IdentityComposer, MappingComposer, PipeComposer, 
+    TypedComposer, TypedPercept,
+};
 pub use scope_ext::ScopeExt;
 pub use pipe::{
     Assembly, Capture, EmptyPipe, FunctionPipe, Path, Pipe, Sequencer, Sift,
 };
+pub use queue::{
+    AdvancedCurrent, CompositeScript, ManagedQueue, Priority, QueueStats,
+    RetryScript, TimeoutScript,
+};
+pub use sink::{BasicSink, BatchingSink, FilteredSink};
 pub use source::{BasicRegistrar, BasicSource, BasicSubscription, FunctionSubscriber, Source};
+pub use subscription::{ConduitSource, ManagedSource, ManagedSubscription};
 pub use subject::{
     Component, Context, DynComponent, DynContext, DynRegistrar, DynSubscriber,
     Registrar, Resource, Subject, Subscriber, Subscription, Substrate,

@@ -40,6 +40,12 @@ impl Id {
     pub fn as_uuid(&self) -> &Uuid {
         &self.0
     }
+    
+    pub fn from_string(s: &str) -> Self {
+        // Try to parse as UUID, or create new one if it fails
+        let uuid = Uuid::parse_str(s).unwrap_or_else(|_| Uuid::new_v4());
+        Self(uuid)
+    }
 }
 
 impl Default for Id {
@@ -268,6 +274,8 @@ pub enum SubjectType {
     Clock,
     Conduit,
     Container,
+    Current,
+    Queue,
     Source,
     Scope,
     Script,

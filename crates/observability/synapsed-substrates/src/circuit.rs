@@ -1,5 +1,6 @@
 //! Circuit, Conduit, and Channel implementations - core of Substrates API
 
+use crate::percept::Composer;
 use crate::pipe::{Pipe, Path, Sequencer};
 use crate::subject::{Component, Resource, Substrate};
 use crate::types::{Name, State, SubjectType, SubstratesError, SubstratesResult};
@@ -61,70 +62,11 @@ impl ClockCycle {
     }
 }
 
-/// Composer that forms percepts around a channel
-/// Direct port of Java Substrates Composer interface
-pub trait Composer<P, E>: Send + Sync {
-    /// Composes a channel into a percept
-    fn compose(&self, channel: Arc<dyn Channel<E>>) -> SubstratesResult<P>;
-}
+// Composer trait moved to percept.rs module
 
-/// Identity composer implementation
-#[derive(Debug)]
-pub struct IdentityComposer<E> {
-    _phantom: std::marker::PhantomData<E>,
-}
+// IdentityComposer moved to percept.rs module
 
-impl<E> IdentityComposer<E> {
-    pub fn new() -> Self {
-        Self {
-            _phantom: std::marker::PhantomData,
-        }
-    }
-}
-
-impl<E> Default for IdentityComposer<E> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<E> Composer<Arc<dyn Channel<E>>, E> for IdentityComposer<E>
-where
-    E: Send + Sync + 'static,
-{
-    fn compose(&self, channel: Arc<dyn Channel<E>>) -> SubstratesResult<Arc<dyn Channel<E>>> {
-        Ok(channel)
-    }
-}
-
-/// Pipe composer implementation
-#[derive(Debug)]
-pub struct PipeComposer<E> {
-    _phantom: std::marker::PhantomData<E>,
-}
-
-impl<E> PipeComposer<E> {
-    pub fn new() -> Self {
-        Self {
-            _phantom: std::marker::PhantomData,
-        }
-    }
-}
-
-impl<E> Default for PipeComposer<E> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<E> Composer<Arc<dyn Pipe<E>>, E> for PipeComposer<E>
-where
-    E: Send + Sync + 'static,
-{
-    fn compose(&self, channel: Arc<dyn Channel<E>>) -> SubstratesResult<Arc<dyn Pipe<E>>> {
-        Channel::pipe(&*channel)
-    }
-}
+// PipeComposer moved to percept.rs module
 
 /// Creates percepts that emit captured data into pipes
 /// Direct port of Java Substrates Conduit interface
@@ -197,7 +139,7 @@ pub trait Script: Send + Sync {
 /// Interface that provides efficient access to a circuit's work queue
 /// Direct port of Java Substrates Current interface
 #[async_trait]
-pub trait Current: Substrate {
+pub trait Current: Substrate + Send + Sync {
     // Generic method moved to CurrentExt for object-safety
 }
 
@@ -599,8 +541,8 @@ where
     E: Send + Sync + 'static,
 {
     fn get(&self, name: &Name) -> SubstratesResult<P> {
-        let channel = BasicChannel::<E>::new(name.clone());
-        self.composer.compose(Arc::new(channel))
+        let channel = crate::channel::BasicChannel::<E>::new(name.clone());
+        Ok(self.composer.compose(Arc::new(channel)))
     }
 }
 
@@ -687,10 +629,10 @@ where
     fn get(&self, name: &Name) -> SubstratesResult<P> {
         let mut channels = self.channels.write();
         let channel = channels.entry(name.clone())
-            .or_insert_with(|| Arc::new(BasicChannel::<E>::new(name.clone())))
+            .or_insert_with(|| Arc::new(crate::channel::BasicChannel::<E>::new(name.clone())))
             .clone();
         
-        self.composer.compose(channel)
+        Ok(self.composer.compose(channel))
     }
 }
 
@@ -701,136 +643,4 @@ where
 {
 }
 
-/// Basic implementation of Channel
-pub struct BasicChannel<E> {
-    subject: Subject,
-    pipes: parking_lot::RwLock<Vec<Arc<dyn Pipe<E>>>>,
-}
-
-impl<E> std::fmt::Debug for BasicChannel<E> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("BasicChannel")
-            .field("subject", &self.subject)
-            .field("pipes_count", &self.pipes.read().len())
-            .finish()
-    }
-}
-
-impl<E> BasicChannel<E> {
-    pub fn new(name: Name) -> Self {
-        Self {
-            subject: Subject::new(name, SubjectType::Channel),
-            pipes: parking_lot::RwLock::new(Vec::new()),
-        }
-    }
-}
-
-impl<E> Substrate for BasicChannel<E> {
-    fn subject(&self) -> &Subject {
-        &self.subject
-    }
-}
-
-impl<E> Inlet<E> for BasicChannel<E>
-where
-    E: Send + Sync + 'static,
-{
-    fn pipe(&self) -> SubstratesResult<Arc<dyn Pipe<E>>> {
-        Ok(Arc::new(ChannelPipe {
-            channel: self.subject.clone(),
-            _phantom: std::marker::PhantomData,
-        }))
-    }
-}
-
-#[async_trait]
-impl<E> Channel<E> for BasicChannel<E>
-where
-    E: Send + Sync + 'static,
-{
-    fn pipe(&self) -> SubstratesResult<Arc<dyn Pipe<E>>> {
-        Inlet::pipe(self)
-    }
-    
-    fn pipe_with_sequencer(
-        &self,
-        sequencer: Arc<dyn Sequencer<dyn Path<E>>>,
-    ) -> SubstratesResult<Arc<dyn Pipe<E>>> {
-        // Create a pipe that applies the sequencer
-        let (sender, mut receiver) = mpsc::unbounded_channel::<E>();
-        let channel = self.subject.clone();
-        
-        // Spawn task to process sequenced emissions
-        tokio::spawn(async move {
-            while let Some(emission) = receiver.recv().await {
-                // In a real implementation, sequencer would transform emissions
-                tracing::debug!("Processing sequenced emission for channel {:?}", channel);
-                drop(emission);
-            }
-        });
-        
-        Ok(Arc::new(SequencedPipe {
-            channel: self.subject.clone(),
-            sequencer,
-            sender,
-        }))
-    }
-}
-
-/// Pipe implementation for channels
-struct ChannelPipe<E> {
-    channel: Subject,
-    _phantom: std::marker::PhantomData<E>,
-}
-
-/// Sequenced pipe that applies a sequencer to emissions
-struct SequencedPipe<E> {
-    channel: Subject,
-    sequencer: Arc<dyn Sequencer<dyn Path<E>>>,
-    sender: mpsc::UnboundedSender<E>,
-}
-
-impl<E> std::fmt::Debug for ChannelPipe<E> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ChannelPipe")
-            .field("channel", &self.channel)
-            .finish()
-    }
-}
-
-impl<E> std::fmt::Debug for SequencedPipe<E> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("SequencedPipe")
-            .field("channel", &self.channel)
-            .finish()
-    }
-}
-
-#[async_trait]
-impl<E> Pipe<E> for SequencedPipe<E>
-where
-    E: Send + Sync + 'static,
-{
-    async fn emit(&mut self, emission: E) -> SubstratesResult<()> {
-        // Send emission through the channel for sequenced processing
-        self.sender
-            .send(emission)
-            .map_err(|_| SubstratesError::ChannelError("Sequenced pipe closed".to_string()))?;
-        Ok(())
-    }
-}
-
-#[async_trait]
-impl<E> Pipe<E> for ChannelPipe<E>
-where
-    E: Send + Sync + 'static,
-{
-    async fn emit(&mut self, emission: E) -> SubstratesResult<()> {
-        // Emit to the channel's subject
-        // In a real implementation, this would route through the conduit
-        tracing::debug!("Emitting to channel {:?}", self.channel);
-        // Store the emission in the subject's state if needed
-        drop(emission); // Consume the emission
-        Ok(())
-    }
-}
+// BasicChannel implementation moved to channel.rs module

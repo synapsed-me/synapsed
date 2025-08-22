@@ -114,7 +114,7 @@ async fn test_composer_identity() {
     // IdentityComposer<E> implements Composer<Arc<dyn Channel<E>>, E>
     let composer = IdentityComposer::<String>::new();
     let channel: Arc<dyn Channel<String>> = Arc::new(BasicChannel::<String>::new(Name::from_part("test")));
-    let result = composer.compose(channel.clone()).unwrap();
+    let result = composer.compose(channel.clone());
     // Identity composer returns the same channel
     assert!(Arc::ptr_eq(&result, &channel));
 }
