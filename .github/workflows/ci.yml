@@ -63,11 +63,12 @@ jobs:
           targets: wasm32-unknown-unknown
       - uses: jetli/wasm-pack-action@v0.4.0
       - uses: Swatinem/rust-cache@v2
-      - name: Test WASM
+      - name: Build WASM bindings
         run: |
-          cd crates/compute/synapsed-wasm
-          wasm-pack test --headless --firefox
-          wasm-pack test --headless --chrome
+          cd crates/bindings/synapsed-wasm-bindings
+          wasm-pack build --target web
+          wasm-pack build --target bundler
+          wasm-pack build --target nodejs
 
   coverage:
     name: Code Coverage

@@ -1,0 +1,17 @@
+[package]
+name = "intent-verification-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+synapsed-intent = { path = "../../crates/intent/synapsed-intent" }
+synapsed-verify = { path = "../../crates/intent/synapsed-verify" }
+synapsed-substrates = { path = "../../crates/observability/synapsed-substrates" }
+tokio = { version = "1.41", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.11", features = ["v4"] }
+chrono = "0.4"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

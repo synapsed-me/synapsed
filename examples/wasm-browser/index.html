@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapsed WASM Browser Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .output {
+            background: #f7f7f7;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status.pending { background: #fef3c7; color: #92400e; }
+        .status.executing { background: #dbeafe; color: #1e40af; }
+        .status.completed { background: #d1fae5; color: #065f46; }
+        .status.failed { background: #fee2e2; color: #991b1b; }
+        
+        .loader {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loader.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Synapsed WASM Browser Demo</h1>
+        
+        <!-- Intent Management -->
+        <div class="card">
+            <h2>Intent Management</h2>
+            <div class="controls">
+                <input type="text" id="intentGoal" placeholder="Enter intent goal..." value="Process user data">
+                <select id="intentPriority">
+                    <option value="low">Low Priority</option>
+                    <option value="normal" selected>Normal Priority</option>
+                    <option value="high">High Priority</option>
+                    <option value="critical">Critical Priority</option>
+                </select>
+                <button onclick="createIntent()">Create Intent</button>
+                <button onclick="executeIntent()">Execute Intent</button>
+                <button onclick="verifyIntent()">Verify Intent</button>
+            </div>
+            <div class="output" id="intentOutput">Intent output will appear here...</div>
+        </div>
+        
+        <!-- Promise Cooperation -->
+        <div class="card">
+            <h2>Promise Theory</h2>
+            <div class="controls">
+                <input type="text" id="promiseBody" placeholder="Promise body..." value="Complete task in 5 seconds">
+                <input type="text" id="promiser" placeholder="Promiser" value="agent1">
+                <input type="text" id="promisee" placeholder="Promisee" value="agent2">
+                <button onclick="createPromise()">Create Promise</button>
+                <button onclick="acceptPromise()">Accept Promise</button>
+                <button onclick="fulfillPromise()">Fulfill Promise</button>
+            </div>
+            <div class="output" id="promiseOutput">Promise output will appear here...</div>
+        </div>
+        
+        <!-- Trust Model -->
+        <div class="card">
+            <h2>Trust Model</h2>
+            <div class="controls">
+                <input type="text" id="agentId" placeholder="Agent ID" value="agent1">
+                <input type="number" id="trustScore" placeholder="Initial trust" value="0.7" min="0" max="1" step="0.1">
+                <button onclick="addAgent()">Add Agent</button>
+                <button onclick="updateTrust(true)">Promise Fulfilled ✓</button>
+                <button onclick="updateTrust(false)">Promise Violated ✗</button>
+                <button onclick="getTrustScore()">Get Trust Score</button>
+            </div>
+            <div class="output" id="trustOutput">Trust model output will appear here...</div>
+        </div>
+        
+        <!-- Verification -->
+        <div class="card">
+            <h2>Verification Strategies</h2>
+            <div class="controls">
+                <input type="text" id="commandToVerify" placeholder="Command" value="ls -la">
+                <input type="text" id="expectedOutput" placeholder="Expected output" value="file1.txt">
+                <button onclick="verifyCommand()">Verify Command</button>
+                <button onclick="verifyFile()">Verify File</button>
+                <button onclick="compositeVerify()">Composite Verification</button>
+            </div>
+            <div class="output" id="verificationOutput">Verification output will appear here...</div>
+        </div>
+        
+        <!-- Observability Metrics -->
+        <div class="card">
+            <h2>Observability Metrics</h2>
+            <div class="controls">
+                <button onclick="startObservation()">Start Observation</button>
+                <button onclick="recordMetric()">Record Metric</button>
+                <button onclick="emitEvent()">Emit Event</button>
+                <button onclick="getSummary()">Get Summary</button>
+            </div>
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">Events Emitted</div>
+                    <div class="metric-value" id="eventCount">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Metrics Recorded</div>
+                    <div class="metric-value" id="metricCount">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Operations</div>
+                    <div class="metric-value" id="operationCount">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Avg Response Time</div>
+                    <div class="metric-value" id="avgResponseTime">0ms</div>
+                </div>
+            </div>
+            <div class="output" id="observabilityOutput">Observability output will appear here...</div>
+        </div>
+        
+        <div class="loader" id="loader"></div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+[package]
+name = "synapsed-wasm-bindings"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Team"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/synapsed-me/synapsed"
+homepage = "https://synapsed.me"
+documentation = "https://docs.synapsed.me"
+description = "WASM bindings for the Synapsed framework - verifiable AI agent systems in the browser"
+keywords = ["wasm", "ai", "agents", "verification", "observability"]
+categories = ["wasm", "web-programming", "api-bindings"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+synapsed-intent = { path = "../../intent/synapsed-intent", default-features = false }
+synapsed-promise = { path = "../../intent/synapsed-promise", default-features = false }
+synapsed-verify = { path = "../../intent/synapsed-verify", default-features = false }
+synapsed-substrates = { path = "../../observability/synapsed-substrates", default-features = false }
+
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = ["console"] }
+console_error_panic_hook = { version = "0.1", optional = true }
+uuid = { version = "1.10", features = ["v4", "js"] }
+
+# Use getrandom with js feature for browser randomness
+getrandom = { version = "0.2", features = ["js"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[features]
+default = ["console_error_panic_hook"]
+
+[profile.release]
+# Optimize for small code size
+opt-level = "s"
+lto = true
+
+[package.metadata.wasm-pack]
+"wasm-opt" = ["-Os"]

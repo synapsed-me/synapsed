@@ -35,8 +35,10 @@ members = [
     
     # Applications
     "crates/applications/synapsed-payments", "crates/applications/synapsed-mcp",
-    # "crates/applications/synapsed-mcp",  # TODO: Create
     # "crates/applications/synapsed-cli",  # TODO: Create
+    
+    # Bindings
+    "crates/bindings/synapsed-wasm-bindings",
     
     # Testing
     # "tests",     # TODO: Re-enable after fixing compilation

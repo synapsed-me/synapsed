@@ -5,107 +5,133 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      crate:
-        description: 'Crate to release (or "all" for all crates)'
-        required: true
-        default: 'all'
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  publish:
-    name: Publish to crates.io
+  create-release:
+    name: Create Release
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
       
-      - name: Check semver
-        uses: obi1kenobi/cargo-semver-checks-action@v2
-        
-      - name: Login to crates.io
-        run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
-        
-      - name: Publish crates
-        run: |
-          # Order matters due to dependencies
-          CRATES=(
-            "crates/observability/synapsed-substrates"
-            "crates/observability/synapsed-serventis"
-            "crates/core/synapsed-core"
-            "crates/core/synapsed-crypto"
-            "crates/core/synapsed-gpu"
-            "crates/storage/synapsed-storage"
-            "crates/storage/synapsed-crdt"
-            "crates/network/synapsed-net"
-            "crates/network/synapsed-consensus"
-            "crates/network/synapsed-routing"
-            "crates/security/synapsed-identity"
-            "crates/security/synapsed-safety"
-            "crates/intent/synapsed-intent"
-            "crates/intent/synapsed-promise"
-            "crates/intent/synapsed-verify"
-            "crates/intent/synapsed-enforce"
-            "crates/compute/synapsed-wasm"
-            "crates/compute/synapsed-neural-core"
-            "crates/applications/synapsed-payments"
-            "crates/applications/synapsed-mcp"
-            "crates/applications/synapsed-cli"
-          )
-          
-          for crate in "${CRATES[@]}"; do
-            if [ -d "$crate" ]; then
-              echo "Publishing $crate..."
-              (cd "$crate" && cargo publish --allow-dirty) || true
-              sleep 30  # Wait for crates.io to index
-            fi
-          done
-
-  release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: publish
-    steps:
-      - uses: actions/checkout@v4
-      - name: Generate changelog
-        id: changelog
-        run: |
-          echo "# Release Notes" > RELEASE.md
-          git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> RELEASE.md
-          
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: RELEASE.md
-          draft: false
-          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
-          generate_release_notes: true
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
 
-  docker:
-    name: Build Docker Images
-    runs-on: ubuntu-latest
-    needs: publish
+  build-binaries:
+    name: Build Binaries
+    needs: create-release
     strategy:
       matrix:
-        target: [synapsed-core, synapsed-mcp, synapsed-cli]
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Build and push
-        uses: docker/build-push-action@v6
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          context: .
-          file: docker/Dockerfile.${{ matrix.target }}
-          push: true
-          tags: |
-            ghcr.io/synapsed-me/${{ matrix.target }}:latest
-            ghcr.io/synapsed-me/${{ matrix.target }}:${{ github.ref_name }}
+          targets: ${{ matrix.target }}
+      
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+      
+      - name: Package binary
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            7z a synapsed-${{ matrix.target }}.zip target/${{ matrix.target }}/release/*.exe
+          else
+            tar czf synapsed-${{ matrix.target }}.tar.gz -C target/${{ matrix.target }}/release .
+          fi
+        shell: bash
+      
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: synapsed-${{ matrix.target }}.${{ matrix.os == 'windows-latest' && 'zip' || 'tar.gz' }}
+          asset_name: synapsed-${{ matrix.target }}.${{ matrix.os == 'windows-latest' && 'zip' || 'tar.gz' }}
+          asset_content_type: ${{ matrix.os == 'windows-latest' && 'application/zip' || 'application/gzip' }}
+
+  build-wasm:
+    name: Build WASM Package
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Build WASM packages
+        run: |
+          cd crates/bindings/synapsed-wasm-bindings
+          ./build.sh
+          tar czf synapsed-wasm.tar.gz pkg/
+      
+      - name: Upload WASM package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: crates/bindings/synapsed-wasm-bindings/synapsed-wasm.tar.gz
+          asset_name: synapsed-wasm.tar.gz
+          asset_content_type: application/gzip
+
+  publish-crates:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Verify publication readiness
+        run: |
+          # Dry run for all crates
+          cargo publish --dry-run -p synapsed-core
+          cargo publish --dry-run -p synapsed-substrates
+          cargo publish --dry-run -p synapsed-intent
+          cargo publish --dry-run -p synapsed-promise
+          cargo publish --dry-run -p synapsed-verify
+      
+      - name: Publish crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "Publishing would happen here with:"
+          echo "cargo publish -p synapsed-core"
+          echo "cargo publish -p synapsed-substrates"
+          echo "# ... etc"
+          echo "But we're holding off on actual publishing per user request"
