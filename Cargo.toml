@@ -1,5 +1,6 @@
 [workspace]
 resolver = "2"
+exclude = ["examples/*"]
 members = [
     # Observability Foundation
     "crates/observability/synapsed-substrates",
@@ -31,7 +32,7 @@ members = [
     
     # Compute & Runtime
     "crates/compute/synapsed-wasm",
-    "crates/compute/synapsed-neural-core",
+    # "crates/compute/synapsed-neural-core",  # Requires CUDA features
     
     # Applications
     "crates/applications/synapsed-payments", "crates/applications/synapsed-mcp",
