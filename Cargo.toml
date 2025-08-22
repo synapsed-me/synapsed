@@ -34,7 +34,7 @@ members = [
     "crates/compute/synapsed-neural-core",
     
     # Applications
-    "crates/applications/synapsed-payments",
+    "crates/applications/synapsed-payments", "crates/applications/synapsed-mcp",
     # "crates/applications/synapsed-mcp",  # TODO: Create
     # "crates/applications/synapsed-cli",  # TODO: Create
     
