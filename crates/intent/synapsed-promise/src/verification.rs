@@ -1,7 +1,7 @@
 //! Verification mechanisms for promises and agent actions
 
 use crate::{
-    types::*, PromiseId, Promise, Result, PromiseError
+    types::*, PromiseId, Promise, PromiseState, PromiseOutcome, Result, PromiseError
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -65,7 +65,6 @@ pub struct VerificationData {
 }
 
 /// Verification strategy
-#[derive(Debug, Clone)]
 pub enum VerificationStrategy {
     /// Single point verification
     Single(Box<dyn Verifier>),

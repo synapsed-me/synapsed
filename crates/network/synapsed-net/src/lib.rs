@@ -25,6 +25,8 @@
 #![warn(missing_docs)]
 #![warn(rustdoc::missing_crate_level_docs)]
 
+use std::collections::HashMap;
+
 pub mod config;
 pub mod compression;
 pub mod crypto;
@@ -53,20 +55,25 @@ pub use types::{PeerId, PeerInfo};
 pub use synapsed_core::{SynapsedError, SynapsedResult};
 pub use synapsed_core::traits::{Observable, Configurable, Identifiable, Validatable};
 
-// Map NetworkError to SynapsedError
+// Map NetworkError to SynapsedError  
 impl From<NetworkError> for SynapsedError {
     fn from(err: NetworkError) -> Self {
+        use error::{TransportError, SecurityError};
+        
         match err {
-            NetworkError::ConnectionFailed(msg) => SynapsedError::Network(format!("Connection failed: {}", msg)),
-            NetworkError::TransportError(msg) => SynapsedError::Network(format!("Transport error: {}", msg)),
-            NetworkError::SecurityError(msg) => SynapsedError::Cryptographic(format!("Security error: {}", msg)),
-            NetworkError::ConfigurationError(msg) => SynapsedError::Configuration(msg),
-            NetworkError::P2PError(msg) => SynapsedError::P2P(msg),
-            NetworkError::Timeout(msg) => SynapsedError::Timeout(msg),
-            NetworkError::InvalidPeer(msg) => SynapsedError::InvalidInput(format!("Invalid peer: {}", msg)),
-            NetworkError::ProtocolError(msg) => SynapsedError::Network(format!("Protocol error: {}", msg)),
-            NetworkError::InvalidAddress(msg) => SynapsedError::InvalidInput(format!("Invalid address: {}", msg)),
-            NetworkError::InvalidMessage(msg) => SynapsedError::InvalidInput(format!("Invalid message: {}", msg)),
+            NetworkError::Connection(msg) => SynapsedError::Network(format!("Connection failed: {}", msg)),
+            NetworkError::Transport(TransportError::ConnectionFailed(msg)) => SynapsedError::Network(format!("Connection failed: {}", msg)),
+            NetworkError::Transport(TransportError::Timeout) => SynapsedError::Timeout("Connection timeout".to_string()),
+            NetworkError::Transport(TransportError::InvalidAddress(msg)) => SynapsedError::InvalidInput(format!("Invalid address: {}", msg)),
+            NetworkError::Transport(e) => SynapsedError::Network(format!("Transport error: {}", e)),
+            NetworkError::Security(e) => SynapsedError::Cryptographic(format!("Security error: {}", e)),
+            NetworkError::Configuration(msg) => SynapsedError::Configuration(msg),
+            NetworkError::Protocol(msg) => SynapsedError::Network(format!("Protocol error: {}", msg)),
+            NetworkError::Privacy(e) => SynapsedError::Network(format!("Privacy error: {}", e)),
+            NetworkError::Observability(msg) => SynapsedError::Network(format!("Observability error: {}", msg)),
+            NetworkError::Io(e) => SynapsedError::Internal(format!("IO error: {}", e)),
+            NetworkError::Other(e) => SynapsedError::Network(e.to_string()),
+            NetworkError::Mock(msg) => SynapsedError::Network(format!("Mock error: {}", msg)),
         }
     }
 }
@@ -125,7 +132,9 @@ impl Identifiable for NetworkStack {
 impl Validatable for NetworkStack {
     fn validate(&self) -> SynapsedResult<()> {
         // Validate basic configuration
-        if self.config.transport.enabled_transports.is_empty() {
+        let enabled_count = [self.config.transport.enable_quic, self.config.transport.enable_webrtc, self.config.transport.enable_libp2p]
+            .iter().filter(|&&x| x).count();
+        if enabled_count == 0 {
             return Err(SynapsedError::Configuration("No transports enabled".to_string()));
         }
         
@@ -148,7 +157,9 @@ impl Observable for NetworkStack {
         
         let mut metadata = HashMap::new();
         metadata.insert("active_connections".to_string(), state.active_connections.to_string());
-        metadata.insert("enabled_transports".to_string(), self.config.transport.enabled_transports.len().to_string());
+        let enabled_count = [self.config.transport.enable_quic, self.config.transport.enable_webrtc, self.config.transport.enable_libp2p]
+            .iter().filter(|&&x| x).count();
+        metadata.insert("enabled_transports".to_string(), enabled_count.to_string());
         
         Ok(ObservableStatus {
             state: obs_state,
@@ -216,7 +227,9 @@ impl Observable for NetworkStack {
         
         let state = self.state.read().await;
         metrics.insert("active_connections".to_string(), state.active_connections as f64);
-        metrics.insert("enabled_transports".to_string(), self.config.transport.enabled_transports.len() as f64);
+        let enabled_count = [self.config.transport.enable_quic, self.config.transport.enable_webrtc, self.config.transport.enable_libp2p]
+            .iter().filter(|&&x| x).count();
+        metrics.insert("enabled_transports".to_string(), enabled_count as f64);
         metrics.insert("is_initialized".to_string(), if state.is_initialized { 1.0 } else { 0.0 });
         
         Ok(metrics)
@@ -225,7 +238,8 @@ impl Observable for NetworkStack {
     fn describe(&self) -> String {
         format!(
             "NetworkStack: {} transports enabled, {} active connections",
-            self.config.transport.enabled_transports.len(),
+            [self.config.transport.enable_quic, self.config.transport.enable_webrtc, self.config.transport.enable_libp2p]
+                .iter().filter(|&&x| x).count(),
             // We can't await here, so we'll use a default
             0 // state.active_connections - would need async
         )

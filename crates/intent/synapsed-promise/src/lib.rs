@@ -66,8 +66,8 @@ pub enum PromiseError {
 impl From<PromiseError> for synapsed_core::SynapsedError {
     fn from(err: PromiseError) -> Self {
         match err {
-            PromiseError::ValidationFailed(msg) => synapsed_core::SynapsedError::Validation(msg),
-            PromiseError::ExecutionFailed(msg) => synapsed_core::SynapsedError::Execution(msg),
+            PromiseError::ValidationFailed(msg) => synapsed_core::SynapsedError::InvalidInput(msg),
+            PromiseError::ExecutionFailed(msg) => synapsed_core::SynapsedError::Internal(msg),
             PromiseError::Network(msg) => synapsed_core::SynapsedError::Network(msg),
             _ => synapsed_core::SynapsedError::Internal(err.to_string()),
         }

@@ -206,11 +206,7 @@ impl ConsensusVerifier {
         // Add evidence from all verifiers
         for (i, verifier_result) in all_results.iter().enumerate() {
             final_result.evidence.push(Evidence {
-                evidence_type: EvidenceType::CustomThe user sent the following message:
-please commit and push
-
-Please address this message and continue with your tasks.
-,
+                evidence_type: EvidenceType::StateSnapshot,
                 data: serde_json::json!({
                     "verifier": i,
                     "success": verifier_result.success,
@@ -300,7 +296,8 @@ impl CompositeVerifier {
         // Run filesystem verification
         if let Some(ref verifier) = self.filesystem {
             if let Some(ref fs_spec) = spec.filesystem {
-                let result = verifier.verify_files_exist(&fs_spec.files).await?;
+                let file_refs: Vec<&str> = fs_spec.files.iter().map(|s| s.as_str()).collect();
+                let result = verifier.verify_files_exist(&file_refs).await?;
                 results.push(result);
             }
         }

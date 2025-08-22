@@ -25,9 +25,9 @@ members = [
     
     # Intent Framework (from IntentProof)
     "crates/intent/synapsed-intent",
-    # "crates/intent/synapsed-promise",  # TODO: Create from IntentProof
-    # "crates/intent/synapsed-verify",   # TODO: Create from IntentProof
-    # "crates/intent/synapsed-enforce",  # TODO: Create from IntentProof
+    "crates/intent/synapsed-promise",
+    "crates/intent/synapsed-verify",
+    # "crates/intent/synapsed-enforce",  # TODO: Create
     
     # Compute & Runtime
     "crates/compute/synapsed-wasm",
@@ -68,8 +68,8 @@ synapsed-routing = { path = "crates/network/synapsed-routing", version = "0.1.0"
 synapsed-identity = { path = "crates/security/synapsed-identity", version = "0.1.0" }
 synapsed-safety = { path = "crates/security/synapsed-safety", version = "0.1.0" }
 synapsed-intent = { path = "crates/intent/synapsed-intent", version = "0.1.0" }
-# synapsed-promise = { path = "crates/intent/synapsed-promise", version = "0.1.0" }
-# synapsed-verify = { path = "crates/intent/synapsed-verify", version = "0.1.0" }
+synapsed-promise = { path = "crates/intent/synapsed-promise", version = "0.1.0" }
+synapsed-verify = { path = "crates/intent/synapsed-verify", version = "0.1.0" }
 # synapsed-enforce = { path = "crates/intent/synapsed-enforce", version = "0.1.0" }
 synapsed-wasm = { path = "crates/compute/synapsed-wasm", version = "0.1.0" }
 synapsed-neural-core = { path = "crates/compute/synapsed-neural-core", version = "0.1.0" }
@@ -78,6 +78,7 @@ synapsed-payments = { path = "crates/applications/synapsed-payments", version = 
 # Async runtime
 tokio = { version = "1.41", features = ["full"] }
 async-trait = "0.1"
+futures = "0.3"
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

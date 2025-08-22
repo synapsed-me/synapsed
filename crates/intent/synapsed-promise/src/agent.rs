@@ -6,6 +6,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use dashmap::DashMap;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
@@ -87,7 +88,11 @@ impl AutonomousAgent {
     /// Creates a new autonomous agent
     pub fn new(config: AgentConfig) -> Self {
         let id = AgentId::new();
-        let substrate = synapsed_substrates::Subject::from(format!("agent.{}", id.0));
+        use synapsed_substrates::types::{Name, SubjectType};
+        let substrate = synapsed_substrates::Subject::new(
+            Name::from(format!("agent.{}", id.0).as_str()),
+            SubjectType::Source
+        );
         
         Self {
             id,
@@ -130,10 +135,12 @@ impl AutonomousAgent {
         *state = AgentState::Ready;
         
         // Emit observability event
-        self.substrate.emit("initialized", serde_json::json!({
+        // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "initialized",
             "agent_id": self.id.0,
             "capabilities": self.config.capabilities.services.clone(),
-        }));
+        });
         
         Ok(())
     }
@@ -182,11 +189,13 @@ impl AutonomousAgent {
         }
         
         // Emit observability event
-        self.substrate.emit("promise_made", serde_json::json!({
+        // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "promise_made",
             "promise_id": promise.id().0,
             "promise_type": format!("{:?}", promise.promise_type()),
             "scope": format!("{:?}", promise.scope()),
-        }));
+        });
         
         Ok(promise)
     }
@@ -208,11 +217,13 @@ impl AutonomousAgent {
         self.impositions.insert(imposition.id, imposition.clone());
         
         // Emit observability event
-        self.substrate.emit("imposition_received", serde_json::json!({
+        // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "imposition_received",
             "imposition_id": imposition.id,
             "from_agent": imposition.from.0,
             "trust_level": format!("{:?}", trust_level),
-        }));
+        });
         
         Ok(())
     }
@@ -234,10 +245,12 @@ impl AutonomousAgent {
             // Reject the imposition
             self.impositions.remove(&imposition_id);
             
-            self.substrate.emit("imposition_rejected", serde_json::json!({
+            // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "imposition_rejected",
                 "imposition_id": imposition_id,
                 "reason": if !trust_level.is_sufficient() { "insufficient_trust" } else { "cannot_fulfill" },
-            }));
+            });
             
             return Ok(None);
         }
@@ -248,10 +261,12 @@ impl AutonomousAgent {
         self.promises_accepted.insert(promise.id(), promise.clone());
         self.impositions.remove(&imposition_id);
         
-        self.substrate.emit("imposition_accepted", serde_json::json!({
+        // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "imposition_accepted",
             "imposition_id": imposition_id,
             "promise_id": promise.id().0,
-        }));
+        });
         
         Ok(Some(promise))
     }
@@ -311,11 +326,13 @@ impl AutonomousAgent {
                 .update_trust(promisor, kept, quality).await?;
         }
         
-        self.substrate.emit("promise_assessed", serde_json::json!({
+        // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "promise_assessed",
             "promise_id": promise_id.0,
             "kept": kept,
             "quality": quality,
-        }));
+        });
         
         Ok(assessment)
     }
@@ -332,9 +349,11 @@ impl AutonomousAgent {
         
         *state = AgentState::Stopped;
         
-        self.substrate.emit("shutdown", serde_json::json!({
+        // TODO: Emit event through circuit/channel when available
+        let _event = serde_json::json!({
+            "event": "shutdown",
             "agent_id": self.id.0,
-        }));
+        });
         
         Ok(())
     }
@@ -426,8 +445,8 @@ impl Observable for AutonomousAgent {
         let state = self.state.read().await;
         let obs_state = match *state {
             AgentState::Ready | AgentState::Active | AgentState::Cooperating => ObservableState::Running,
-            AgentState::Initializing => ObservableState::Starting,
-            AgentState::ShuttingDown => ObservableState::Stopping,
+            AgentState::Initializing => ObservableState::Initializing,
+            AgentState::ShuttingDown => ObservableState::ShuttingDown,
             AgentState::Stopped => ObservableState::Stopped,
             AgentState::Degraded => ObservableState::Degraded,
         };

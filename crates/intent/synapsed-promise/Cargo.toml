@@ -38,11 +38,14 @@ petgraph = "0.6"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
+# Cryptography for verification
+sha2 = "0.10"
+
 [dev-dependencies]
 tokio-test = "0.4"
 proptest = "1.4"
 criterion = "0.5"
 
-[[bench]]
-name = "promise_bench"
-harness = false
+# [[bench]]
+# name = "promise_bench"
+# harness = false

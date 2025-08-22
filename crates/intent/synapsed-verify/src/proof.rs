@@ -4,7 +4,7 @@ use crate::{types::*, Result, VerifyError};
 use serde::{Deserialize, Serialize};
 use sha2::{Sha256, Digest};
 use blake3;
-use ed25519_dalek::{Keypair, PublicKey, Signature, Signer, Verifier as Ed25519Verifier};
+use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier as Ed25519Verifier};
 use rand::rngs::OsRng;
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -107,8 +107,8 @@ pub struct ChainMetadata {
 
 /// Proof generator for creating cryptographic proofs
 pub struct ProofGenerator {
-    /// Signing keypair
-    keypair: Option<Keypair>,
+    /// Signing key
+    signing_key: Option<SigningKey>,
     /// Proof chains
     chains: HashMap<Uuid, ProofChain>,
     /// Individual proofs
@@ -119,7 +119,7 @@ impl ProofGenerator {
     /// Creates a new proof generator
     pub fn new() -> Self {
         Self {
-            keypair: None,
+            signing_key: None,
             chains: HashMap::new(),
             proofs: HashMap::new(),
         }
@@ -128,10 +128,10 @@ impl ProofGenerator {
     /// Creates a proof generator with signing capability
     pub fn with_signing() -> Self {
         let mut csprng = OsRng;
-        let keypair = Keypair::generate(&mut csprng);
+        let signing_key = SigningKey::from_bytes(&rand::random());
         
         Self {
-            keypair: Some(keypair),
+            signing_key: Some(signing_key),
             chains: HashMap::new(),
             proofs: HashMap::new(),
         }
@@ -178,9 +178,9 @@ impl ProofGenerator {
         // Calculate Merkle root
         let merkle_root = self.calculate_merkle_root(&summaries)?;
         
-        // Sign if keypair available
-        let signature = if let Some(ref keypair) = self.keypair {
-            Some(self.sign_proof(&merkle_root, keypair)?)
+        // Sign if signing key available
+        let signature = if let Some(ref signing_key) = self.signing_key {
+            Some(self.sign_proof(&merkle_root, signing_key)?)
         } else {
             None
         };
@@ -245,11 +245,11 @@ impl ProofGenerator {
         chain_id: Uuid,
         verifications: Vec<VerificationResult>,
     ) -> Result<VerificationProof> {
-        let chain = self.chains.get_mut(&chain_id)
-            .ok_or_else(|| VerifyError::ProofError("Chain not found".to_string()))?;
-        
-        let previous_proof = chain.head;
-        let chain_height = chain.proofs.len() as u64;
+        let (previous_proof, chain_height) = {
+            let chain = self.chains.get(&chain_id)
+                .ok_or_else(|| VerifyError::ProofError("Chain not found".to_string()))?;
+            (chain.head, chain.proofs.len() as u64)
+        };
         
         let proof = self.generate_proof_with_metadata(
             verifications,
@@ -262,10 +262,13 @@ impl ProofGenerator {
             }
         ).await?;
         
-        chain.proofs.push(proof.clone());
-        chain.head = proof.id;
-        chain.metadata.updated_at = Utc::now();
-        chain.metadata.total_verifications += proof.verifications.len();
+        // Update the chain
+        if let Some(chain) = self.chains.get_mut(&chain_id) {
+            chain.proofs.push(proof.clone());
+            chain.head = proof.id;
+            chain.metadata.updated_at = Utc::now();
+            chain.metadata.total_verifications += proof.verifications.len();
+        }
         
         Ok(proof)
     }
@@ -279,15 +282,18 @@ impl ProofGenerator {
                 ));
             }
             
-            let public_key = PublicKey::from_bytes(&sig.public_key)
+            let key_bytes: [u8; 32] = sig.public_key.as_slice().try_into()
+                .map_err(|_| VerifyError::ProofError("Invalid public key length".to_string()))?;
+            let verifying_key = VerifyingKey::from_bytes(&key_bytes)
                 .map_err(|e| VerifyError::ProofError(format!("Invalid public key: {}", e)))?;
             
-            let signature = Signature::from_bytes(&sig.signature)
-                .map_err(|e| VerifyError::ProofError(format!("Invalid signature: {}", e)))?;
+            let sig_bytes: [u8; 64] = sig.signature.as_slice().try_into()
+                .map_err(|_| VerifyError::ProofError("Invalid signature length".to_string()))?;
+            let signature = Signature::from_bytes(&sig_bytes);
             
             let message = proof.merkle_root.as_bytes();
             
-            Ok(public_key.verify(message, &signature).is_ok())
+            Ok(verifying_key.verify(message, &signature).is_ok())
         } else {
             // No signature to verify
             Ok(true)
@@ -371,11 +377,12 @@ impl ProofGenerator {
         Ok(hex::encode(&hashes[0]))
     }
     
-    fn sign_proof(&self, merkle_root: &str, keypair: &Keypair) -> Result<ProofSignature> {
-        let signature = keypair.sign(merkle_root.as_bytes());
+    fn sign_proof(&self, merkle_root: &str, signing_key: &SigningKey) -> Result<ProofSignature> {
+        let signature = signing_key.sign(merkle_root.as_bytes());
+        let verifying_key = signing_key.verifying_key();
         
         Ok(ProofSignature {
-            public_key: keypair.public.to_bytes().to_vec(),
+            public_key: verifying_key.to_bytes().to_vec(),
             signature: signature.to_bytes().to_vec(),
             algorithm: SignatureAlgorithm::Ed25519,
         })

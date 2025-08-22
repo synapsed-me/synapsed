@@ -16,7 +16,7 @@ pub use checkpoint::{IntentCheckpoint, CheckpointManager};
 pub use types::*;
 
 // Re-export commonly used types
-pub use crate::intent::Step;
+pub use crate::types::Step;
 
 /// Result type for intent operations
 pub type Result<T> = std::result::Result<T, IntentError>;

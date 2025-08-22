@@ -55,11 +55,12 @@ where
     S: Stream<Item = Bytes> + Unpin,
 {
     pub fn new(stream: S, engine: Arc<dyn CompressionEngine>, config: StreamConfig) -> Self {
+        let buffer_size = config.buffer_size;
         Self {
             inner: stream,
             engine,
             config,
-            buffer: BytesMut::with_capacity(config.buffer_size),
+            buffer: BytesMut::with_capacity(buffer_size),
             finished: false,
         }
     }

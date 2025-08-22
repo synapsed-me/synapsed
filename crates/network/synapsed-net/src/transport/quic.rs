@@ -49,9 +49,8 @@ impl QuicTransport {
         let cert = rcgen::generate_simple_self_signed(vec!["localhost".to_string()])
             .map_err(|e| NetworkError::Transport(TransportError::Quic(e.to_string())))?;
         
-        let cert_der = cert.serialize_der()
-            .map_err(|e| NetworkError::Transport(TransportError::Quic(e.to_string())))?;
-        let key_der = cert.serialize_private_key_der();
+        let cert_der = cert.cert.der().to_vec();
+        let key_der = cert.key_pair.serialize_der();
         
         let cert_chain = vec![CertificateDer::from(cert_der)];
         let private_key = PrivateKeyDer::try_from(key_der)

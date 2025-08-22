@@ -74,8 +74,8 @@ pub enum VerifyError {
 impl From<VerifyError> for SynapsedError {
     fn from(err: VerifyError) -> Self {
         match err {
-            VerifyError::VerificationFailed(msg) => SynapsedError::Validation(msg),
-            VerifyError::CommandError(msg) => SynapsedError::Execution(msg),
+            VerifyError::VerificationFailed(msg) => SynapsedError::InvalidInput(msg),
+            VerifyError::CommandError(msg) => SynapsedError::Internal(msg),
             VerifyError::NetworkError(msg) => SynapsedError::Network(msg),
             VerifyError::Timeout(msg) => SynapsedError::Timeout(msg),
             _ => SynapsedError::Internal(err.to_string()),
@@ -127,7 +127,7 @@ impl Verifier {
     
     /// Verifies file system state
     pub async fn verify_files(
-        &self,
+        &mut self,
         paths: &[&str],
         expected_state: FileSystemSnapshot,
     ) -> Result<FileVerification> {

@@ -1,7 +1,7 @@
 //! Adaptive compression algorithm selection
 
 use crate::compression::{
-    engine::{CompressionEngine, CompressionResult, CompressionStats},
+    engine::{CompressionEngine, CompressionResult, CompressionStats, CompressionError},
     algorithms::{Algorithm, ZstandardCompressor, Lz4Compressor, NoopCompressor},
 };
 use std::collections::HashMap;

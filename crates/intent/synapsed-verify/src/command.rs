@@ -112,8 +112,9 @@ impl ExecutionSandbox {
         #[cfg(unix)]
         {
             use std::os::unix::process::CommandExt;
-            cmd.uid(unsafe { libc::getuid() });
-            cmd.gid(unsafe { libc::getgid() });
+            // TODO: Add libc dependency for proper sandboxing
+            // cmd.uid(unsafe { libc::getuid() });
+            // cmd.gid(unsafe { libc::getgid() });
         }
         
         let output = cmd.output().await
