@@ -4,7 +4,7 @@ Self-aware safety mechanisms, constraint engines, and automatic rollback systems
 
 ## Overview
 
-This crate provides comprehensive safety guarantees for distributed systems through formal constraint specification, real-time monitoring, and automatic recovery mechanisms. Inspired by SAFLA (Self-Aware Safety) principles.
+This crate provides comprehensive safety guarantees for distributed systems through formal constraint specification, real-time monitoring, and automatic recovery mechanisms. 
 
 ## Core Features
 

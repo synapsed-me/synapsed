@@ -20,6 +20,7 @@ pub mod capability_inference;
 pub mod tool_discovery;
 pub mod agent_profiling;
 pub mod memory;
+pub mod permission_negotiation_enhanced;
 
 pub use intent::{HierarchicalIntent, IntentBuilder};
 pub use tree::{IntentTree, IntentForest, IntentRelation};

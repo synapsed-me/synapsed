@@ -1,7 +1,6 @@
 //! Memory architecture for agent intent and context management
 //! 
-//! Inspired by SAFLA's hybrid memory system, this module provides
-//! multiple memory types for efficient storage and retrieval of
+//! This module provides multiple memory types for efficient storage and retrieval of
 //! agent experiences, knowledge, and active context.
 
 use crate::{IntentId, IntentStatus};
@@ -411,7 +410,7 @@ impl WorkingMemory {
     pub async fn decay_activations(&self, decay_rate: f64) {
         let mut items = self.active_items.write().await;
         for item in items.iter_mut() {
-            item.activation *= (1.0 - decay_rate);
+            item.activation *= 1.0 - decay_rate;
         }
         
         // Remove items with very low activation
@@ -474,7 +473,7 @@ impl HybridMemory {
     }
     
     /// Query across all memory types
-    pub async fn query(&self, query: &str) -> QueryResult {
+    pub async fn query(&self, _query: &str) -> QueryResult {
         // This would integrate with actual embedding models
         // For now, return a placeholder result
         QueryResult {
