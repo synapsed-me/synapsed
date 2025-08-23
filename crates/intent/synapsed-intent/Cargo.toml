@@ -14,6 +14,7 @@ description = "Hierarchical intent trees with verification for AI agent systems"
 synapsed-core = { workspace = true }
 synapsed-substrates = { workspace = true }
 synapsed-serventis = { workspace = true }
+synapsed-safety = { workspace = true }
 # Note: synapsed-verify and synapsed-promise depend on this crate, so we can't depend on them
 # Instead, we define verification interfaces here that they implement
 
