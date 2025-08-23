@@ -181,17 +181,22 @@ impl ResolutionCache {
     }
 
     pub fn get(&mut self, key: &str) -> Option<&CachedResult> {
-        if let Some(result) = self.cache.get(key) {
-            if !result.is_expired() {
-                self.hits += 1;
-                return Some(result);
-            } else {
-                // Remove expired entry
-                self.cache.remove(key);
-            }
+        // Check if key exists and is not expired
+        let should_remove = self.cache.get(key).map(|r| r.is_expired()).unwrap_or(false);
+        
+        if should_remove {
+            self.cache.remove(key);
+            self.misses += 1;
+            return None;
         }
-        self.misses += 1;
-        None
+        
+        if let Some(result) = self.cache.get(key) {
+            self.hits += 1;
+            Some(result)
+        } else {
+            self.misses += 1;
+            None
+        }
     }
 
     pub fn insert(&mut self, key: String, result: CachedResult) {

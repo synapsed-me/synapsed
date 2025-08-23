@@ -13,6 +13,9 @@ pub mod tools;
 pub mod resources;
 pub mod transport;
 pub mod error;
+mod intent_store;  // Internal module - not exported
+mod protocol;      // Internal module - protocol handler
+mod agent_spawner; // Internal module - agent spawning
 
 pub use server::{McpServer, ServerConfig};
 pub use tools::{IntentTools, VerificationTools};

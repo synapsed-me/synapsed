@@ -163,6 +163,10 @@ impl<S: Storage + ?Sized> Storage for ObservableStorage<S> {
         self.emit_event(EventType::Flush, None);
         self.inner.flush().await
     }
+    
+    async fn list(&self, prefix: &[u8]) -> Result<Vec<Vec<u8>>, Self::Error> {
+        self.inner.list(prefix).await
+    }
 }
 
 /// Builder for creating observable storage

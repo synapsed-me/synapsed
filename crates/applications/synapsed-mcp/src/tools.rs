@@ -125,14 +125,19 @@ impl IntentTools {
         
         let intent_id = intent.id();
         
-        // Store intent
+        // Store intent in both memory and persistent storage
         let mut state = self.state.write().await;
+        
+        // Store in persistent storage (internal)
+        let stored_id = state.intent_store.store_intent(&intent).await?;
+        
+        // Also keep in memory for quick access
         state.active_intents.insert(intent_id.0, intent);
         
         Ok(serde_json::json!({
-            "intent_id": intent_id.0,
+            "intent_id": stored_id,
             "status": "declared",
-            "message": format!("Intent '{}' declared successfully", params.goal)
+            "message": format!("Intent '{}' declared and persisted", params.goal)
         }))
     }
     
@@ -184,6 +189,120 @@ impl VerificationTools {
             "reputation": "good",
             "promises_fulfilled": 42,
             "promises_broken": 3,
+        }))
+    }
+    
+    /// Get the status of an intent
+    #[tool(description = "Get the current status of a declared intent")]
+    pub async fn intent_status(&self, intent_id: String) -> Result<serde_json::Value> {
+        info!("Getting status for intent: {}", intent_id);
+        
+        let state = self.state.read().await;
+        
+        // Query from persistent storage
+        if let Some(record) = state.intent_store.get_intent(&intent_id).await? {
+            Ok(serde_json::json!({
+                "intent_id": intent_id,
+                "goal": record.goal,
+                "status": record.status,
+                "steps": record.steps,
+                "created_at": record.created_at,
+                "updated_at": record.updated_at,
+            }))
+        } else {
+            Err(McpError::NotFound(format!("Intent {} not found", intent_id)))
+        }
+    }
+    
+    /// Mark an intent as completed
+    #[tool(description = "Mark an intent as completed")]
+    pub async fn intent_complete(&self, intent_id: String) -> Result<serde_json::Value> {
+        info!("Marking intent {} as completed", intent_id);
+        
+        let state = self.state.read().await;
+        
+        // Update status in persistent storage
+        use crate::intent_store::IntentStatus;
+        state.intent_store.update_status(&intent_id, IntentStatus::Completed).await?;
+        
+        Ok(serde_json::json!({
+            "intent_id": intent_id,
+            "status": "completed",
+            "message": "Intent marked as completed"
+        }))
+    }
+    
+    /// List intents with optional filters
+    #[tool(description = "List all intents with optional status filter")]
+    pub async fn intent_list(&self, status: Option<String>) -> Result<serde_json::Value> {
+        info!("Listing intents with filter: {:?}", status);
+        
+        let state = self.state.read().await;
+        
+        // Convert string status to enum if provided
+        let status_filter = status.and_then(|s| {
+            use crate::intent_store::IntentStatus;
+            match s.to_lowercase().as_str() {
+                "declared" => Some(IntentStatus::Declared),
+                "executing" => Some(IntentStatus::Executing),
+                "completed" => Some(IntentStatus::Completed),
+                "failed" => Some(IntentStatus::Failed),
+                "verified" => Some(IntentStatus::Verified),
+                _ => None,
+            }
+        });
+        
+        let intents = state.intent_store.list_intents(status_filter, None, None).await?;
+        
+        Ok(serde_json::json!({
+            "count": intents.len(),
+            "intents": intents,
+        }))
+    }
+    
+    /// Get child intents of a parent
+    #[tool(description = "Get all child intents of a parent intent")]
+    pub async fn intent_children(&self, parent_id: String) -> Result<serde_json::Value> {
+        info!("Getting children of intent: {}", parent_id);
+        
+        let state = self.state.read().await;
+        let children = state.intent_store.get_children(&parent_id).await?;
+        
+        Ok(serde_json::json!({
+            "parent_id": parent_id,
+            "count": children.len(),
+            "children": children,
+        }))
+    }
+    
+    /// Update step status
+    #[tool(description = "Update the status of a specific step in an intent")]
+    pub async fn intent_step_status(
+        &self, 
+        intent_id: String, 
+        step_name: String, 
+        status: String,
+        error: Option<String>
+    ) -> Result<serde_json::Value> {
+        info!("Updating step {} in intent {} to {}", step_name, intent_id, status);
+        
+        let state = self.state.read().await;
+        
+        use crate::intent_store::IntentStatus;
+        let step_status = match status.to_lowercase().as_str() {
+            "executing" => IntentStatus::Executing,
+            "completed" => IntentStatus::Completed,
+            "failed" => IntentStatus::Failed,
+            _ => IntentStatus::Declared,
+        };
+        
+        state.intent_store.update_step_status(&intent_id, &step_name, step_status, error).await?;
+        
+        Ok(serde_json::json!({
+            "intent_id": intent_id,
+            "step_name": step_name,
+            "status": status,
+            "message": "Step status updated"
         }))
     }
 }

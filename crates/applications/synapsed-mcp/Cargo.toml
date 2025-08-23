@@ -20,6 +20,7 @@ synapsed-core = { workspace = true }
 synapsed-intent = { workspace = true }
 synapsed-promise = { workspace = true }
 synapsed-verify = { workspace = true }
+synapsed-storage = { workspace = true }
 
 # MCP implementation using rmcp
 rmcp = { version = "0.3", features = ["server", "transport-io"] }
@@ -39,3 +40,4 @@ anyhow = { workspace = true }
 # Data structures
 uuid = { workspace = true }
 chrono = { workspace = true }
+bytes = "1.5"

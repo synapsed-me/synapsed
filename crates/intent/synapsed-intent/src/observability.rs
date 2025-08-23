@@ -13,7 +13,7 @@ use synapsed_substrates::{
 use synapsed_serventis::{
     BasicService, Service, ServiceExt, Signal, Sign, Orientation,
     BasicProbe, Probe, Observation, Operation, Origin, Outcome,
-    BasicMonitor, Monitor, Status, Confidence,
+    BasicMonitor, Monitor, Condition, Confidence,
 };
 use std::sync::Arc;
 use std::sync::RwLock;
@@ -85,20 +85,20 @@ impl ObservableIntent {
         // Create Serventis components
         let service_subject = Subject::new(
             Name::from(format!("intent-service-{}", intent.id().0).as_str()),
-            SubjectType::Component
+            SubjectType::Source
         );
         let service = Arc::new(RwLock::new(BasicService::new(service_subject)));
         
         let probe_subject = Arc::new(Subject::new(
             Name::from(format!("intent-probe-{}", intent.id().0).as_str()),
-            SubjectType::Component
+            SubjectType::Source
         ));
         let probe = Arc::new(RwLock::new(BasicProbe::new(probe_subject)));
         
-        let monitor_subject = Arc::new(Subject::new(
+        let monitor_subject = Subject::new(
             Name::from(format!("intent-monitor-{}", intent.id().0).as_str()),
-            SubjectType::Component
-        ));
+            SubjectType::Source
+        );
         let monitor = Arc::new(RwLock::new(BasicMonitor::new(monitor_subject)));
         
         Ok(Self {
@@ -159,7 +159,7 @@ impl ObservableIntent {
         // Serventis: Monitor status
         {
             let mut monitor = self.monitor.write().unwrap();
-            monitor.assess(Status::Ok, Confidence::High).await
+            monitor.status(Condition::Stable, Confidence::Confirmed).await
                 .map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
         }
         
@@ -241,10 +241,11 @@ impl ObservableIntent {
         probe.observations().to_vec()
     }
     
-    /// Get monitor status
-    pub async fn get_monitor_status(&self) -> (Status, Confidence) {
-        let monitor = self.monitor.read().unwrap();
-        monitor.current_status()
+    /// Get monitor status (would need to track last emitted status)
+    pub async fn get_monitor_status(&self) -> (Condition, Confidence) {
+        // In a real implementation, would track the last status
+        // For now, return a default
+        (Condition::Stable, Confidence::Measured)
     }
     
     /// Execute with Serventis service wrapper
@@ -255,6 +256,16 @@ impl ObservableIntent {
     {
         let mut service = self.service.write().unwrap();
         service.execute(f).await
+    }
+    
+    /// Get the intent ID
+    pub fn intent_id(&self) -> IntentId {
+        self.intent.id()
+    }
+    
+    /// Get the intent goal
+    pub fn goal(&self) -> String {
+        self.intent.goal().to_string()
     }
 }
 

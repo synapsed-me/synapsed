@@ -1,0 +1,55 @@
+[package]
+name = "live-demo"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[lib]
+name = "live_demo"
+path = "src/lib.rs"
+
+[[bin]]
+name = "live-demo"
+path = "src/main.rs"
+
+[[bin]]
+name = "monitor-server"
+path = "src/monitor_server.rs"
+
+[[bin]]
+name = "agent-runner"
+path = "src/bin/agent-runner.rs"
+
+[dependencies]
+# Synapsed components
+synapsed-intent = { path = "../../crates/intent/synapsed-intent" }
+synapsed-verify = { path = "../../crates/intent/synapsed-verify" }
+synapsed-monitor = { path = "../../crates/monitor/synapsed-monitor" }
+synapsed-substrates = { path = "../../crates/observability/synapsed-substrates" }
+synapsed-serventis = { path = "../../crates/observability/synapsed-serventis" }
+
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Utilities
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1.10", features = ["v4"] }
+chrono = "0.4"
+clap = { version = "4.5", features = ["derive"] }
+
+# File operations
+tempfile = "3.10"
+
+# For REST API demonstration
+axum = "0.7"
+tower = "0.4"
+hyper = "1.0"

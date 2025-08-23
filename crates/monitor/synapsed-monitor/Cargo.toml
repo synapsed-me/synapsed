@@ -1,0 +1,53 @@
+[package]
+name = "synapsed-monitor"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Team"]
+license = "MIT OR Apache-2.0"
+description = "Human-centric monitoring interface for synapsed-intent with Substrates and Serventis integration"
+keywords = ["monitoring", "observability", "visualization", "real-time"]
+categories = ["visualization", "web-programming::websocket"]
+
+[[bin]]
+name = "monitor-server"
+path = "src/bin/monitor-server.rs"
+
+[dependencies]
+# Core synapsed dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-intent = { path = "../../intent/synapsed-intent" }
+synapsed-substrates = { path = "../../observability/synapsed-substrates" }
+synapsed-serventis = { path = "../../observability/synapsed-serventis" }
+
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Data structures
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.10", features = ["v4", "serde"] }
+dashmap = "6.1"
+hex = "0.4"
+
+# WebSocket and HTTP
+axum = { version = "0.7", features = ["ws"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "fs"] }
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Metrics and visualization helpers
+metrics = "0.23"
+metrics-exporter-prometheus = "0.15"
+
+[dev-dependencies]
+tokio-test = "0.4"

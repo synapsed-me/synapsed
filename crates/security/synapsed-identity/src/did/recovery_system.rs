@@ -61,14 +61,14 @@ pub async fn generate_recovery_info(
         let recovery_phrase = generate_bip39_phrase(recovery_mechanism.recovery_phrase_length).await?;
         
         // Encrypt the phrase with master key (simplified)
-        let encrypted_phrase = encrypt_recovery_phrase(&recovery_phrase, &hierarchy.master_key)?;
+        let encrypted_phrase = encrypt_recovery_phrase(&recovery_phrase, hierarchy.master_key())?;
         recovery_info.recovery_phrase = Some(base64::encode(encrypted_phrase));
     }
 
     // Step 2: Setup social recovery if requested
     if let Some(threshold) = recovery_mechanism.social_recovery_threshold {
         // Generate Shamir secret shares
-        let shares = generate_shamir_shares(&hierarchy.master_key, threshold).await?;
+        let shares = generate_shamir_shares(hierarchy.master_key(), threshold).await?;
         
         // In practice, shares would be distributed to trusted contacts
         // Here we just record that social recovery is available
@@ -79,7 +79,7 @@ pub async fn generate_recovery_info(
 
     // Step 3: Hardware recovery data if requested
     if recovery_mechanism.hardware_recovery {
-        let hardware_data = generate_hardware_recovery_data(&hierarchy.master_key).await?;
+        let hardware_data = generate_hardware_recovery_data(hierarchy.master_key()).await?;
         recovery_info.hardware_recovery_data = Some(hardware_data);
     }
 

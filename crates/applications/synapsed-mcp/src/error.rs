@@ -40,6 +40,18 @@ pub enum McpError {
     #[error("Internal error: {0}")]
     Internal(String),
     
+    /// Storage errors
+    #[error("Storage error: {0}")]
+    StorageError(String),
+    
+    /// Serialization errors
+    #[error("Serialization error: {0}")]
+    SerializationError(String),
+    
+    /// Not found error
+    #[error("Not found: {0}")]
+    NotFound(String),
+    
     /// Other errors
     #[error(transparent)]
     Other(#[from] anyhow::Error),

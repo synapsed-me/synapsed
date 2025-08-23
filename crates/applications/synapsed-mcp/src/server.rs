@@ -4,8 +4,12 @@ use crate::{
     error::{McpError, Result},
     tools::{IntentTools, VerificationTools},
     resources::ContextResources,
+    intent_store::IntentStore,
+    protocol::{McpProtocolHandler, JsonRpcRequest, JsonRpcResponse},
+    agent_spawner::AgentSpawner,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::info;
@@ -77,6 +81,8 @@ pub struct ServerState {
     pub active_agents: HashMap<uuid::Uuid, synapsed_promise::AutonomousAgent>,
     /// Verification results
     pub verification_results: Vec<synapsed_verify::VerificationResult>,
+    /// Internal intent store (not exposed to clients)
+    pub(crate) intent_store: Arc<IntentStore>,
 }
 
 /// MCP Server implementation
@@ -86,20 +92,60 @@ pub struct McpServer {
     intent_tools: Arc<IntentTools>,
     verification_tools: Arc<VerificationTools>,
     context_resources: Arc<ContextResources>,
+    protocol_handler: Arc<McpProtocolHandler>,
+    agent_spawner: Arc<AgentSpawner>,
 }
 
 impl McpServer {
     /// Create a new MCP server
     pub fn new(config: ServerConfig) -> Self {
+        // Create intent store based on environment configuration
+        let intent_store = if let Ok(storage_path) = std::env::var("SYNAPSED_INTENT_STORAGE_PATH") {
+            if storage_path.ends_with(".db") {
+                // SQLite storage
+                Arc::new(IntentStore::with_sqlite_storage(&storage_path)
+                    .expect("Failed to create SQLite intent store"))
+            } else {
+                // File-based storage
+                Arc::new(IntentStore::with_file_storage(&storage_path)
+                    .expect("Failed to create file intent store"))
+            }
+        } else {
+            // Default to memory storage
+            Arc::new(IntentStore::new().expect("Failed to create intent store"))
+        };
+        
         let state = Arc::new(RwLock::new(ServerState {
             active_intents: HashMap::new(),
             active_agents: HashMap::new(),
             verification_results: Vec::new(),
+            intent_store,
         }));
         
         let intent_tools = Arc::new(IntentTools::new(state.clone()));
         let verification_tools = Arc::new(VerificationTools::new(state.clone()));
         let context_resources = Arc::new(ContextResources::new(state.clone()));
+        
+        // Create agent spawner
+        let agent_spawner = Arc::new(AgentSpawner::new());
+        
+        // Create protocol handler with a new intent store using the same storage path
+        let protocol_intent_store = if let Ok(storage_path) = std::env::var("SYNAPSED_INTENT_STORAGE_PATH") {
+            if storage_path.ends_with(".db") {
+                Arc::new(RwLock::new(IntentStore::with_sqlite_storage(&storage_path)
+                    .expect("Failed to create SQLite intent store for protocol")))
+            } else {
+                Arc::new(RwLock::new(IntentStore::with_file_storage(&storage_path)
+                    .expect("Failed to create file intent store for protocol")))
+            }
+        } else {
+            Arc::new(RwLock::new(IntentStore::new().expect("Failed to create intent store for protocol")))
+        };
+        
+        let protocol_handler = Arc::new(McpProtocolHandler::new(
+            protocol_intent_store,
+            agent_spawner.clone(),
+        ));
         
         Self {
             config,
@@ -107,30 +153,65 @@ impl McpServer {
             intent_tools,
             verification_tools,
             context_resources,
+            protocol_handler,
+            agent_spawner,
         }
+    }
+    
+    /// Handle a JSON-RPC request
+    pub async fn handle_request(&self, request: JsonRpcRequest) -> JsonRpcResponse {
+        self.protocol_handler.handle_request(request).await
     }
     
     /// Serve over stdio transport
     pub async fn serve_stdio(self) -> Result<()> {
         info!("Starting MCP server on stdio transport");
         
-        // TODO: Implement proper rmcp service integration
-        // For now, this is a placeholder that demonstrates the architecture
+        // Create a simple JSON-RPC server over stdio
+        let stdin = tokio::io::stdin();
+        let stdout = tokio::io::stdout();
         
-        info!("MCP server would serve the following tools:");
-        info!("  - intent_declare: Declare intentions before actions");
-        info!("  - intent_verify: Verify execution against declarations");
-        info!("  - trust_check: Check agent trust levels");
-        info!("  - context_inject: Inject context for sub-agents");
+        info!("MCP server ready - accepting JSON-RPC requests");
+        info!("Available methods:");
+        info!("  - intent/declare: Declare intentions before actions");
+        info!("  - intent/verify: Verify execution against declarations");
+        info!("  - intent/list: List all stored intents");
+        info!("  - agent/spawn: Spawn a new agent with intent");
+        info!("  - agent/status: Get agent status");
+        info!("  - trust/check: Check agent trust levels");
+        info!("  - context/inject: Inject context for sub-agents");
         
-        // Keep the server running
-        tokio::signal::ctrl_c().await
-            .map_err(|e| McpError::Transport(format!("Signal error: {}", e)))?;
+        // For now, use a simple loop to read JSON-RPC requests
+        let mut reader = tokio::io::BufReader::new(stdin);
+        let mut writer = tokio::io::BufWriter::new(stdout);
+        
+        loop {
+            // Read a line of JSON
+            use tokio::io::AsyncBufReadExt;
+            let mut line = String::new();
+            if reader.read_line(&mut line).await
+                .map_err(|e| McpError::Transport(format!("Read error: {}", e)))? == 0 {
+                break; // EOF
+            }
+            
+            // Parse as JSON-RPC request
+            if let Ok(request) = serde_json::from_str::<JsonRpcRequest>(&line) {
+                let response = self.handle_request(request).await;
+                
+                // Write response
+                use tokio::io::AsyncWriteExt;
+                let response_json = serde_json::to_string(&response)
+                    .map_err(|e| McpError::Transport(format!("Serialize error: {}", e)))?;
+                writer.write_all(response_json.as_bytes()).await
+                    .map_err(|e| McpError::Transport(format!("Write error: {}", e)))?;
+                writer.write_all(b"\n").await
+                    .map_err(|e| McpError::Transport(format!("Write error: {}", e)))?;
+                writer.flush().await
+                    .map_err(|e| McpError::Transport(format!("Flush error: {}", e)))?;
+            }
+        }
         
         info!("MCP server shutting down");
         Ok(())
     }
 }
-
-// Add HashMap import
-use std::collections::HashMap;

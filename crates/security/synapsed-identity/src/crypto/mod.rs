@@ -54,6 +54,8 @@ pub enum KeyType {
     PostQuantumEncrypt,
     /// Classic EdDSA
     Ed25519,
+    /// X25519 key agreement
+    X25519,
     /// Classic ECDSA
     Ecdsa,
 }
@@ -101,6 +103,21 @@ impl IdentityKeyManager {
                 
                 // Derive public key (simplified)
                 let public_key = Self::derive_ed25519_public(&private_key);
+                
+                Ok(IdentityKeyPair {
+                    private_key: SecureKey::new(private_key),
+                    public_key,
+                    key_type,
+                })
+            }
+            KeyType::X25519 => {
+                // X25519 key generation for key agreement
+                use rand_core::{RngCore, OsRng};
+                let mut private_key = vec![0u8; 32];
+                OsRng.fill_bytes(&mut private_key);
+                
+                // Derive public key (simplified for now)
+                let public_key = private_key.clone(); // Placeholder
                 
                 Ok(IdentityKeyPair {
                     private_key: SecureKey::new(private_key),

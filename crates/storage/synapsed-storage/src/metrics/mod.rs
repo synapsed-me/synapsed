@@ -80,6 +80,12 @@ impl<S: Storage + ?Sized> Storage for MetricsLayer<S> {
             crate::error::BackendError::Other("Backend delete failed".to_string())
         ))
     }
+    
+    async fn list(&self, prefix: &[u8]) -> Result<Vec<Vec<u8>>> {
+        self.inner.list(prefix).await.map_err(|_| StorageError::Backend(
+            crate::error::BackendError::Other("Backend list failed".to_string())
+        ))
+    }
 }
 
 pub mod collector;

@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
@@ -18,6 +19,12 @@ impl IntentId {
 impl Default for IntentId {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl fmt::Display for IntentId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

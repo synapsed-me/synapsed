@@ -5,6 +5,7 @@ members = [
     # Observability Foundation
     "crates/observability/synapsed-substrates",
     "crates/observability/synapsed-serventis",
+    "crates/monitor/synapsed-monitor",
     
     # Core Infrastructure
     "crates/core/synapsed-core",

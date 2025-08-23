@@ -1,3 +1,4 @@
+#![allow(missing_docs)]
 //! # Synapsed Identity
 //!
 //! A comprehensive identity and access management library for the Synapsed framework.

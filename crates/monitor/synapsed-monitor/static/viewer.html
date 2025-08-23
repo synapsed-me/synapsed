@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapsed Intent & Observability Viewer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #58a6ff;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #30363d;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-bottom: none;
+            cursor: pointer;
+            color: #8b949e;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            background: #1c2128;
+        }
+        .tab.active {
+            background: #0d1117;
+            color: #58a6ff;
+            border-top: 2px solid #58a6ff;
+        }
+        .content {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .intent-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .intent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .intent-goal {
+            font-size: 18px;
+            color: #58a6ff;
+            font-weight: 500;
+        }
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status.completed {
+            background: #238636;
+            color: white;
+        }
+        .status.executing {
+            background: #1f6feb;
+            color: white;
+        }
+        .status.failed {
+            background: #da3633;
+            color: white;
+        }
+        .status.declared {
+            background: #6e7681;
+            color: white;
+        }
+        .steps {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .step {
+            margin: 5px 0;
+            color: #8b949e;
+        }
+        .step.completed::before {
+            content: "✓ ";
+            color: #238636;
+        }
+        .step.failed::before {
+            content: "✗ ";
+            color: #da3633;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline-item {
+            position: relative;
+            padding: 10px 0;
+            border-left: 2px solid #30363d;
+            padding-left: 20px;
+            margin-left: 10px;
+        }
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -7px;
+            top: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #58a6ff;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #6e7681;
+        }
+        .timeline-content {
+            margin-top: 5px;
+        }
+        .framework-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        .framework-badge.substrates {
+            background: #2ea043;
+            color: white;
+        }
+        .framework-badge.serventis {
+            background: #fb8500;
+            color: white;
+        }
+        .error {
+            background: #da3633;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .hint {
+            background: #1f6feb;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            color: #58a6ff;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Synapsed Intent & Observability Viewer</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('intents')">Stored Intents</div>
+            <div class="tab" onclick="showTab('hierarchy')">Intent Hierarchy</div>
+            <div class="tab" onclick="showTab('substrates')">Substrates Data</div>
+            <div class="tab" onclick="showTab('serventis')">Serventis Data</div>
+            <div class="tab" onclick="showTab('timeline')">Timeline</div>
+        </div>
+
+        <div class="content">
+            <div id="intents-content" class="tab-content">
+                <h2>Stored Intents</h2>
+                <button onclick="loadIntents()">Refresh Intents</button>
+                <div id="intents-list"></div>
+            </div>
+
+            <div id="hierarchy-content" class="tab-content" style="display:none;">
+                <h2>Intent Hierarchy</h2>
+                <button onclick="loadHierarchy()">Refresh Hierarchy</button>
+                <div id="hierarchy-view"></div>
+            </div>
+
+            <div id="substrates-content" class="tab-content" style="display:none;">
+                <h2>Substrates Observability</h2>
+                <button onclick="loadSubstrates()">Refresh Data</button>
+                <div id="substrates-data"></div>
+            </div>
+
+            <div id="serventis-content" class="tab-content" style="display:none;">
+                <h2>Serventis Observability</h2>
+                <button onclick="loadServentis()">Refresh Data</button>
+                <div id="serventis-data"></div>
+            </div>
+
+            <div id="timeline-content" class="tab-content" style="display:none;">
+                <h2>Observability Timeline</h2>
+                <button onclick="loadTimeline()">Refresh Timeline</button>
+                <div id="timeline-view"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+
+        function showTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content
+            document.getElementById(`${tabName}-content`).style.display = 'block';
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            
+            // Load data for the tab
+            switch(tabName) {
+                case 'intents':
+                    loadIntents();
+                    break;
+                case 'hierarchy':
+                    loadHierarchy();
+                    break;
+                case 'substrates':
+                    loadSubstrates();
+                    break;
+                case 'serventis':
+                    loadServentis();
+                    break;
+                case 'timeline':
+                    loadTimeline();
+                    break;
+            }
+        }
+
+        async function loadIntents() {
+            try {
+                const response = await fetch(`${API_BASE}/intents/stored`);
+                const data = await response.json();
+                
+                const container = document.getElementById('intents-list');
+                
+                if (data.error) {
+                    container.innerHTML = `
+                        <div class="error">${data.error}</div>
+                        ${data.hint ? `<div class="hint">💡 ${data.hint}</div>` : ''}
+                    `;
+                    return;
+                }
+                
+                if (data.intents && data.intents.length > 0) {
+                    container.innerHTML = data.intents.map(intent => `
+                        <div class="intent-card">
+                            <div class="intent-header">
+                                <div class="intent-goal">${intent.goal}</div>
+                                <div class="status ${intent.status}">${intent.status}</div>
+                            </div>
+                            <div>ID: ${intent.id}</div>
+                            <div>Agent: ${intent.agent || 'unknown'}</div>
+                            <div>Created: ${new Date(intent.created_at).toLocaleString()}</div>
+                            ${intent.steps ? `
+                                <div class="steps">
+                                    <strong>Steps:</strong>
+                                    ${intent.steps.map(step => `
+                                        <div class="step ${step.status}">${step.name}</div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div>No stored intents found</div>';
+                }
+            } catch (error) {
+                document.getElementById('intents-list').innerHTML = 
+                    `<div class="error">Failed to load intents: ${error.message}</div>`;
+            }
+        }
+
+        async function loadHierarchy() {
+            try {
+                const response = await fetch(`${API_BASE}/intents/hierarchy`);
+                const data = await response.json();
+                
+                const container = document.getElementById('hierarchy-view');
+                
+                function renderNode(node, level = 0) {
+                    const indent = '  '.repeat(level);
+                    let html = `
+                        <div style="margin-left: ${level * 30}px; margin-top: 10px;">
+                            <div class="intent-card">
+                                <div class="intent-goal">${indent}${node.goal}</div>
+                                <div>ID: ${node.id}</div>
+                                ${node.agent ? `<div>Agent: ${node.agent}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (node.children && node.children.length > 0) {
+                        node.children.forEach(child => {
+                            html += renderNode(child, level + 1);
+                        });
+                    }
+                    
+                    return html;
+                }
+                
+                if (data.hierarchy && data.hierarchy.root) {
+                    container.innerHTML = `
+                        <div class="stats">
+                            <div class="stat-card">
+                                <div class="stat-value">${data.total_intents}</div>
+                                <div class="stat-label">Total Intents</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${data.max_depth}</div>
+                                <div class="stat-label">Max Depth</div>
+                            </div>
+                        </div>
+                        ${renderNode(data.hierarchy.root)}
+                    `;
+                } else {
+                    container.innerHTML = '<div>No hierarchy data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('hierarchy-view').innerHTML = 
+                    `<div class="error">Failed to load hierarchy: ${error.message}</div>`;
+            }
+        }
+
+        async function loadSubstrates() {
+            try {
+                const response = await fetch(`${API_BASE}/observability/substrates`);
+                const data = await response.json();
+                
+                const container = document.getElementById('substrates-data');
+                
+                if (data.substrates) {
+                    const s = data.substrates;
+                    container.innerHTML = `
+                        <div class="stats">
+                            <div class="stat-card">
+                                <div class="stat-value">${s.circuits ? s.circuits.length : 0}</div>
+                                <div class="stat-label">Active Circuits</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${s.channels ? s.channels.length : 0}</div>
+                                <div class="stat-label">Channels</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${s.sources ? s.sources.length : 0}</div>
+                                <div class="stat-label">Sources</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${s.sinks ? s.sinks.length : 0}</div>
+                                <div class="stat-label">Sinks</div>
+                            </div>
+                        </div>
+                        
+                        ${s.circuits ? `
+                            <h3>Circuits</h3>
+                            ${s.circuits.map(c => `
+                                <div class="intent-card">
+                                    <strong>${c.name}</strong><br>
+                                    Emissions: ${c.emissions}<br>
+                                    Last: ${new Date(c.last_emission).toLocaleString()}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                        
+                        ${s.channels ? `
+                            <h3>Channels</h3>
+                            ${s.channels.map(c => `
+                                <div class="intent-card">
+                                    <strong>${c.name}</strong><br>
+                                    Messages: ${c.messages}<br>
+                                    Bandwidth: ${c.bandwidth}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                    `;
+                } else {
+                    container.innerHTML = '<div>No Substrates data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('substrates-data').innerHTML = 
+                    `<div class="error">Failed to load Substrates data: ${error.message}</div>`;
+            }
+        }
+
+        async function loadServentis() {
+            try {
+                const response = await fetch(`${API_BASE}/observability/serventis`);
+                const data = await response.json();
+                
+                const container = document.getElementById('serventis-data');
+                
+                if (data.serventis) {
+                    const s = data.serventis;
+                    container.innerHTML = `
+                        ${s.services ? `
+                            <h3>Services</h3>
+                            ${s.services.map(svc => `
+                                <div class="intent-card">
+                                    <strong>${svc.id}</strong>
+                                    <span class="status ${svc.status}">${svc.status}</span><br>
+                                    Signals: ${svc.signals.join(', ')}<br>
+                                    Last: ${new Date(svc.last_signal).toLocaleString()}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                        
+                        ${s.probes ? `
+                            <h3>Probes</h3>
+                            ${s.probes.map(p => `
+                                <div class="intent-card">
+                                    <strong>${p.id}</strong><br>
+                                    ${p.observations.map(o => `
+                                        <div style="margin: 5px 0;">
+                                            ${o.operation} - ${o.origin} - 
+                                            <span class="${o.outcome === 'success' ? 'status completed' : 'status failed'}">
+                                                ${o.outcome}
+                                            </span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                        
+                        ${s.monitors ? `
+                            <h3>Monitors</h3>
+                            ${s.monitors.map(m => `
+                                <div class="intent-card">
+                                    <strong>${m.id}</strong><br>
+                                    Condition: ${m.condition}<br>
+                                    Confidence: ${(m.confidence * 100).toFixed(0)}%<br>
+                                    Last Check: ${new Date(m.last_check).toLocaleString()}
+                                </div>
+                            `).join('')}
+                        ` : ''}
+                    `;
+                } else {
+                    container.innerHTML = '<div>No Serventis data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('serventis-data').innerHTML = 
+                    `<div class="error">Failed to load Serventis data: ${error.message}</div>`;
+            }
+        }
+
+        async function loadTimeline() {
+            try {
+                const response = await fetch(`${API_BASE}/observability/timeline`);
+                const data = await response.json();
+                
+                const container = document.getElementById('timeline-view');
+                
+                if (data.timeline && data.timeline.length > 0) {
+                    container.innerHTML = `
+                        <div>Total Events: ${data.total_events}</div>
+                        <div>Time Range: ${new Date(data.time_range.start).toLocaleString()} - 
+                            ${new Date(data.time_range.end).toLocaleString()}</div>
+                        
+                        <div class="timeline">
+                            ${data.timeline.map(event => `
+                                <div class="timeline-item">
+                                    <div class="timeline-time">${new Date(event.timestamp).toLocaleTimeString()}</div>
+                                    <div class="timeline-content">
+                                        <span class="framework-badge ${event.framework}">${event.framework}</span>
+                                        <strong>${event.type}</strong><br>
+                                        ${event.details}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div>No timeline data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('timeline-view').innerHTML = 
+                    `<div class="error">Failed to load timeline: ${error.message}</div>`;
+            }
+        }
+
+        // Load intents on page load
+        window.onload = () => {
+            loadIntents();
+        };
+    </script>
+</body>
+</html>

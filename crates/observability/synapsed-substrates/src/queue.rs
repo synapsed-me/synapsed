@@ -72,11 +72,11 @@ pub struct ManagedQueue {
 
 #[derive(Debug, Default, Clone)]
 pub struct QueueStats {
-    total_submitted: usize,
-    total_executed: usize,
-    total_failed: usize,
-    average_wait_ms: f64,
-    average_execution_ms: f64,
+    pub total_submitted: usize,
+    pub total_executed: usize,
+    pub total_failed: usize,
+    pub average_wait_ms: f64,
+    pub average_execution_ms: f64,
 }
 
 impl ManagedQueue {

@@ -104,7 +104,9 @@ impl Did {
         let mut parts = before_query.split('/');
         let method_specific_id = parts.next().unwrap_or("").to_string();
         let path = if let Some(path_part) = parts.next() {
-            Some(format!("/{}", [path_part].iter().chain(parts).cloned().collect::<Vec<_>>().join("/")))
+            let mut path_parts = vec![path_part];
+            path_parts.extend(parts);
+            Some(format!("/{}", path_parts.join("/")))
         } else {
             None
         };

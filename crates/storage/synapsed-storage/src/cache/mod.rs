@@ -82,6 +82,13 @@ impl<S: Storage + ?Sized> Storage for CacheLayer<S> {
 
         Ok(())
     }
+    
+    async fn list(&self, prefix: &[u8]) -> Result<Vec<Vec<u8>>> {
+        // Pass through to underlying storage
+        self.inner.list(prefix).await.map_err(|_| StorageError::Backend(
+            crate::error::BackendError::Other("Backend list failed".to_string())
+        ))
+    }
 }
 
 /// Trait for cache backend implementations

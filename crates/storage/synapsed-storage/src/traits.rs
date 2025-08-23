@@ -28,6 +28,9 @@ pub trait Storage: Send + Sync {
     async fn flush(&self) -> Result<(), Self::Error> {
         Ok(())
     }
+    
+    /// List all keys with a given prefix
+    async fn list(&self, prefix: &[u8]) -> Result<Vec<Vec<u8>>, Self::Error>;
 }
 
 /// Batched operations for improved throughput

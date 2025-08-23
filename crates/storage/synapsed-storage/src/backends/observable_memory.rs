@@ -101,4 +101,14 @@ impl Storage for ObservableMemoryStorage {
         
         Ok(())
     }
+    
+    async fn list(&self, prefix: &[u8]) -> Result<Vec<Vec<u8>>> {
+        let data = self.data.read();
+        let keys: Vec<Vec<u8>> = data
+            .keys()
+            .filter(|k| k.starts_with(prefix))
+            .cloned()
+            .collect();
+        Ok(keys)
+    }
 }

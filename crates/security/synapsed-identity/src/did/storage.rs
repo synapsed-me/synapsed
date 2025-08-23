@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use zeroize::{Zeroize, ZeroizeOnDrop};
+use chacha20poly1305::KeyInit;
 use crate::{Result, Error};
 use super::{Did, DidDocument, KeyHierarchy, EncryptedKeyMaterial};
 

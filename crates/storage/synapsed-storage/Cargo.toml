@@ -27,6 +27,7 @@ bincode = { workspace = true }
 bytes = "1.5"
 parking_lot = "0.12"
 dashmap = "6.0"
+hex = "0.4"
 
 # Storage backends (simplified for compatibility)
 # rocksdb = { version = "0.22", optional = true }
