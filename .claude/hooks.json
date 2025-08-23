@@ -1,0 +1,99 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "name": "intent-declaration",
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cargo run --bin synapsed-mcp -- intent declare --tool {{tool}} --params '{{params}}'"
+          }
+        ]
+      },
+      {
+        "name": "command-verification",
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command", 
+            "command": "cargo run --bin synapsed-mcp -- verify command --cmd '{{command}}' --sandbox"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "name": "intent-verification",
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cargo run --bin synapsed-mcp -- intent verify --tool {{tool}} --result '{{result}}'"
+          }
+        ]
+      }
+    ],
+    "Task": [
+      {
+        "name": "sub-agent-context",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cargo run --bin synapsed-mcp -- agent spawn --parent {{agent_id}} --context '{{context}}' --intent '{{intent}}'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "name": "intent-session-init",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cargo run --bin synapsed-mcp -- session init --agent {{agent_id}}"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "name": "intent-session-cleanup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cargo run --bin synapsed-mcp -- session cleanup --agent {{agent_id}} --verify-promises"
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "intent_verification": {
+      "enabled": true,
+      "strict_mode": false,
+      "require_pre_declaration": true,
+      "max_intent_depth": 5
+    },
+    "permission_negotiation": {
+      "enabled": true,
+      "auto_approve_patterns": [
+        {
+          "pattern": "Read|Grep|Glob|LS",
+          "risk_level": "minimal"
+        }
+      ],
+      "auto_deny_patterns": [
+        {
+          "pattern": "sudo|rm -rf",
+          "reason": "High risk operation"
+        }
+      ]
+    },
+    "behavioral_profiling": {
+      "enabled": true,
+      "anomaly_detection": true,
+      "trust_scoring": true
+    }
+  }
+}

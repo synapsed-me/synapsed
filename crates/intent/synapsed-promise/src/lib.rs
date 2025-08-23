@@ -18,6 +18,8 @@ pub mod trust;
 pub mod cooperation;
 pub mod verification;
 pub mod types;
+pub mod voluntary;
+pub mod acl;
 
 pub use agent::{AutonomousAgent, AgentCapabilities, AgentState};
 pub use promise::{Promise, PromiseContract, PromiseState, PromiseOutcome};
@@ -25,6 +27,14 @@ pub use trust::{TrustModel, TrustLevel, Reputation};
 pub use cooperation::{CooperationProtocol, CooperationRequest, CooperationResponse};
 pub use verification::{PromiseVerifier, VerificationProof};
 pub use types::*;
+pub use voluntary::{
+    Willingness, VoluntaryCooperationEvaluator, SemanticSpacetime,
+    CausalIndependenceVerifier, PromiseChemistry
+};
+pub use acl::{
+    Performative, ACLMessage, ACLMessageBuilder, InteractionProtocol,
+    ConversationManager, ConversationState, MessageContent
+};
 
 /// Result type for promise operations
 pub type Result<T> = std::result::Result<T, PromiseError>;
