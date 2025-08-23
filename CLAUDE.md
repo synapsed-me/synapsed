@@ -139,9 +139,9 @@ async fn test_agent_cooperation() {
 - Don't bypass the trust model when evaluating impositions
 - Don't create promises that exceed agent capabilities
 
-## MCP Integration (Planned)
+## MCP Integration
 
-The `synapsed-mcp` crate will provide Model Context Protocol server for Claude integration with tools:
+The `synapsed-mcp` crate provides Model Context Protocol server for Claude integration with tools:
 - `intent_declare`: Declare intentions before acting
 - `intent_verify`: Verify execution against declaration
 - `context_inject`: Pass context to sub-agents

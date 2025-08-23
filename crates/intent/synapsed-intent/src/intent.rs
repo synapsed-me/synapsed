@@ -19,25 +19,25 @@ use synapsed_substrates::{Subject, types::{Name, SubjectType}};
 #[derive(Debug, Clone)]
 pub struct HierarchicalIntent {
     /// Unique intent ID
-    id: IntentId,
+    pub id: IntentId,
     /// Goal of the intent
-    goal: String,
+    pub goal: String,
     /// Description of the intent
-    description: Option<String>,
+    pub description: Option<String>,
     /// Steps to achieve the goal
-    steps: Vec<Step>,
+    pub steps: Vec<Step>,
     /// Sub-intents (child intents)
-    sub_intents: Vec<HierarchicalIntent>,
+    pub sub_intents: Vec<HierarchicalIntent>,
     /// Metadata
-    metadata: IntentMetadata,
+    pub metadata: IntentMetadata,
     /// Execution configuration
-    config: ExecutionConfig,
+    pub config: ExecutionConfig,
     /// Current status
-    status: Arc<RwLock<IntentStatus>>,
+    pub status: Arc<RwLock<IntentStatus>>,
     /// Context bounds
-    bounds: ContextBounds,
+    pub bounds: ContextBounds,
     /// Observable substrate
-    substrate: Arc<Subject>,
+    pub substrate: Arc<Subject>,
 }
 
 impl HierarchicalIntent {

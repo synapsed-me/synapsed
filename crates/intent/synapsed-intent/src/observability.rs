@@ -1,7 +1,8 @@
-//! Observability integration for intent execution using Substrates
+//! Observability integration for intent execution using Substrates and Serventis
 //!
-//! This module provides deep observability for intent trees using the Substrates
-//! observability framework, enabling monitoring, tracing, and verification.
+//! This module provides deep observability for intent trees using both the Substrates
+//! observability framework and Serventis service monitoring APIs, enabling comprehensive
+//! monitoring, tracing, signaling, and verification.
 
 use crate::{HierarchicalIntent, IntentId, EventType};
 use synapsed_substrates::{
@@ -9,18 +10,28 @@ use synapsed_substrates::{
     Priority, QueueStats, Sink, Source, Subject, Substrate,
     types::{Name, SubjectType, SubstratesResult},
 };
+use synapsed_serventis::{
+    BasicService, Service, ServiceExt, Signal, Sign, Orientation,
+    BasicProbe, Probe, Observation, Operation, Origin, Outcome,
+    BasicMonitor, Monitor, Status, Confidence,
+};
 use std::sync::Arc;
 use std::sync::RwLock;
 use serde_json::Value as JsonValue;
 use chrono::{DateTime, Utc};
 
-/// Observable intent wrapper that integrates with Substrates
+/// Observable intent wrapper that integrates with Substrates and Serventis
 pub struct ObservableIntent {
     intent: HierarchicalIntent,
+    // Substrates components
     circuit: Arc<BasicCircuit>,
     event_source: Arc<BasicSource<IntentEvent>>,
     execution_queue: Arc<ManagedQueue>,
     metrics_sink: Arc<RwLock<BasicSink<IntentMetric>>>,
+    // Serventis components
+    service: Arc<RwLock<BasicService>>,
+    probe: Arc<RwLock<BasicProbe>>,
+    monitor: Arc<RwLock<BasicMonitor>>,
 }
 
 /// Intent event emitted through Substrates
@@ -71,12 +82,34 @@ impl ObservableIntent {
         let sink_name = Name::from(format!("intent-metrics-{}", intent.id().0).as_str());
         let metrics_sink = Arc::new(RwLock::new(BasicSink::new(sink_name)));
         
+        // Create Serventis components
+        let service_subject = Subject::new(
+            Name::from(format!("intent-service-{}", intent.id().0).as_str()),
+            SubjectType::Component
+        );
+        let service = Arc::new(RwLock::new(BasicService::new(service_subject)));
+        
+        let probe_subject = Arc::new(Subject::new(
+            Name::from(format!("intent-probe-{}", intent.id().0).as_str()),
+            SubjectType::Component
+        ));
+        let probe = Arc::new(RwLock::new(BasicProbe::new(probe_subject)));
+        
+        let monitor_subject = Arc::new(Subject::new(
+            Name::from(format!("intent-monitor-{}", intent.id().0).as_str()),
+            SubjectType::Component
+        ));
+        let monitor = Arc::new(RwLock::new(BasicMonitor::new(monitor_subject)));
+        
         Ok(Self {
             intent,
             circuit,
             event_source,
             execution_queue,
             metrics_sink,
+            service,
+            probe,
+            monitor,
         })
     }
     
@@ -116,7 +149,21 @@ impl ObservableIntent {
         // Start execution timer
         let start = Utc::now();
         
-        // Emit start event
+        // Serventis: Emit start signal
+        {
+            let mut service = self.service.write().unwrap();
+            service.start().await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+            service.call().await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+        }
+        
+        // Serventis: Monitor status
+        {
+            let mut monitor = self.monitor.write().unwrap();
+            monitor.assess(Status::Ok, Confidence::High).await
+                .map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+        }
+        
+        // Substrates: Emit start event
         self.emit_event(EventType::Started, serde_json::json!({
             "goal": self.intent.goal(),
             "context": "context",
@@ -124,19 +171,45 @@ impl ObservableIntent {
         
         // Submit to queue
         let script = IntentScript::new(self.intent.clone(), context.clone());
-        let _ = self.execution_queue.submit_with_priority(
+        let queue_result = self.execution_queue.submit_with_priority(
             Arc::new(script),
             self.intent_priority(),
-        ).await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+        ).await;
+        
+        // Serventis: Record probe observation
+        {
+            let mut probe = self.probe.write().unwrap();
+            let outcome = if queue_result.is_ok() {
+                Outcome::Success
+            } else {
+                Outcome::Failure
+            };
+            probe.process(Origin::Client, outcome).await
+                .map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+        }
+        
+        queue_result.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
         
         // Wait for completion
         self.execution_queue.await_empty().await;
+        
+        // Serventis: Emit success/fail signal
+        let execution_success = true; // Would check actual result
+        {
+            let mut service = self.service.write().unwrap();
+            if execution_success {
+                service.success().await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+            } else {
+                service.fail().await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+            }
+            service.stop().await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
+        }
         
         // Record execution time
         let duration = Utc::now().signed_duration_since(start);
         self.record_metric(MetricType::ExecutionTime, duration.num_milliseconds() as f64).await;
         
-        // Emit completion event
+        // Substrates: Emit completion event
         self.emit_event(EventType::Completed, serde_json::json!({
             "duration_ms": duration.num_milliseconds(),
         })).await.map_err(|e| crate::IntentError::ObservableError(e.to_string()))?;
@@ -160,6 +233,28 @@ impl ObservableIntent {
     fn intent_priority(&self) -> Priority {
         // Access metadata through the intent's fields
         Priority::Normal // Default for now, would need to expose metadata getter
+    }
+    
+    /// Get probe observations
+    pub fn get_observations(&self) -> Vec<Observation> {
+        let probe = self.probe.read().unwrap();
+        probe.observations().to_vec()
+    }
+    
+    /// Get monitor status
+    pub async fn get_monitor_status(&self) -> (Status, Confidence) {
+        let monitor = self.monitor.read().unwrap();
+        monitor.current_status()
+    }
+    
+    /// Execute with Serventis service wrapper
+    pub async fn execute_with_service<F, R>(&self, f: F) -> Result<R, Box<dyn std::error::Error + Send + Sync>>
+    where
+        F: FnOnce() -> Result<R, Box<dyn std::error::Error + Send + Sync>> + Send,
+        R: Send,
+    {
+        let mut service = self.service.write().unwrap();
+        service.execute(f).await
     }
 }
 

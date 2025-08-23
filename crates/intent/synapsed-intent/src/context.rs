@@ -32,6 +32,21 @@ pub struct IntentContext {
     audit_log: Arc<RwLock<Vec<AuditEntry>>>,
 }
 
+impl std::fmt::Debug for IntentContext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("IntentContext")
+            .field("id", &self.id)
+            .field("parent", &self.parent.is_some())
+            .field("variables_count", &"<locked>")
+            .field("bounds", &self.bounds)
+            .field("metadata", &self.metadata)
+            .field("services_count", &"<locked>")
+            .field("verification_requirements", &self.verification_requirements)
+            .field("audit_log_entries", &"<locked>")
+            .finish()
+    }
+}
+
 /// Metadata for a context
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ContextMetadata {
@@ -237,6 +252,56 @@ impl IntentContext {
             AuditResult::Success,
             Some(serde_json::json!({ "service": name }))
         ).await;
+    }
+    
+    /// Executes a function in the context
+    pub async fn execute_function(
+        &self,
+        function_name: &str,
+        args: &[Value],
+    ) -> Result<Value> {
+        // First check if this is a service function
+        if function_name.contains('.') {
+            let parts: Vec<&str> = function_name.split('.').collect();
+            if parts.len() == 2 {
+                return self.call_service(parts[0], parts[1], args.to_vec()).await;
+            }
+        }
+        
+        // Built-in functions
+        match function_name {
+            "get_variable" => {
+                if let Some(key) = args.get(0).and_then(|v| v.as_str()) {
+                    Ok(self.get_variable(key).unwrap_or(Value::Null))
+                } else {
+                    Err(IntentError::ExecutionFailed("get_variable requires a string key".to_string()))
+                }
+            },
+            "set_variable" => {
+                if let (Some(key), Some(value)) = (
+                    args.get(0).and_then(|v| v.as_str()),
+                    args.get(1),
+                ) {
+                    self.set_variable(key.to_string(), value.clone()).await?;
+                    Ok(Value::Bool(true))
+                } else {
+                    Err(IntentError::ExecutionFailed("set_variable requires key and value".to_string()))
+                }
+            },
+            _ => {
+                // Try to find function in registered services
+                let services = self.services.read().await;
+                for service in services.values() {
+                    if service.has_function(function_name) {
+                        return service.execute(function_name, args.to_vec());
+                    }
+                }
+                
+                Err(IntentError::ExecutionFailed(
+                    format!("Function '{}' not found", function_name)
+                ))
+            }
+        }
     }
     
     /// Calls a service function

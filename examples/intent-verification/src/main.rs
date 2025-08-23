@@ -1,312 +1,443 @@
-//! Intent Verification Example
-//! 
-//! This example demonstrates how to use the synapsed-intent and synapsed-verify
-//! crates to create verifiable AI agent intentions and verify their execution.
+//! Example demonstrating complete intent-promise-verify integration
+//!
+//! This example shows how the synapsed-intent system prevents AI agents
+//! from escaping context and making false claims through:
+//! 1. Hierarchical intent declaration
+//! 2. Promise-based cooperation
+//! 3. Multi-strategy verification
+//! 4. Context boundary enforcement
 
-use anyhow::Result;
 use synapsed_intent::{
-    HierarchicalIntent, IntentBuilder, StepAction, VerificationRequirement,
-    Priority, IntentConfig,
+    IntentBuilder, ContextBuilder, VerifiedIntent,
+    StepAction, DelegationSpec, VerificationRequirement,
+    VerificationType, VerificationStrategy, RecoveryStrategy,
+    Condition, ConditionType, Priority,
 };
+// Note: In production, synapsed-promise would be used for agent cooperation
+// This example shows the integration patterns without creating cyclic dependencies
 use synapsed_verify::{
-    VerificationStrategy, CommandVerifier, FileSystemVerifier, 
-    CompositeVerifier, VerificationOutcome,
+    CommandVerifier, CommandVerifierConfig,
+    FileSystemVerifier, NetworkVerifier,
 };
-use synapsed_substrates::{
-    BasicCircuit, BasicChannel, Subject, Emission,
-};
+use synapsed_substrates::{BasicCircuit, BasicChannel, Subject};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{info, debug, error};
+use tracing::{info, warn, error};
+use serde_json::json;
 use uuid::Uuid;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
     // Initialize tracing
     tracing_subscriber::fmt()
         .with_env_filter("debug")
         .init();
 
-    info!("Starting Intent Verification Example");
-
-    // Create a circuit for observability
-    let circuit = Arc::new(BasicCircuit::new("intent-verification"));
+    info!("Starting Intent-Promise-Verify Integration Example");
     
-    // Example 1: Simple command execution intent
-    simple_command_intent().await?;
+    // Demonstrate the complete flow
+    demonstrate_verified_execution().await?;
+    demonstrate_context_escaping_prevention().await?;
+    demonstrate_false_claim_detection().await?;
+    demonstrate_promise_based_delegation().await?;
     
-    // Example 2: File operation intent with verification
-    file_operation_intent().await?;
-    
-    // Example 3: Complex hierarchical intent
-    hierarchical_intent_example().await?;
-    
-    // Example 4: Intent with observability integration
-    observable_intent_example(circuit).await?;
-    
-    info!("All examples completed successfully!");
+    info!("Example completed successfully");
     Ok(())
 }
 
-/// Example 1: Simple command execution intent
-async fn simple_command_intent() -> Result<()> {
-    info!("=== Example 1: Simple Command Execution Intent ===");
+/// Demonstrates basic verified execution with command verification
+async fn demonstrate_verified_execution() -> anyhow::Result<()> {
+    info!("\n=== Demonstrating Verified Execution ===");
     
-    // Create an intent to list files
-    let intent = IntentBuilder::new("List project files")
-        .description("List all Rust files in the project")
-        .priority(Priority::Normal)
-        .step("list_files", StepAction::Command {
-            command: "ls".to_string(),
-            args: vec!["-la".to_string()],
-        })
+    // Create a context with specific bounds
+    let context = ContextBuilder::new()
+        .creator("main-agent")
+        .purpose("data-processing")
+        .allow_commands(vec![
+            "echo".to_string(),
+            "cat".to_string(),
+            "grep".to_string(),
+            "wc".to_string(),
+        ])
+        .allow_paths(vec!["/tmp".to_string(), "/var/tmp".to_string()])
+        .max_memory(100 * 1024 * 1024) // 100MB limit
+        .max_cpu_time(30) // 30 seconds limit
+        .variable("input_file", json!("/tmp/data.txt"))
+        .variable("output_file", json!("/tmp/results.txt"))
+        .build()
+        .await;
+    
+    // Build an intent with verification requirements
+    let intent = IntentBuilder::new("Process and verify data")
+        .description("Demonstrates command execution with verification")
+        .priority(Priority::High)
+        
+        // Step 1: Create test data
         .verified_step(
-            "count_files",
-            StepAction::Command {
-                command: "find".to_string(),
-                args: vec![".".to_string(), "-name".to_string(), "*.rs".to_string()],
-            },
-            VerificationRequirement::CommandOutput {
-                expected_pattern: Some(r"\.rs$".to_string()),
+            "create_data",
+            StepAction::Command("echo 'test data\nmore data\nfinal data' > /tmp/data.txt".to_string()),
+            VerificationRequirement {
+                verification_type: VerificationType::FileSystem,
+                expected: json!({ 
+                    "file": "/tmp/data.txt",
+                    "exists": true 
+                }),
+                mandatory: true,
+                strategy: VerificationStrategy::Single,
+            }
+        )
+        
+        // Step 2: Process data with verification
+        .verified_step(
+            "process_data",
+            StepAction::Command("grep 'data' /tmp/data.txt | wc -l > /tmp/results.txt".to_string()),
+            VerificationRequirement {
+                verification_type: VerificationType::Command,
+                expected: json!({ "exit_code": 0 }),
+                mandatory: true,
+                strategy: VerificationStrategy::Single,
+            }
+        )
+        
+        // Step 3: Verify results
+        .verified_step(
+            "verify_results",
+            StepAction::Command("cat /tmp/results.txt".to_string()),
+            VerificationRequirement {
+                verification_type: VerificationType::Command,
+                expected: json!({ "exit_code": 0 }),
+                mandatory: true,
+                strategy: VerificationStrategy::Single,
             }
         )
         .build();
     
-    // Plan the execution
-    let plan = intent.plan().await?;
-    info!("Execution plan created with {} steps", plan.steps.len());
+    // Create verified intent with recovery strategy
+    let verified = VerifiedIntent::new(intent, context.bounds().clone())
+        .with_recovery_strategy(RecoveryStrategy::Retry {
+            max_attempts: 3,
+            delay_ms: 1000,
+        })
+        .with_file_rollback("/tmp");
     
-    // Create a command verifier
-    let verifier = CommandVerifier::new();
+    // Execute with full verification
+    let result = verified.execute(&context).await?;
     
-    // Simulate command execution and verification
-    let command = "ls -la";
-    let output = "file1.rs\nfile2.rs\nCargo.toml";
+    // Report results
+    info!("Execution completed: success={}", result.success);
+    info!("Steps executed: {}", result.step_results.len());
     
-    let verification = verifier.verify_output(command, output)?;
+    let metrics = verified.metrics().await;
+    info!("Metrics: {:?}", metrics);
     
-    match verification.passed {
-        true => info!("✓ Command verification passed"),
-        false => error!("✗ Command verification failed"),
+    if result.success {
+        info!("✅ All commands executed and verified successfully");
+    } else {
+        warn!("⚠️ Some steps failed verification");
     }
     
     Ok(())
 }
 
-/// Example 2: File operation intent with verification
-async fn file_operation_intent() -> Result<()> {
-    info!("=== Example 2: File Operation Intent ===");
+/// Demonstrates how context boundaries prevent unauthorized operations
+async fn demonstrate_context_escaping_prevention() -> anyhow::Result<()> {
+    info!("\n=== Demonstrating Context Escaping Prevention ===");
     
-    let intent = IntentBuilder::new("Create and verify configuration file")
-        .description("Create a config file and verify its existence")
-        .step("create_config", StepAction::Custom(
-            serde_json::json!({
-                "action": "create_file",
-                "path": "/tmp/config.json",
-                "content": {
-                    "version": "1.0",
-                    "enabled": true
-                }
-            })
+    // Create a restrictive context
+    let context = ContextBuilder::new()
+        .creator("restricted-agent")
+        .purpose("limited-scope")
+        .allow_commands(vec!["echo".to_string(), "ls".to_string()])
+        .allow_paths(vec!["/tmp".to_string()])
+        .allow_endpoints(vec!["https://api.example.com".to_string()])
+        .build()
+        .await;
+    
+    // Build an intent that tries to escape context
+    let intent = IntentBuilder::new("Attempt context escape")
+        .description("This intent will be blocked by context bounds")
+        
+        // Allowed operation
+        .step("allowed_op", StepAction::Command("echo 'This is allowed'".to_string()))
+        
+        // Attempt to use forbidden command (will be blocked)
+        .step("forbidden_command", StepAction::Command("rm -rf /important/file".to_string()))
+        
+        // Attempt to access forbidden path (will be blocked)
+        .step("forbidden_path", StepAction::Command("cat /etc/passwd".to_string()))
+        
+        // Attempt to access forbidden network (will be blocked)
+        .step("forbidden_network", StepAction::Function(
+            "http_request".to_string(),
+            vec![json!("https://evil.com"), json!("GET")]
         ))
+        .build();
+    
+    let verified = VerifiedIntent::new(intent, context.bounds().clone())
+        .with_recovery_strategy(RecoveryStrategy::Skip); // Skip failed steps
+    
+    let result = verified.execute(&context).await?;
+    
+    // Check violations
+    let violations = verified.get_violations().await;
+    info!("Context violations detected: {}", violations.len());
+    
+    for violation in violations {
+        warn!("❌ Violation: {:?} - {}", violation.violation_type, violation.details);
+    }
+    
+    if violations.len() > 0 {
+        info!("✅ Context boundaries successfully prevented unauthorized operations");
+    }
+    
+    Ok(())
+}
+
+/// Demonstrates detection of false claims through verification
+async fn demonstrate_false_claim_detection() -> anyhow::Result<()> {
+    info!("\n=== Demonstrating False Claim Detection ===");
+    
+    let context = ContextBuilder::new()
+        .creator("verifier-agent")
+        .purpose("claim-verification")
+        .allow_commands(vec!["echo".to_string(), "touch".to_string(), "ls".to_string()])
+        .allow_paths(vec!["/tmp".to_string()])
+        .build()
+        .await;
+    
+    // Create an intent that makes claims about its actions
+    let intent = IntentBuilder::new("Verify agent claims")
+        .description("Ensures agents actually do what they claim")
+        
+        // Step with postcondition that must be verified
+        .step("create_file", StepAction::Command("touch /tmp/verified_file.txt".to_string()))
+        .ensures(Condition {
+            condition_type: ConditionType::FileExists,
+            expected: json!("/tmp/verified_file.txt"),
+            critical: true,
+            description: Some("File must exist after creation".to_string()),
+        })
+        
+        // Step that claims to create multiple files (but might fail)
         .verified_step(
-            "verify_config",
-            StepAction::Custom(
-                serde_json::json!({
-                    "action": "verify_file",
-                    "path": "/tmp/config.json"
-                })
-            ),
-            VerificationRequirement::FileExists {
-                path: "/tmp/config.json".to_string(),
-                check_content: true,
+            "create_multiple",
+            StepAction::Command("echo 'Creating files...'".to_string()), // Doesn't actually create files!
+            VerificationRequirement {
+                verification_type: VerificationType::FileSystem,
+                expected: json!({
+                    "files": ["/tmp/file1.txt", "/tmp/file2.txt"],
+                    "all_exist": true
+                }),
+                mandatory: true,
+                strategy: VerificationStrategy::All, // All verifiers must agree
             }
         )
         .build();
     
-    // Create a file system verifier
-    let mut fs_verifier = FileSystemVerifier::new();
-    fs_verifier.expect_file("/tmp/config.json");
+    let verified = VerifiedIntent::new(intent, context.bounds().clone());
+    let result = verified.execute(&context).await?;
     
-    // Simulate file creation
-    debug!("Simulating file creation at /tmp/config.json");
-    
-    // Verify file existence
-    let files = vec!["/tmp/config.json".to_string()];
-    let verification = fs_verifier.verify_files(&files)?;
-    
-    info!("File verification: {}", 
-        if verification.passed { "✓ Passed" } else { "✗ Failed" }
-    );
-    
-    Ok(())
-}
-
-/// Example 3: Complex hierarchical intent
-async fn hierarchical_intent_example() -> Result<()> {
-    info!("=== Example 3: Hierarchical Intent ===");
-    
-    // Create parent intent
-    let mut parent_intent = HierarchicalIntent::new("Deploy application")
-        .with_description("Complete application deployment process");
-    
-    // Create sub-intents
-    let build_intent = IntentBuilder::new("Build application")
-        .step("compile", StepAction::Command {
-            command: "cargo".to_string(),
-            args: vec!["build".to_string(), "--release".to_string()],
-        })
-        .step("run_tests", StepAction::Command {
-            command: "cargo".to_string(),
-            args: vec!["test".to_string()],
-        })
-        .build();
-    
-    let deploy_intent = IntentBuilder::new("Deploy to server")
-        .step("package", StepAction::Custom(
-            serde_json::json!({
-                "action": "create_deployment_package",
-                "format": "tar.gz"
-            })
-        ))
-        .step("upload", StepAction::Custom(
-            serde_json::json!({
-                "action": "upload_to_server",
-                "server": "production",
-                "path": "/opt/app"
-            })
-        ))
-        .build();
-    
-    // Add sub-intents to parent
-    parent_intent = parent_intent.sub_intent(build_intent);
-    parent_intent = parent_intent.sub_intent(deploy_intent);
-    
-    // Validate the intent structure
-    parent_intent.validate().await?;
-    info!("✓ Hierarchical intent structure validated");
-    
-    // Create composite verifier for multiple verification strategies
-    let mut composite = CompositeVerifier::new();
-    
-    // Add command verification result
-    composite.add_result(VerificationOutcome {
-        passed: true,
-        details: serde_json::json!({
-            "step": "compile",
-            "output": "Build successful"
-        }),
-        proof_id: Some(Uuid::new_v4()),
-        timestamp: chrono::Utc::now(),
-    });
-    
-    // Add file verification result
-    composite.add_result(VerificationOutcome {
-        passed: true,
-        details: serde_json::json!({
-            "step": "package",
-            "file": "app.tar.gz",
-            "size": 1024000
-        }),
-        proof_id: Some(Uuid::new_v4()),
-        timestamp: chrono::Utc::now(),
-    });
-    
-    let overall = composite.get_overall_result();
-    info!("Overall verification: {} (confidence: {:.2})", 
-        if overall.passed { "✓ Passed" } else { "✗ Failed" },
-        composite.confidence_score()
-    );
-    
-    Ok(())
-}
-
-/// Example 4: Intent with observability integration
-async fn observable_intent_example(circuit: Arc<BasicCircuit>) -> Result<()> {
-    info!("=== Example 4: Observable Intent ===");
-    
-    // Create a channel for intent events
-    let subject = Subject::new("intent", "verification");
-    let channel: Arc<dyn synapsed_substrates::Channel<String>> = 
-        Arc::new(BasicChannel::new(subject.clone()));
-    circuit.add_channel(channel.clone());
-    
-    // Create intent with observability
-    let intent = IntentBuilder::new("Observable data processing")
-        .description("Process data with full observability")
-        .step("fetch_data", StepAction::Custom(
-            serde_json::json!({
-                "action": "fetch",
-                "source": "api",
-                "endpoint": "/data"
-            })
-        ))
-        .step("transform_data", StepAction::Function {
-            name: "transform_json".to_string(),
-            args: vec!["input.json".to_string(), "output.json".to_string()],
-        })
-        .step("validate_output", StepAction::Custom(
-            serde_json::json!({
-                "action": "validate",
-                "schema": "output_schema.json"
-            })
-        ))
-        .build();
-    
-    // Emit intent creation event
-    let pipe = channel.create_pipe("intent_events");
-    pipe.emit(Emission::new(
-        format!("Intent created: {}", intent.id().0),
-        subject.clone()
-    ));
-    
-    // Simulate step execution with events
-    for (i, step_name) in ["fetch_data", "transform_data", "validate_output"].iter().enumerate() {
-        debug!("Executing step: {}", step_name);
-        
-        // Emit step start event
-        pipe.emit(Emission::new(
-            format!("Step {} started: {}", i + 1, step_name),
-            subject.clone()
-        ));
-        
-        // Simulate processing
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-        
-        // Emit step completion event
-        pipe.emit(Emission::new(
-            format!("Step {} completed: {}", i + 1, step_name),
-            subject.clone()
-        ));
-    }
-    
-    info!("✓ Observable intent execution completed");
-    
-    // Get circuit statistics
-    let stats = circuit.get_statistics();
-    info!("Circuit statistics: {} channels active", stats.channels_count);
-    
-    Ok(())
-}
-
-/// Helper function to create a mock verification strategy
-fn create_mock_verifier() -> Arc<dyn VerificationStrategy> {
-    struct MockVerifier;
-    
-    impl VerificationStrategy for MockVerifier {
-        fn verify(&self, _data: &serde_json::Value) -> Result<VerificationOutcome> {
-            Ok(VerificationOutcome {
-                passed: true,
-                details: serde_json::json!({"mock": true}),
-                proof_id: Some(Uuid::new_v4()),
-                timestamp: chrono::Utc::now(),
-            })
-        }
-        
-        fn strategy_type(&self) -> String {
-            "mock".to_string()
+    // Check which claims were verified
+    for (i, step_result) in result.step_results.iter().enumerate() {
+        if let Some(verification) = &step_result.verification {
+            if verification.passed {
+                info!("✅ Step {} claim verified", i + 1);
+            } else {
+                warn!("❌ Step {} false claim detected!", i + 1);
+            }
         }
     }
     
-    Arc::new(MockVerifier)
+    info!("False claim detection completed");
+    Ok(())
+}
+
+/// Demonstrates promise-based delegation between agents
+async fn demonstrate_promise_based_delegation() -> anyhow::Result<()> {
+    info!("\n=== Demonstrating Promise-Based Delegation ===");
+    
+    // In production, we would create agents using synapsed-promise
+    // For this example, we'll simulate agent creation
+    info!("Creating main and sub agents (simulated)");
+    
+    // Create context for delegation
+    let context = ContextBuilder::new()
+        .creator("main-agent")
+        .purpose("distributed-processing")
+        .allow_commands(vec!["echo".to_string(), "python3".to_string()])
+        .variable("trust_model", json!({}))
+        .build()
+        .await;
+    
+    // Build intent with delegation
+    let intent = IntentBuilder::new("Coordinate distributed task")
+        .description("Delegates work to sub-agents with promises")
+        
+        // Step 1: Prepare task
+        .step("prepare", StepAction::Command("echo 'Preparing task for delegation'".to_string()))
+        
+        // Step 2: Delegate to sub-agent with promise
+        .verified_step(
+            "delegate_processing",
+            StepAction::Delegate(DelegationSpec {
+                agent_id: Some("sub-agent-1".to_string()),
+                task: "Process dataset and compute statistics".to_string(),
+                context: {
+                    let mut ctx = HashMap::new();
+                    ctx.insert("dataset".to_string(), json!({
+                        "path": "/tmp/data.csv",
+                        "format": "csv",
+                        "size": 1000
+                    }));
+                    ctx.insert("requirements".to_string(), json!({
+                        "compute_mean": true,
+                        "compute_std": true,
+                        "generate_report": true
+                    }));
+                    ctx
+                },
+                timeout_ms: 10000,
+                wait_for_completion: true,
+            }),
+            VerificationRequirement {
+                verification_type: VerificationType::Custom,
+                expected: json!({
+                    "promise_fulfilled": true,
+                    "trust_maintained": true
+                }),
+                mandatory: true,
+                strategy: VerificationStrategy::Consensus(2), // Multiple verifiers
+            }
+        )
+        
+        // Step 3: Verify delegation results
+        .step("verify_results", StepAction::Function(
+            "verify_delegation".to_string(),
+            vec![json!("sub-agent-1"), json!("processing_task")]
+        ))
+        .build();
+    
+    // Create verified intent
+    let verified = VerifiedIntent::new(intent, context.bounds().clone());
+    
+    // Execute with promise tracking
+    info!("Starting delegation with promise tracking...");
+    let result = verified.execute(&context).await?;
+    
+    // Check promise fulfillment
+    if result.success {
+        info!("✅ Delegation completed successfully with promise fulfillment");
+        
+        // In a real scenario, we would check the trust model update
+        info!("Trust model updated based on promise fulfillment");
+    } else {
+        warn!("⚠️ Delegation failed or promise not fulfilled");
+    }
+    
+    // Report on the delegation
+    for step_result in &result.step_results {
+        if let Some(output) = &step_result.output {
+            if let Some(promise_id) = output.get("promise_id") {
+                info!("Promise ID: {}", promise_id);
+            }
+            if let Some(trust_score) = output.get("trust_score") {
+                info!("Updated trust score: {}", trust_score);
+            }
+        }
+    }
+    
+    Ok(())
+}
+
+/// Example of a complete AI agent task with full verification
+async fn example_ai_agent_task() -> anyhow::Result<()> {
+    info!("\n=== Complete AI Agent Task Example ===");
+    
+    // This demonstrates how Claude sub-agents would be constrained
+    let context = ContextBuilder::new()
+        .creator("claude-main")
+        .purpose("code-generation-task")
+        .allow_commands(vec![
+            "git".to_string(),
+            "cargo".to_string(),
+            "rustc".to_string(),
+            "echo".to_string(),
+        ])
+        .allow_paths(vec![
+            "/workspace".to_string(),
+            "/tmp".to_string(),
+        ])
+        .allow_endpoints(vec![
+            "https://api.github.com".to_string(),
+            "https://crates.io".to_string(),
+        ])
+        .max_memory(512 * 1024 * 1024) // 512MB
+        .max_cpu_time(300) // 5 minutes
+        .variable("project_path", json!("/workspace/project"))
+        .variable("requirements", json!({
+            "language": "rust",
+            "framework": "tokio",
+            "must_compile": true,
+            "must_pass_tests": true
+        }))
+        .build()
+        .await;
+    
+    let intent = IntentBuilder::new("Generate and verify Rust code")
+        .description("AI agent generates code with full verification")
+        .priority(Priority::Critical)
+        
+        // Declare what we're going to do
+        .step("declare_intent", StepAction::Function(
+            "declare_to_user".to_string(),
+            vec![json!("I will generate a Rust async function with error handling")]
+        ))
+        
+        // Generate code (simulated)
+        .step("generate_code", StepAction::Command(
+            "echo 'async fn process() -> Result<()> { Ok(()) }' > /tmp/generated.rs".to_string()
+        ))
+        
+        // Verify the code compiles
+        .verified_step(
+            "verify_compilation",
+            StepAction::Command("rustc --edition 2021 --crate-type lib /tmp/generated.rs".to_string()),
+            VerificationRequirement {
+                verification_type: VerificationType::Command,
+                expected: json!({ "exit_code": 0 }),
+                mandatory: true,
+                strategy: VerificationStrategy::All,
+            }
+        )
+        
+        // Verify code quality
+        .verified_step(
+            "verify_quality",
+            StepAction::Command("cargo clippy --all-targets -- -D warnings".to_string()),
+            VerificationRequirement {
+                verification_type: VerificationType::Command,
+                expected: json!({ "exit_code": 0 }),
+                mandatory: false, // Warning only
+                strategy: VerificationStrategy::Single,
+            }
+        )
+        .build();
+    
+    let verified = VerifiedIntent::new(intent, context.bounds().clone())
+        .with_recovery_strategy(RecoveryStrategy::Retry {
+            max_attempts: 2,
+            delay_ms: 2000,
+        });
+    
+    let result = verified.execute(&context).await?;
+    
+    if result.success {
+        info!("✅ AI agent successfully generated and verified code");
+        info!("All claims about code generation were verified");
+    } else {
+        error!("❌ AI agent failed to generate valid code or made false claims");
+    }
+    
+    Ok(())
 }

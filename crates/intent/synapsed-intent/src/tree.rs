@@ -79,9 +79,9 @@ impl IntentTree {
         relation: IntentRelation,
     ) -> Result<()> {
         let from_idx = self.node_map.get(&from)
-            .ok_or_else(|| IntentError::NotFound(from.0))?;
+            .ok_or_else(|| IntentError::NotFound(from.0.to_string()))?;
         let to_idx = self.node_map.get(&to)
-            .ok_or_else(|| IntentError::NotFound(to.0))?;
+            .ok_or_else(|| IntentError::NotFound(to.0.to_string()))?;
         
         self.graph.add_edge(*from_idx, *to_idx, relation);
         
