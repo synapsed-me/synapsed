@@ -1,248 +1,262 @@
 # Synapsed 🧠
 
-> **Next-Generation Distributed Systems Framework** - Observable, Verifiable, Secure by Design
+> **Next-Generation Distributed Agent Framework** - Verifiable, Autonomous, and Safety-First AI Agent Systems
 
 [![Crates.io](https://img.shields.io/crates/v/synapsed-core.svg)](https://crates.io/crates/synapsed-core)
 [![Documentation](https://docs.rs/synapsed-core/badge.svg)](https://docs.rs/synapsed-core)
 [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](LICENSE)
 [![Build Status](https://github.com/synapsed-me/synapsed/workflows/CI/badge.svg)](https://github.com/synapsed-me/synapsed/actions)
 
-## Overview
+## 🚀 Overview
 
-Synapsed is a comprehensive Rust framework for building distributed, observable, and verifiable systems. It combines cutting-edge technologies including:
+Synapsed is a comprehensive Rust framework for building **verifiable, autonomous AI agent systems** with mathematical safety guarantees. It prevents AI agents from context escaping, making false claims, and ensures all actions are verifiable against external reality.
 
-- **Observable-First Architecture**: Built on Humainary-inspired Substrates and Serventis
-- **Intent Verification**: Hierarchical intent trees with Promise Theory
-- **Post-Quantum Cryptography**: Kyber and Dilithium implementations with GPU acceleration
-- **Distributed Primitives**: Consensus, CRDTs, P2P networking
-- **Privacy & Security**: DIDs, ZKP, multi-layer privacy
-- **High Performance**: SIMD optimizations, GPU acceleration, zero-copy patterns
+### Core Capabilities
 
-## Architecture
+- **🤝 Promise Theory Implementation**: True voluntary cooperation between autonomous agents
+- **🧠 Hybrid Memory Architecture**: Vector, episodic, semantic, and working memory systems
+- **✅ Intent Verification**: Hierarchical intent trees with cryptographic proofs
+- **🛡️ Safety Integration**: Mathematical safety guarantees with automatic rollback
+- **💬 FIPA ACL Communication**: Semantic agent messaging with conversation management
+- **🔒 Adaptive Permissions**: Trust-based permission negotiation with learning
+- **🔌 Claude Code Integration**: Native hooks and MCP server support
+- **🔐 Post-Quantum Security**: Kyber and Dilithium implementations
 
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    subgraph "Synapsed Agent Framework"
+        subgraph "Promise Theory"
+            VC[Voluntary Cooperation]
+            FIPA[FIPA ACL Communication]
+            PC[Promise Chemistry]
+        end
+        
+        subgraph "Intent System"
+            HI[Hierarchical Intent]
+            VER[Verification]
+            PROOF[Cryptographic Proofs]
+        end
+        
+        subgraph "Memory System"
+            VM[Vector Memory]
+            EM[Episodic Memory]
+            SM[Semantic Memory]
+            WM[Working Memory]
+        end
+        
+        subgraph "Safety Engine"
+            CB[Circuit Breakers]
+            RG[Resource Guards]
+            RB[Rollback Manager]
+            CS[Critical Sections]
+        end
+        
+        subgraph "Observability"
+            SUB[Substrates Event Circuits]
+        end
+        
+        VC --> HI
+        FIPA --> VER
+        VM --> WM
+        WM --> EM
+        WM --> SM
+        CB --> RB
+        SUB --> VER
+        SUB --> VC
+    end
 ```
-┌────────────────────────────────────────────────────────────┐
-│                     Synapsed Ecosystem                     │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  ┌──────────────────┐  ┌──────────────────┐                │
-│  │  Observability   │  │ Intent Framework │                │
-│  │  ┌────────────┐  │  │  ┌────────────┐  │                │
-│  │  │ Substrates │  │  │  │   Intent   │  │                │
-│  │  └────────────┘  │  │  └────────────┘  │                │
-│  │  ┌────────────┐  │  │  ┌────────────┐  │                │
-│  │  │ Serventis  │  │  │  │  Promise   │  │                │
-│  │  └────────────┘  │  │  └────────────┘  │                │
-│  └──────────────────┘  │  ┌────────────┐  │                │
-│                        │  │   Verify   │  │                │
-│  ┌──────────────────┐  │  └────────────┘  │                │
-│  │  Core Platform   │  │  ┌────────────┐  │                │
-│  │  ┌────────────┐  │  │  │  Enforce   │  │                │
-│  │  │    Core    │  │  │  └────────────┘  │                │
-│  │  └────────────┘  │  └──────────────────┘                │
-│  │  ┌────────────┐  │                                      │
-│  │  │   Crypto   │  │  ┌──────────────────┐                │
-│  │  └────────────┘  │  │    Networking    │                │
-│  │  ┌────────────┐  │  │  ┌────────────┐  │                │
-│  │  │    GPU     │  │  │  │    Net     │  │                │
-│  │  └────────────┘  │  │  └────────────┘  │                │
-│  └──────────────────┘  │  ┌────────────┐  │                │
-│                        │  │ Consensus  │  │                │
-│  ┌──────────────────┐  │  └────────────┘  │                │
-│  │  Storage & Data  │  └──────────────────┘                │
-│  │  ┌────────────┐  │                                      │
-│  │  │  Storage   │  │  ┌──────────────────┐                │
-│  │  └────────────┘  │  │  Security & ID   │                │
-│  │  ┌────────────┐  │  │  ┌────────────┐  │                │
-│  │  │    CRDT    │  │  │  │  Identity  │  │                │
-│  │  └────────────┘  │  │  └────────────┘  │                │
-│  └──────────────────┘  │  ┌────────────┐  │                │
-│                        │  │   Safety   │  │                │
-│                        │  └────────────┘  │                │
-│                        └──────────────────┘                │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-```
 
-## Crates
+## 🎯 Key Features
 
-### Observability Foundation
-- **[synapsed-substrates](crates/observability/synapsed-substrates)** - Event circuits and observability fabric
-- **[synapsed-serventis](crates/observability/synapsed-serventis)** - Service-level monitoring and probes
+### Promise Theory Implementation
+- **Voluntary Cooperation**: Agents cannot be coerced, only make voluntary promises
+- **Causal Independence**: Mathematical verification of agent autonomy
+- **Semantic Spacetime**: Promises with spatial, temporal, and semantic contexts
+- **Promise Chemistry**: How promises interact, compose, and transform
 
-### Core Infrastructure
-- **[synapsed-core](crates/core/synapsed-core)** - Base traits, memory management, runtime
-- **[synapsed-crypto](crates/core/synapsed-crypto)** - Post-quantum cryptography (Kyber, Dilithium)
-- **[synapsed-gpu](crates/core/synapsed-gpu)** - GPU acceleration for compute-intensive operations
+### Intent Verification System
+- **Hierarchical Intent Trees**: Complex multi-step planning with verification
+- **Cryptographic Proofs**: Tamper-proof evidence of execution
+- **Multi-Strategy Verification**: Command, filesystem, API, and composite verification
+- **Context Boundaries**: Strict enforcement of operational limits
 
-### Storage & Data
-- **[synapsed-storage](crates/storage/synapsed-storage)** - Multi-backend observable storage
-- **[synapsed-crdt](crates/storage/synapsed-crdt)** - Conflict-free replicated data types
+### Memory Architecture
+- **Vector Memory**: 768-dimensional embeddings with cosine similarity search
+- **Episodic Memory**: Sequential event storage with temporal indexing
+- **Semantic Memory**: Knowledge graphs with relationship inference
+- **Working Memory**: Attention-based active context management
+- **Memory Consolidation**: Automatic transfer between memory types
 
-### Networking
-- **[synapsed-net](crates/network/synapsed-net)** - P2P, WebRTC, QUIC with privacy layers
-- **[synapsed-consensus](crates/network/synapsed-consensus)** - HotStuff consensus implementation
-- **[synapsed-routing](crates/network/synapsed-routing)** - Advanced routing algorithms
+### Safety & Permissions
+- **Adaptive Trust Scoring**: Trust evolves based on agent behavior
+- **Learning Engine**: Discovers successful permission patterns
+- **Circuit Breakers**: Prevents cascade failures in multi-agent systems
+- **Resource Guards**: Automatic cleanup and leak prevention
+- **Hierarchical Delegation**: Permission escalation chains
 
-### Security & Identity
-- **[synapsed-identity](crates/security/synapsed-identity)** - DIDs, auth, MFA with ZKP
-- **[synapsed-safety](crates/security/synapsed-safety)** - Runtime safety and rollback
+## 📦 Core Crates
 
-### Intent Framework
-- **[synapsed-intent](crates/intent/synapsed-intent)** - Hierarchical intent trees
+### Agent Framework
+- **[synapsed-intent](crates/intent/synapsed-intent)** - Hierarchical intent trees with verification
 - **[synapsed-promise](crates/intent/synapsed-promise)** - Promise Theory implementation
 - **[synapsed-verify](crates/intent/synapsed-verify)** - Multi-strategy verification
-- **[synapsed-enforce](crates/intent/synapsed-enforce)** - Context enforcement
+- **[synapsed-mcp](crates/application/synapsed-mcp)** - Model Context Protocol server
 
-### Compute & Runtime
-- **[synapsed-wasm](crates/compute/synapsed-wasm)** - WASM runtime and PWA support
-- **[synapsed-neural-core](crates/compute/synapsed-neural-core)** - Neural network primitives
+### Core Infrastructure
+- **[synapsed-core](crates/core/synapsed-core)** - Base traits and utilities
+- **[synapsed-crypto](crates/core/synapsed-crypto)** - Post-quantum cryptography
+- **[synapsed-substrates](crates/observability/synapsed-substrates)** - Event circuits
 
-### Applications
-- **[synapsed-payments](crates/applications/synapsed-payments)** - Anonymous payment processing
-- **[synapsed-mcp](crates/applications/synapsed-mcp)** - Model Context Protocol server
-- **[synapsed-cli](crates/applications/synapsed-cli)** - Command-line interface
+### Safety & Security
+- **[synapsed-safety](crates/security/synapsed-safety)** - Mathematical safety guarantees
+- **[synapsed-identity](crates/security/synapsed-identity)** - DIDs and authentication
 
-## Quick Start
+### Storage & Network
+- **[synapsed-storage](crates/storage/synapsed-storage)** - Multi-backend storage
+- **[synapsed-net](crates/network/synapsed-net)** - P2P and secure networking
+
+## 🚀 Quick Start
 
 ### Installation
 
-```bash
-# Install the CLI
-cargo install synapsed-cli
-
-# Or add to your Cargo.toml
+```toml
 [dependencies]
-synapsed-core = "0.1"
 synapsed-intent = "0.1"
-synapsed-substrates = "0.1"
+synapsed-promise = "0.1"
+synapsed-verify = "0.1"
 ```
 
-### Basic Usage
+### Basic Agent with Promise Theory
 
 ```rust
-use synapsed_intent::{HierarchicalIntent, IntentTree};
-use synapsed_promise::{Promise, TrustModel};
-use synapsed_substrates::{Circuit, Subject};
+use synapsed_promise::{AutonomousAgent, Promise, PromiseType, Willingness};
+use synapsed_intent::{HierarchicalIntent, IntentBuilder};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create an observable intent
-    let intent = HierarchicalIntent::new("Deploy service")
-        .requires("All tests pass")
-        .step("Build container", "docker build -t app .")
-        .step("Push to registry", "docker push app")
-        .ensures("Service healthy", "curl health.check");
+    // Create an autonomous agent
+    let agent = AutonomousAgent::new(config);
+    agent.initialize().await?;
     
-    // Make it observable
-    let circuit = Circuit::new()
-        .subject(Subject::from("deployment"))
-        .observe(intent.clone());
+    // Evaluate willingness before making a promise
+    let willingness = agent.evaluate_willingness(
+        &promise_type,
+        &body,
+        &context
+    ).await?;
     
-    // Execute with verification
-    let result = intent.execute().await?;
-    assert!(result.verified);
+    if matches!(willingness, Willingness::Willing { .. }) {
+        // Make a voluntary promise
+        let promise = agent.make_promise(
+            PromiseType::Offer,
+            scope,
+            body
+        ).await?;
+        
+        // Execute with verification
+        let intent = IntentBuilder::new("Complete task")
+            .add_step("Verify preconditions")
+            .add_step("Execute action")
+            .add_step("Verify postconditions")
+            .build()?;
+            
+        let result = executor.execute_with_verification(&intent).await?;
+    }
     
     Ok(())
 }
 ```
 
-### Observable Services
+### Claude Code Integration
 
-```rust
-use synapsed_serventis::{Service, Monitor, Signal};
-use synapsed_substrates::{Substrate, Pipe};
+Add to `.claude/hooks.json`:
 
-// Create an observable service
-let service = Service::new("api-gateway")
-    .monitor(Monitor::health("/health"))
-    .monitor(Monitor::latency(Duration::from_millis(100)))
-    .pipe(Pipe::to("metrics-collector"));
-
-// Start with automatic observability
-service.start().await?;
+```json
+{
+  "hooks": {
+    "PreToolUse": [{
+      "name": "intent-declaration",
+      "matcher": "Write|Edit",
+      "hooks": [{
+        "type": "command",
+        "command": "cargo run --bin synapsed-mcp -- intent declare"
+      }]
+    }],
+    "PostToolUse": [{
+      "name": "intent-verification",
+      "matcher": ".*",
+      "hooks": [{
+        "type": "command",
+        "command": "cargo run --bin synapsed-mcp -- intent verify"
+      }]
+    }]
+  }
+}
 ```
 
-## Features
+## 📚 Documentation
 
-### 🔍 Observable by Design
-Every component emits structured observability data through Substrates circuits, enabling deep system understanding without performance overhead.
+- [Integration Guide](docs/INTEGRATION_GUIDE.md) - Complete integration patterns
+- [Intent Verification](docs/intent-verification/) - Intent system documentation
+- [API Documentation](https://docs.rs/synapsed-core) - Full API reference
+- [Examples](examples/) - Working examples
 
-### 🎯 Intent Verification
-Hierarchical intent trees ensure AI agents and distributed systems do what they claim, with cryptographic proof of execution.
+## 🛠️ Development
 
-### 🔐 Post-Quantum Security
-Ready for quantum computing threats with Kyber (KEM) and Dilithium (signatures), GPU-accelerated for performance.
-
-### 🌐 Privacy-First Networking
-Multiple privacy layers including Tor integration, mix networks, and onion routing built into the networking stack.
-
-### ⚡ High Performance
-- SIMD optimizations for crypto operations
-- GPU acceleration via CUDA/OpenCL
-- Zero-copy patterns throughout
-- Lock-free data structures
-
-### 🔄 Distributed Primitives
-- HotStuff consensus for agreement
-- CRDTs for eventual consistency
-- P2P mesh networking with libp2p
-- WebRTC for browser compatibility
-
-## Documentation
-
-- [Architecture Guide](docs/architecture.md)
-- [API Documentation](https://docs.rs/synapsed-core)
-- [Examples](examples/)
-- [Performance Tuning](docs/performance.md)
-- [Security Considerations](docs/security.md)
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Setup
+### Building
 
 ```bash
-# Clone the repository
-git clone https://github.com/synapsed-me/synapsed
-cd synapsed
-
 # Build all crates
 cargo build --all
 
 # Run tests
-cargo test --all
+cargo test --all --all-features
 
 # Run benchmarks
 cargo bench --all
 ```
 
-## Benchmarks
+### Testing
 
-| Operation | Time | Throughput |
-|-----------|------|------------|
-| Kyber768 Keygen | 35μs | 28k ops/sec |
-| Intent Verification | 125μs | 8k ops/sec |
-| CRDT Merge | 18μs | 55k ops/sec |
-| Observable Event | 250ns | 4M ops/sec |
+```bash
+# Unit tests
+cargo test
 
-## License
+# Integration tests
+cargo test --test '*'
 
-This project is dual-licensed under MIT and Apache 2.0. See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE) for details.
+# With all features
+cargo test --all-features
+```
 
-## Acknowledgments
+## 🔒 Security
 
-- William Louth and the Humainary project for observability concepts
-- Promise Theory by Mark Burgess
-- The Rust community for excellent libraries
+This framework implements:
+- **Post-quantum cryptography** (Kyber, Dilithium)
+- **Cryptographic proof generation** for all verifications
+- **Context boundary enforcement** to prevent escaping
+- **Mathematical safety guarantees** through formal verification
 
-## Contact
+## 🤝 Contributing
 
-- GitHub: [@synapsed-me](https://github.com/synapsed-me)
-- Email: team@synapsed.me
-- Discord: [Join our server](https://discord.gg/synapsed)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
----
+## 📄 License
 
-Built with ❤️ by the Synapsed Team
+Licensed under either of:
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+- MIT license ([LICENSE-MIT](LICENSE-MIT))
+
+## 🙏 Acknowledgments
+
+- Mark Burgess for Promise Theory
+- William Louth and Humainary for Substrates observability
+- FIPA for Agent Communication Language standards
+- The Rust community for excellent tooling
+
+## 📮 Contact
+
+- GitHub: [https://github.com/synapsed-me/synapsed](https://github.com/synapsed-me/synapsed)
+- Issues: [https://github.com/synapsed-me/synapsed/issues](https://github.com/synapsed-me/synapsed/issues)

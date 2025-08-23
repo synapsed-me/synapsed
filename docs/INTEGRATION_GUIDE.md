@@ -2,25 +2,42 @@
 
 ## Overview
 
-This guide documents how to integrate Synapsed's intent verification and Promise Theory implementation with AI agents, particularly Claude Code, while maintaining model-agnostic architecture.
+This guide documents how to integrate Synapsed's comprehensive agent framework with AI systems. The framework provides verifiable execution, voluntary cooperation through Promise Theory, hybrid memory architecture, and adaptive permissions.
 
-## Core Principles
+## Core Architecture Components
 
 ### 1. Promise Theory Implementation
-Our implementation follows Mark Burgess's Promise Theory with these key principles:
+Following Mark Burgess's principles with voluntary cooperation:
 
 - **Autonomy**: Agents are causally independent and cannot be coerced
-- **Voluntary Cooperation**: All cooperation is voluntary through explicit acceptance
-- **Semantic Spacetime**: Promises have spatial, temporal, and semantic contexts
-- **Promise Chemistry**: Promises can compose, decompose, catalyze, or inhibit each other
+- **Willingness Evaluation**: Agents evaluate willingness before making promises
+- **FIPA ACL Communication**: Semantic messaging with performatives
+- **Trust Model**: Reputation-based trust scoring
+- **Promise Chemistry**: Interaction modeling between promises
 
-### 2. Intent Verification
-The hierarchical intent system ensures verifiable execution:
+### 2. Hybrid Memory Architecture
+Four-tier memory system for agent learning:
+
+- **Vector Memory**: 768-dimensional embeddings with similarity search
+- **Episodic Memory**: Sequential experience storage
+- **Semantic Memory**: Knowledge graphs with relationship inference
+- **Working Memory**: Attention-based active context management
+
+### 3. Intent Verification System
+Hierarchical intent trees with cryptographic proofs:
 
 - **Pre-declaration**: Agents declare intentions before acting
-- **Multi-strategy Verification**: Command, filesystem, API, and composite verification
-- **Cryptographic Proofs**: Tamper-proof evidence of execution
+- **Multi-strategy Verification**: Command, filesystem, API, and composite
+- **Safety Integration**: Circuit breakers and automatic rollback
 - **Context Boundaries**: Strict enforcement of operational limits
+
+### 4. Adaptive Permission System
+Trust-based permission negotiation:
+
+- **Dynamic Trust Scoring**: Evolves based on agent behavior
+- **Learning Engine**: Discovers successful permission patterns
+- **Hierarchical Delegation**: Permission escalation chains
+- **Context-Aware Decisions**: Based on resource usage and history
 
 ## Claude Code Integration
 

@@ -2,68 +2,89 @@
 
 ## System Overview
 
-The Synapsed Intent Verification System is designed to prevent AI agents (especially Claude sub-agents) from:
+The Synapsed Intent Verification System prevents AI agents from:
 1. **Context Escaping** - Breaking out of defined operational boundaries
-2. **False Claims** - Claiming to have done something without actually doing it
+2. **False Claims** - Making unverified claims about actions
 3. **Unverified Execution** - Running commands without verification
 
-## Architecture Layers
+## Enhanced Architecture with Promise Theory & Memory
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Claude Agent                              │
-│                    (Main or Sub-agent)                          │
-└────────────────────┬────────────────────────────────────────────┘
-                     │ Declares Intent
-                     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    INTENT LAYER                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ HierarchicalIntent                                      │   │
-│  │ - Goal declaration                                      │   │
-│  │ - Step definitions                                      │   │
-│  │ - Preconditions/Postconditions                         │   │
-│  │ - Verification requirements                            │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└────────────────────┬────────────────────────────────────────────┘
-                     │ Passes to Execution
-                     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    EXECUTION LAYER                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │VerifiedIntent│  │BoundsEnforcer│  │ContextMonitor│         │
-│  │              │  │              │  │              │         │
-│  │ - Recovery   │  │ - Command    │  │ - Real-time  │         │
-│  │   strategies │  │   filtering  │  │   monitoring │         │
-│  │ - Rollback   │  │ - Path       │  │ - Violation  │         │
-│  │ - Metrics    │  │   checking   │  │   tracking   │         │
-│  └──────────────┘  └──────────────┘  └──────────────┘         │
-└────────────────────┬────────────────────────────────────────────┘
-                     │ Executes with Verification
-                     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  VERIFICATION LAYER                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │Command       │  │FileSystem    │  │Network       │         │
-│  │Verifier      │  │Verifier      │  │Verifier      │         │
-│  │              │  │              │  │              │         │
-│  │- Sandboxed   │  │- Snapshot    │  │- HTTP verify │         │
-│  │  execution   │  │  comparison  │  │- Response    │         │
-│  │- Output      │  │- File hash   │  │  validation  │         │
-│  │  validation  │  │  checking    │  │              │         │
-│  └──────────────┘  └──────────────┘  └──────────────┘         │
-└────────────────────┬────────────────────────────────────────────┘
-                     │ Generates Proof
-                     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    PROOF LAYER                                  │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ ProofGenerator                                          │   │
-│  │ - Cryptographic evidence                               │   │
-│  │ - State transitions                                    │   │
-│  │ - Tamper-proof logs                                   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Agent Layer"
+        A[Claude Agent<br/>Main or Sub-agent]
+        PM[Promise Manager<br/>Voluntary Cooperation]
+        ACL[FIPA ACL<br/>Communication]
+    end
+    
+    subgraph "Memory Layer"
+        VM[Vector Memory<br/>768-dim embeddings]
+        EM[Episodic Memory<br/>Sequential events]
+        SM[Semantic Memory<br/>Knowledge graphs]
+        WM[Working Memory<br/>Active context]
+    end
+    
+    subgraph "Intent Layer"
+        HI[Hierarchical Intent<br/>Goals & Steps]
+        VR[Verification Requirements<br/>Pre/Post conditions]
+        CB[Context Bounds<br/>Operational limits]
+    end
+    
+    subgraph "Safety Layer"
+        SE[Safety Engine<br/>Constraint checking]
+        CBR[Circuit Breakers<br/>Failure prevention]
+        RG[Resource Guards<br/>Auto cleanup]
+        CS[Critical Sections<br/>Atomic ops]
+    end
+    
+    subgraph "Execution Layer"
+        VE[Verified Executor<br/>Safe execution]
+        BE[Bounds Enforcer<br/>Context limits]
+        CM[Context Monitor<br/>Real-time tracking]
+    end
+    
+    subgraph "Verification Layer"
+        CV[Command Verifier<br/>Sandboxed exec]
+        FV[FileSystem Verifier<br/>State validation]
+        NV[Network Verifier<br/>Response checking]
+    end
+    
+    subgraph "Proof Layer"
+        PG[Proof Generator<br/>Cryptographic evidence]
+        AL[Audit Log<br/>Tamper-proof records]
+    end
+    
+    A --> PM
+    PM --> ACL
+    ACL --> HI
+    
+    VM --> WM
+    WM --> EM
+    WM --> SM
+    WM --> VE
+    
+    HI --> VR
+    HI --> CB
+    HI --> SE
+    
+    SE --> CBR
+    SE --> RG
+    SE --> CS
+    
+    CBR --> VE
+    RG --> VE
+    CS --> VE
+    
+    VE --> BE
+    VE --> CM
+    VE --> CV
+    VE --> FV
+    VE --> NV
+    
+    CV --> PG
+    FV --> PG
+    NV --> PG
+    PG --> AL
 ```
 
 ## Core Components
@@ -222,22 +243,104 @@ Failure detected → CheckpointManager
 
 ## Promise Theory Integration
 
-When delegating to sub-agents:
+The system implements voluntary cooperation based on Mark Burgess's Promise Theory:
 
+### Voluntary Promises
 ```rust
-// Main agent makes a promise about delegation
-Promise {
-    agent_id: "sub-agent-1",
-    type: PromiseType::Delegate,
-    body: PromiseBody {
-        content: "Process data",
-        constraints: context_bounds,
-        quality_of_service: metrics,
+// Agents evaluate willingness before making promises
+let willingness = evaluator.evaluate_promise_willingness(
+    agent_id,
+    &promise_type,
+    &body,
+    &context
+).await?;
+
+match willingness {
+    Willingness::Willing { confidence } => {
+        // Make voluntary promise
+        let promise = agent.make_promise(
+            PromiseType::Offer,
+            scope,
+            body
+        ).await?;
+    },
+    Willingness::Conditional { conditions, .. } => {
+        // Negotiate conditions
+    },
+    Willingness::Unwilling { reason } => {
+        // Cannot make this promise
     }
 }
+```
 
-// Sub-agent accepts and fulfills
-// Trust score updated based on fulfillment
+### FIPA ACL Communication
+```rust
+// Semantic agent messaging
+let message = ACLMessageBuilder::new()
+    .performative(Performative::Request)
+    .sender(agent_id)
+    .receiver(target_agent)
+    .content(MessageContent::Promise(promise_body))
+    .conversation(conv_id)
+    .protocol(InteractionProtocol::ContractNet)
+    .build()?;
+```
+
+## Memory Architecture Integration
+
+The system includes a hybrid memory architecture for agent learning:
+
+```rust
+pub struct HybridMemory {
+    pub vector: VectorMemory,      // 768-dimensional embeddings
+    pub episodic: EpisodicMemory,  // Sequential experience storage
+    pub semantic: SemanticMemory,  // Knowledge graphs
+    pub working: WorkingMemory,    // Active context with attention
+}
+
+// Memory consolidation
+memory.consolidate().await?;  // Transfer working → long-term
+```
+
+## Adaptive Permission System
+
+Trust-based permission negotiation that learns from agent behavior:
+
+```rust
+let negotiator = AdaptivePermissionNegotiator::new(
+    base_negotiator,
+    memory
+);
+
+// Process request with adaptive trust scoring
+let response = negotiator.process_adaptive_request(request).await?;
+
+// Update trust based on outcome
+negotiator.update_from_outcome(
+    request_id,
+    DecisionOutcome {
+        was_correct: true,
+        actual_usage,
+        violations: vec![],
+    }
+).await?;
+```
+
+## Safety Integration
+
+Mathematical safety guarantees through synapsed-safety:
+
+```rust
+let safe_executor = SafeVerifiedExecutor::new(executor).await?;
+
+// Execute with circuit breakers and automatic rollback
+let result = safe_executor.execute_safe(&intent).await?;
+
+// Critical section for atomic operations
+let result = safe_executor.execute_critical(
+    &intent,
+    Duration::from_secs(30)
+).await?;
 ```
 
 ## Observability Integration
@@ -252,6 +355,11 @@ Event types:
 - intent.verification.performed
 - intent.violation.detected
 - intent.completed
+- promise.made
+- promise.fulfilled
+- promise.broken
+- memory.consolidated
+- trust.updated
 ```
 
 ## Key Safety Properties
@@ -261,3 +369,6 @@ Event types:
 3. **No Hidden Actions**: All actions are logged and observable
 4. **Rollback Safety**: Can recover from any failure point
 5. **Trust Tracking**: Agent reputation affects verification requirements
+6. **Voluntary Cooperation**: Agents cannot be coerced, only make voluntary promises
+7. **Memory-Based Learning**: Adaptive behavior based on past experiences
+8. **Circuit Breaker Protection**: Prevents cascade failures in multi-agent systems

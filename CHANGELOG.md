@@ -7,7 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Added 
+- **Promise Theory Implementation**
+  - Voluntary cooperation protocol with willingness evaluation
+  - Causal independence verification for true agent autonomy
+  - Semantic spacetime contexts for promises
+  - Promise chemistry for interaction modeling
+  - FIPA ACL performatives for semantic agent communication
+  - Conversation state management for multi-turn dialogues
+
+- **Hybrid Memory Architecture**
+  - Vector memory with 768-dimensional embeddings and cosine similarity
+  - Episodic memory for sequential experience storage
+  - Semantic memory with knowledge graphs and relationship inference
+  - Working memory with attention-based management
+  - Automatic memory consolidation between types
+
+- **Adaptive Permission System**
+  - Trust scoring that evolves based on agent behavior
+  - Learning engine for discovering successful patterns
+  - Hierarchical delegation chain for permission escalation
+  - Context-aware decision making with resource monitoring
+
+- **Safety Integration**
+  - SafeVerifiedExecutor framework design
+  - Circuit breaker patterns for failure prevention
+  - Resource guards for automatic cleanup
+  - Critical sections for atomic operations
+  - Integration points for synapsed-safety crate
+
+- **Claude Code Integration**
+  - Hooks configuration for intent capture and verification
+  - MCP server tools for agent management
+  - Session lifecycle management
+
+### Added (Earlier)
 - Complete Substrates observability framework implementation aligned with Humainary's vision
 - Intent verification system with hierarchical intent trees
 - Promise Theory implementation for autonomous agent cooperation
@@ -21,13 +55,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored Substrates to use correct emission flow pattern (Channel → Pipe → Emission)
 - Updated intent system to integrate with Substrates observability
 - Improved trust model with dynamic scoring
+- Enhanced documentation to reflect current agent-focused architecture
 
 ### Fixed
 - Fixed Arc mutability issues in Substrates tests
 - Resolved compilation errors in intent and promise modules
 - Fixed WASM package naming conflicts
+- Fixed memory module warnings (unused parentheses, unused variables)
 
-## [0.1.0] - 2024-12-22
+## [0.1.0] - 
 
 ### Added
 - Initial framework structure with layered architecture
