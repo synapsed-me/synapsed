@@ -19,6 +19,7 @@ pub mod agent_parser;
 pub mod capability_inference;
 pub mod tool_discovery;
 pub mod agent_profiling;
+pub mod memory;
 
 pub use intent::{HierarchicalIntent, IntentBuilder};
 pub use tree::{IntentTree, IntentForest, IntentRelation};
@@ -61,6 +62,11 @@ pub use agent_profiling::{
     TrustEvent, TrustEventType, Anomaly, AnomalyType, AnomalySeverity,
     BehaviorPattern, AnomalyDetector, AnomalyThresholds, BaselinePattern,
     ResourceUsage as ProfileResourceUsage, ToolDivergenceAnalysis
+};
+pub use memory::{
+    HybridMemory, VectorMemory, EpisodicMemory, SemanticMemory, WorkingMemory,
+    MemoryItem, MemoryContent, Episode, Event, EpisodeOutcome, Concept, Relationship,
+    WorkingMemoryItem, QueryResult
 };
 
 // Re-export commonly used types
