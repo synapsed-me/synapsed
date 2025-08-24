@@ -1,0 +1,60 @@
+{
+  "name": "@synapsed/intent-sdk",
+  "version": "0.1.0",
+  "description": "Synapsed Intent Verification SDK for Claude Code MCP integration",
+  "main": "lib/index.js",
+  "bin": {
+    "synapsed-mcp": "./bin/synapsed-mcp.js",
+    "synapsed-init": "./bin/synapsed-init.js",
+    "synapsed-monitor": "./bin/synapsed-monitor.js"
+  },
+  "scripts": {
+    "postinstall": "node lib/postinstall.js",
+    "test": "node test/test-installation.js"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "intent",
+    "verification",
+    "ai",
+    "agent",
+    "synapsed"
+  ],
+  "author": "Synapsed Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synapsed-me/synapsed"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "optionalDependencies": {
+    "@synapsed/intent-sdk-darwin-x64": "0.1.0",
+    "@synapsed/intent-sdk-darwin-arm64": "0.1.0",
+    "@synapsed/intent-sdk-linux-x64": "0.1.0",
+    "@synapsed/intent-sdk-win32-x64": "0.1.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "which": "^3.0.1"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/",
+    "README.md"
+  ]
+}

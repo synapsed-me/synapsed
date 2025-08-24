@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "synapsed-intent": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@synapsed/intent-sdk"],
+      "env": {
+        "SYNAPSED_STORAGE_PATH": "${HOME}/.synapsed/intents.db",
+        "SYNAPSED_SUBSTRATES_LOG": "${HOME}/.synapsed/substrates.log",
+        "DEBUG": "false"
+      }
+    }
+  }
+}
