@@ -10,6 +10,7 @@
 
 pub mod server;
 pub mod tools;
+pub mod swarm_tools;
 pub mod resources;
 pub mod transport;
 pub mod error;
@@ -19,6 +20,7 @@ mod agent_spawner; // Internal module - agent spawning
 
 pub use server::{McpServer, ServerConfig};
 pub use tools::{IntentTools, VerificationTools};
+pub use swarm_tools::SwarmTools;
 pub use resources::ContextResources;
 pub use error::{McpError, Result};
 

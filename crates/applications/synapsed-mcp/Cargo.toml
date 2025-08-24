@@ -20,6 +20,7 @@ synapsed-core = { workspace = true }
 synapsed-intent = { workspace = true }
 synapsed-promise = { workspace = true }
 synapsed-verify = { workspace = true }
+synapsed-swarm = { path = "../../intent/synapsed-swarm" }
 synapsed-storage = { workspace = true }
 
 # MCP implementation using rmcp
