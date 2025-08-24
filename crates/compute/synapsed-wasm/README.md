@@ -32,6 +32,18 @@ A comprehensive WebAssembly runtime and module system for the Synapsed framework
 - **Synapsed Network**: WASM-based networking capabilities
 - **Substrate Integration**: Smart contract execution for Substrate chains
 
+## Implementation Status
+
+- ✅ WASM runtime
+- ✅ Module loading
+- ✅ Host functions
+- ✅ Memory management
+- ✅ Security sandboxing
+- 🚧 WASI support
+- 🚧 Component model
+- 📋 Distributed execution
+- 📋 Observability integration
+
 ## Quick Start
 
 ### Basic Usage

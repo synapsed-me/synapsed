@@ -2,6 +2,20 @@
 
 A flexible, high-performance storage abstraction layer for the Synapsed ecosystem.
 
+## Implementation Status
+
+- ✅ Memory backend
+- ✅ File-based storage
+- ✅ SQLite backend (basic)
+- ✅ Compression support
+- ✅ LRU cache implementation
+- ✅ Observability integration ready
+- 🚧 RocksDB backend
+- 🚧 Distributed coordination
+- 📋 PostgreSQL backend
+- 📋 Redis backend
+- 📋 S3-compatible object storage
+
 ## Features
 
 - **Multiple Storage Backends**: Memory, RocksDB, Sled, SQLite, Redis

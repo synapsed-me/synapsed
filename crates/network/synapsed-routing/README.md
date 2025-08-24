@@ -6,6 +6,17 @@ Anonymous onion routing and P2P communication protocols for privacy-preserving a
 
 This crate provides production-ready anonymous routing protocols designed for maximum privacy and traffic analysis resistance. All communications are cryptographically protected with multiple layers of encryption.
 
+## Implementation Status
+
+- 🚧 DHT implementation
+- 🚧 Gossip protocol
+- 🚧 Routing table management
+- 📋 Kademlia integration
+- 📋 Content-addressed routing
+- 📋 Geographic routing
+- 📋 Onion routing
+- 📋 Observability integration
+
 ## Supported Protocols
 
 ### Onion Routing (Default)

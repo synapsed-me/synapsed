@@ -33,6 +33,18 @@ This crate implements HTN (Hierarchical Task Network) planning with observable e
 - Critical sections for atomic operations
 - Integration with synapsed-safety for formal verification
 
+## Implementation Status
+
+- ✅ Hierarchical intent trees
+- ✅ Intent validation and verification
+- ✅ Context boundaries
+- ✅ Checkpoint management
+- ✅ Observable execution
+- ✅ Permission negotiation
+- ✅ Tool discovery
+- 🚧 Safe execution module
+- 📋 Machine learning optimization
+
 ## Architecture
 
 ```mermaid

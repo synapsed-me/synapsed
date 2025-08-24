@@ -6,6 +6,20 @@
 
 A production-ready post-quantum cryptography library implementing NIST-standardized ML-KEM (Kyber) and ML-DSA (Dilithium) algorithms in pure Rust.
 
+## Implementation Status
+
+### Core Features
+- ✅ Kyber (ML-KEM) - all security levels (512/768/1024) - Post-quantum key encapsulation mechanism
+- ✅ Dilithium (ML-DSA) - all security levels (2/3/5) - Post-quantum digital signatures
+- ✅ Constant-time operations - Side-channel resistant implementations
+- ✅ NTT optimizations - Number theoretic transform performance enhancements
+- ✅ Secure memory handling - Protected key material and sensitive data
+- ✅ Observability integration - Event emission and metrics collection
+- ✅ WASM support - WebAssembly compatibility for browser environments
+- 🚧 SIMD enhancements - Vectorized operations for improved performance
+- 📋 Hardware acceleration - Platform-specific optimizations (AES-NI, AVX)
+- 📋 Batch operations - Efficient bulk cryptographic operations
+
 ## 🚀 Features
 
 - **🔐 NIST-Standardized**: Implements ML-KEM (Kyber) and ML-DSA (Dilithium) as standardized by NIST

@@ -2,6 +2,21 @@
 
 A comprehensive DID (Decentralized Identifier) based identity and access management system implementing W3C DID Core v1.0 with advanced features for secure P2P communication platforms.
 
+## Implementation Status
+
+- ✅ DID Core v1.0 support
+- ✅ did:key method implementation
+- ✅ Hierarchical key management
+- ✅ JWT token generation/validation
+- ✅ Password hashing (Argon2, bcrypt)
+- ✅ Zero-knowledge proof integration
+- ✅ Observability integration ready
+- 🚧 did:web method
+- 🚧 WebAuthn support
+- 📋 OAuth 2.0 provider
+- 📋 FIDO2 integration
+- 📋 Biometric authentication
+
 ## 🚀 Features
 
 ### Core DID Support

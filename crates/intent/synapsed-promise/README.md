@@ -39,6 +39,17 @@ This crate implements Mark Burgess's Promise Theory, providing a framework for v
 - Conversation state management
 - Standard interaction protocols
 
+## Implementation Status
+
+- ✅ Promise Theory implementation
+- ✅ Autonomous agent framework
+- ✅ Trust model
+- ✅ Voluntary cooperation
+- ✅ FIPA ACL integration
+- 🚧 Advanced trust metrics
+- 📋 Distributed promise consensus
+- 📋 Observability integration
+
 ## Usage
 
 ### Basic Promise Making

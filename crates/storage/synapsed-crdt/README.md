@@ -6,6 +6,20 @@ Conflict-free Replicated Data Types for distributed collaboration and synchroniz
 
 This crate provides mathematically proven data structures that automatically resolve conflicts in distributed systems without requiring consensus protocols. All CRDTs are designed for eventual consistency and partition tolerance.
 
+## Implementation Status
+
+- ✅ G-Counter implementation
+- ✅ PN-Counter
+- ✅ LWW-Register
+- ✅ OR-Set
+- ✅ RGA (Replicated Growable Array)
+- ✅ Vector clocks
+- ✅ Merkle tree sync
+- 🚧 Delta CRDTs
+- 📋 Causal trees
+- 📋 Observability integration
+- 📋 Persistence layer
+
 ## Supported CRDTs
 
 ### State-based CRDTs (CvRDTs)

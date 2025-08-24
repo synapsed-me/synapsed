@@ -21,6 +21,17 @@ This crate provides comprehensive verification strategies to ensure AI agents' c
 - State transition recording
 - Non-repudiation guarantees
 
+## Implementation Status
+
+- ✅ Command execution verification
+- ✅ File system verification
+- ✅ Network/API verification
+- ✅ State snapshot/diff
+- ✅ Proof generation
+- ✅ Basic observability
+- 🚧 Consensus verification
+- 📋 Zero-knowledge proof integration
+
 ## Architecture
 
 ```mermaid

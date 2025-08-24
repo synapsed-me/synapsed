@@ -6,6 +6,18 @@ Byzantine fault tolerant consensus algorithms for distributed systems in the Syn
 
 This crate provides production-ready implementations of multiple consensus protocols designed for secure, distributed applications. All protocols support Byzantine fault tolerance up to f < n/3 faulty nodes.
 
+## Implementation Status
+
+- ✅ HotStuff BFT implementation
+- ✅ Leader election
+- ✅ Vote aggregation
+- ✅ Byzantine fault tolerance
+- ✅ Observability integration ready
+- 🚧 PBFT implementation
+- 📋 Tendermint integration
+- 📋 Avalanche consensus
+- 📋 Performance optimizations
+
 ## Supported Algorithms
 
 ### HotStuff (Default)

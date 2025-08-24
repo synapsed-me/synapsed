@@ -6,6 +6,20 @@ Self-aware safety mechanisms, constraint engines, and automatic rollback systems
 
 This crate provides comprehensive safety guarantees for distributed systems through formal constraint specification, real-time monitoring, and automatic recovery mechanisms. 
 
+## Implementation Status
+
+- ✅ Constraint engine
+- ✅ Rollback manager
+- ✅ State monitoring
+- ✅ Checkpoint/restore
+- ✅ Circuit breakers
+- ✅ Resource guards
+- ✅ Observability integration ready
+- 🚧 Formal verification (Z3)
+- 🚧 Self-healing mechanisms
+- 📋 Chaos engineering tools
+- 📋 Automated recovery strategies
+
 ## Core Features
 
 ### Constraint Engines
