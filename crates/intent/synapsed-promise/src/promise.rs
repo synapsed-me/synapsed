@@ -28,6 +28,12 @@ pub enum PromiseState {
     Expired,
 }
 
+impl Default for PromiseState {
+    fn default() -> Self {
+        PromiseState::Declared
+    }
+}
+
 /// Outcome of a promise
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PromiseOutcome {
@@ -58,6 +64,24 @@ pub struct PromiseContract {
     pub timeout_ms: Option<u64>,
     /// Dependencies on other promises
     pub dependencies: Vec<PromiseId>,
+}
+
+impl Default for PromiseContract {
+    fn default() -> Self {
+        Self {
+            preconditions: Vec::new(),
+            body: PromiseBody {
+                content: String::new(),
+                constraints: Vec::new(),
+                qos: None,
+                metadata: Default::default(),
+            },
+            postconditions: Vec::new(),
+            invariants: Vec::new(),
+            timeout_ms: Some(60000), // Default 60 second timeout
+            dependencies: Vec::new(),
+        }
+    }
 }
 
 /// A promise made by an agent

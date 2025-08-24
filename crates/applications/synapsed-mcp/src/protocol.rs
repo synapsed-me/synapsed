@@ -1,16 +1,17 @@
 //! MCP Protocol Handler with JSON-RPC support
 
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use std::sync::Arc;
-use tokio::sync::RwLock;
-use uuid::Uuid;
-
 use crate::{
     agent_spawner::AgentSpawner,
     intent_store::{IntentStore, IntentStatus},
+    observability::{McpEvent, EVENT_CIRCUIT},
     server::McpServer,
 };
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::sync::Arc;
+use std::time::Instant;
+use tokio::sync::RwLock;
+use uuid::Uuid;
 
 /// JSON-RPC request
 #[derive(Debug, Clone, Serialize, Deserialize)]

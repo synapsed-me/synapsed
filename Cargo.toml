@@ -2,50 +2,40 @@
 resolver = "2"
 exclude = ["examples/*"]
 members = [
-    # Observability Foundation
-    "crates/observability/synapsed-substrates",
-    "crates/observability/synapsed-serventis",
-    "crates/monitor/synapsed-monitor",
+    # Applications - start with what we need
+    "crates/applications/synapsed-mcp",
     
     # Core Infrastructure
     "crates/core/synapsed-core",
     "crates/core/synapsed-crypto",
-    "crates/core/synapsed-gpu",
     
-    # Storage & Data
-    "crates/storage/synapsed-storage",
-    "crates/storage/synapsed-crdt",
-    
-    # Networking
-    "crates/network/synapsed-net",
-    "crates/network/synapsed-consensus",
-    "crates/network/synapsed-routing",
-    
-    # Security & Identity
-    "crates/security/synapsed-identity",
-    "crates/security/synapsed-safety",
-    
-    # Intent Framework (from IntentProof)
+    # Intent Framework (required for MCP)
     "crates/intent/synapsed-intent",
     "crates/intent/synapsed-promise",
     "crates/intent/synapsed-verify",
     "crates/intent/synapsed-swarm",
-    # "crates/intent/synapsed-enforce",  # TODO: Create
     
-    # Compute & Runtime
-    "crates/compute/synapsed-wasm",
-    # "crates/compute/synapsed-neural-core",  # Requires CUDA features
+    # Networking (required for MCP)
+    "crates/network/synapsed-net",
+    "crates/network/synapsed-routing",
     
-    # Applications
-    "crates/applications/synapsed-payments", "crates/applications/synapsed-mcp",
-    # "crates/applications/synapsed-cli",  # TODO: Create
+    # Storage (required for MCP)
+    "crates/storage/synapsed-storage",
+    "crates/storage/synapsed-crdt",
     
-    # Bindings
-    "crates/bindings/synapsed-wasm-bindings",
+    # Security (required for MCP)
+    "crates/security/synapsed-identity",
     
-    # Testing
-    # "tests",     # TODO: Re-enable after fixing compilation
-    # "benches"    # TODO: Re-enable after fixing compilation
+    # Observability and monitoring
+    "crates/observability/synapsed-substrates",
+    "crates/observability/synapsed-serventis", 
+    "crates/monitor/synapsed-monitor",
+    # "crates/core/synapsed-gpu",
+    # "crates/network/synapsed-consensus",
+    # "crates/security/synapsed-safety",
+    # "crates/compute/synapsed-wasm",
+    # "crates/applications/synapsed-payments",
+    # "crates/bindings/synapsed-wasm-bindings",
 ]
 
 [workspace.package]
@@ -76,6 +66,8 @@ synapsed-intent = { path = "crates/intent/synapsed-intent", version = "0.1.0" }
 synapsed-promise = { path = "crates/intent/synapsed-promise", version = "0.1.0" }
 synapsed-verify = { path = "crates/intent/synapsed-verify", version = "0.1.0" }
 # synapsed-enforce = { path = "crates/intent/synapsed-enforce", version = "0.1.0" }
+synapsed-swarm = { path = "crates/intent/synapsed-swarm", version = "0.1.0" }
+synapsed-monitor = { path = "crates/monitor/synapsed-monitor", version = "0.1.0" }
 synapsed-wasm = { path = "crates/compute/synapsed-wasm", version = "0.1.0" }
 synapsed-neural-core = { path = "crates/compute/synapsed-neural-core", version = "0.1.0" }
 synapsed-payments = { path = "crates/applications/synapsed-payments", version = "0.1.0" }

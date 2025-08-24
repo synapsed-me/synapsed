@@ -1,5 +1,6 @@
 //! Agent spawning and management
 
+use crate::observability::{McpEvent, EVENT_CIRCUIT};
 use anyhow::{anyhow, Result};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -70,6 +71,15 @@ impl AgentSpawner {
             agents.insert(agent_id.clone(), agent_info.clone());
         }
         
+        // Emit agent spawned event
+        let event = McpEvent::agent_spawned(
+            agent_id.clone(),
+            agent_type.clone(),
+            intent_id.clone(),
+            config.clone(),
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
+        
         // Spawn the agent process
         let agent_id_clone = agent_id.clone();
         let agents = self.agents.clone();
@@ -86,15 +96,35 @@ impl AgentSpawner {
                 Ok(pid) => {
                     let mut agents = agents.write().await;
                     if let Some(agent) = agents.get_mut(&agent_id_clone) {
+                        let old_status = format!("{:?}", agent.status);
                         agent.status = AgentStatus::Running;
                         agent.process_id = Some(pid);
+                        
+                        // Emit agent status changed event
+                        let event = McpEvent::agent_status_changed(
+                            agent_id_clone.clone(),
+                            old_status,
+                            "Running".to_string(),
+                            Some(pid),
+                        );
+                        let _ = EVENT_CIRCUIT.emit_event(event).await;
                     }
                 }
                 Err(e) => {
                     eprintln!("Failed to spawn agent process: {}", e);
                     let mut agents = agents.write().await;
                     if let Some(agent) = agents.get_mut(&agent_id_clone) {
+                        let old_status = format!("{:?}", agent.status);
                         agent.status = AgentStatus::Failed;
+                        
+                        // Emit agent status changed event
+                        let event = McpEvent::agent_status_changed(
+                            agent_id_clone.clone(),
+                            old_status,
+                            "Failed".to_string(),
+                            None,
+                        );
+                        let _ = EVENT_CIRCUIT.emit_event(event).await;
                     }
                 }
             }
@@ -228,7 +258,26 @@ impl AgentSpawner {
                     .await;
             }
             
+            let old_status = format!("{:?}", agent.status);
             agent.status = AgentStatus::Terminated;
+            
+            // Emit agent terminated event
+            let event = McpEvent::agent_terminated(
+                agent_id.to_string(),
+                "Manual termination".to_string(),
+                true, // Successful termination
+            );
+            let _ = EVENT_CIRCUIT.emit_event(event).await;
+            
+            // Also emit status changed event
+            let status_event = McpEvent::agent_status_changed(
+                agent_id.to_string(),
+                old_status,
+                "Terminated".to_string(),
+                agent.process_id,
+            );
+            let _ = EVENT_CIRCUIT.emit_event(status_event).await;
+            
             Ok(())
         } else {
             Err(anyhow!("Agent not found"))

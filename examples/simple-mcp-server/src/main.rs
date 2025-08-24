@@ -3,17 +3,20 @@
 //! A minimal MCP server that demonstrates intent declaration and verification
 //! without requiring all the complex dependencies.
 
+mod html_streaming;
+
 use anyhow::Result;
 use colored::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter};
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, BufWriter};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::RwLock;
-use tracing::{info, debug, error};
+use tracing::error;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use html_streaming::{SSEHandler, HTML_CLIENT};
 
 /// JSON-RPC request
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,9 +75,10 @@ struct AgentInfo {
     active_intents: Vec<String>,
 }
 
-/// Simple MCP Server
+/// Simple MCP Server with HTML streaming support
 struct McpServer {
     state: Arc<RwLock<ServerState>>,
+    sse_handler: Arc<SSEHandler>,
 }
 
 impl McpServer {
@@ -84,6 +88,7 @@ impl McpServer {
                 intents: HashMap::new(),
                 agents: HashMap::new(),
             })),
+            sse_handler: Arc::new(SSEHandler::new()),
         }
     }
     
@@ -156,6 +161,9 @@ impl McpServer {
             goal.green()
         );
         
+        // Broadcast to SSE clients
+        let _ = self.sse_handler.broadcast_intent_declare(&intent_id, goal).await;
+        
         Ok(serde_json::json!({
             "intent_id": intent_id,
             "status": "declared",
@@ -167,7 +175,7 @@ impl McpServer {
     async fn handle_intent_verify(&self, params: Option<serde_json::Value>) -> Result<serde_json::Value, String> {
         let params = params.ok_or("Missing parameters")?;
         let intent_id = params["intent_id"].as_str().ok_or("Missing intent_id")?;
-        let evidence = &params["evidence"];
+        let _evidence = &params["evidence"];
         
         let mut state = self.state.write().await;
         let intent = state.intents.get_mut(intent_id).ok_or("Intent not found")?;
@@ -187,6 +195,9 @@ impl McpServer {
             intent_id.yellow(),
             intent.verification_proofs.len()
         );
+        
+        // Broadcast to SSE clients
+        let _ = self.sse_handler.broadcast_intent_verify(intent_id, intent.verified, intent.verification_proofs.len()).await;
         
         Ok(serde_json::json!({
             "intent_id": intent_id,
@@ -280,6 +291,7 @@ impl McpServer {
         let addr = stream.peer_addr().unwrap();
         println!("{} Client connected: {}", "[CONNECT]".bright_green(), addr);
         
+        // For now, just handle JSON-RPC
         let (reader, writer) = stream.into_split();
         let mut reader = BufReader::new(reader);
         let mut writer = BufWriter::new(writer);
@@ -317,6 +329,30 @@ impl McpServer {
             }
         }
     }
+    
+    async fn handle_http_client(self: Arc<Self>, mut stream: TcpStream) {
+        let mut buf = [0u8; 1024];
+        
+        // Read request
+        if let Ok(n) = stream.read(&mut buf).await {
+            let request = String::from_utf8_lossy(&buf[..n]);
+            let first_line = request.lines().next().unwrap_or("");
+            println!("{} HTTP Request: {}", "[HTTP]".bright_magenta(), first_line);
+            
+            if first_line.starts_with("GET /stream") {
+                // Handle SSE stream
+                println!("{} Starting SSE stream", "[SSE]".bright_magenta());
+                let _ = self.sse_handler.handle_connection(stream).await;
+            } else if first_line.starts_with("GET /") {
+                // Serve HTML client
+                let _ = stream.write_all(b"HTTP/1.1 200 OK\r\n").await;
+                let _ = stream.write_all(b"Content-Type: text/html\r\n").await;
+                let _ = stream.write_all(b"Connection: close\r\n").await;
+                let _ = stream.write_all(b"\r\n").await;
+                let _ = stream.write_all(HTML_CLIENT.as_bytes()).await;
+            }
+        }
+    }
 }
 
 #[tokio::main]
@@ -332,11 +368,15 @@ async fn main() -> Result<()> {
     println!("{}", "╚══════════════════════════════════════════════════════════╝".bright_cyan());
     
     let server = Arc::new(McpServer::new());
-    let addr = "127.0.0.1:3000";
+    let jsonrpc_addr = "127.0.0.1:3000";
+    let http_addr = "127.0.0.1:3001";
     
-    println!("\n{} Starting MCP server on {}", "[SERVER]".bright_yellow(), addr.bright_white());
+    println!("\n{} Starting MCP server", "[SERVER]".bright_yellow());
+    println!("  JSON-RPC: {}", jsonrpc_addr.bright_white());
+    println!("  HTTP/SSE: {}", http_addr.bright_white());
     
-    let listener = TcpListener::bind(addr).await?;
+    let jsonrpc_listener = TcpListener::bind(jsonrpc_addr).await?;
+    let http_listener = TcpListener::bind(http_addr).await?;
     
     println!("{} Server ready - accepting connections", "[READY]".bright_green());
     println!("\n{} Available methods:", "[INFO]".bright_blue());
@@ -350,8 +390,26 @@ async fn main() -> Result<()> {
     println!("\n{} Test with:", "[TEST]".bright_magenta());
     println!("  echo '{{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"system/info\",\"params\":{{}}}}' | nc localhost 3000");
     
+    println!("\n{} HTML Streaming Interface:", "[WEB]".bright_cyan());
+    println!("  Open http://localhost:3001/ in your browser for real-time updates");
+    println!("  SSE endpoint: http://localhost:3001/stream");
+    
+    // Spawn HTTP server handler
+    let http_server = server.clone();
+    tokio::spawn(async move {
+        loop {
+            if let Ok((stream, _)) = http_listener.accept().await {
+                let server = http_server.clone();
+                tokio::spawn(async move {
+                    server.handle_http_client(stream).await;
+                });
+            }
+        }
+    });
+    
+    // Handle JSON-RPC connections
     loop {
-        let (stream, _) = listener.accept().await?;
+        let (stream, _) = jsonrpc_listener.accept().await?;
         let server = server.clone();
         tokio::spawn(async move {
             server.handle_client(stream).await;

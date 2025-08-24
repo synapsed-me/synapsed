@@ -2,7 +2,7 @@
 
 use crate::{
     types::*, Promise, PromiseContract, TrustModel, CooperationProtocol,
-    Result, PromiseError
+    Result, PromiseError, Willingness
 };
 use async_trait::async_trait;
 use dashmap::DashMap;

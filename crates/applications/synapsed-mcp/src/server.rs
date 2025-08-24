@@ -7,6 +7,7 @@ use crate::{
     intent_store::IntentStore,
     protocol::{McpProtocolHandler, JsonRpcRequest, JsonRpcResponse},
     agent_spawner::AgentSpawner,
+    observability::{McpEvent, EVENT_CIRCUIT},
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -99,6 +100,16 @@ pub struct McpServer {
 impl McpServer {
     /// Create a new MCP server
     pub fn new(config: ServerConfig) -> Self {
+        Self::new_impl(config, None)
+    }
+    
+    /// Create a new MCP server with custom log file path
+    pub fn new_with_log_file(config: ServerConfig, log_file_path: String) -> Self {
+        Self::new_impl(config, Some(log_file_path))
+    }
+    
+    /// Internal implementation for server creation
+    fn new_impl(config: ServerConfig, log_file_path: Option<String>) -> Self {
         // Create intent store based on environment configuration
         let intent_store = if let Ok(storage_path) = std::env::var("SYNAPSED_INTENT_STORAGE_PATH") {
             if storage_path.ends_with(".db") {
@@ -147,6 +158,14 @@ impl McpServer {
             agent_spawner.clone(),
         ));
         
+        // Initialize event circuit
+        let log_path = log_file_path.unwrap_or_else(|| "/tmp/synapsed_substrates.log".to_string());
+        tokio::spawn(async move {
+            if let Err(e) = EVENT_CIRCUIT.initialize(log_path).await {
+                tracing::error!("Failed to initialize event circuit: {}", e);
+            }
+        });
+        
         Self {
             config,
             state,
@@ -166,6 +185,15 @@ impl McpServer {
     /// Serve over stdio transport
     pub async fn serve_stdio(self) -> Result<()> {
         info!("Starting MCP server on stdio transport");
+        
+        // Emit server started event
+        let config_json = serde_json::to_value(&self.config).unwrap_or_else(|_| serde_json::json!({}));
+        let event = McpEvent::server_started(
+            self.config.name.clone(),
+            self.config.version.clone(),
+            config_json
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
         
         // Create a simple JSON-RPC server over stdio
         let stdin = tokio::io::stdin();

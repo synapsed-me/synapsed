@@ -18,6 +18,7 @@ pub mod client;
 pub mod client_transport;
 pub mod anonymous_transport;
 pub mod distributed_state;
+pub mod observability;
 mod intent_store;  // Internal module - not exported
 mod protocol;      // Internal module - protocol handler
 mod agent_spawner; // Internal module - agent spawning
@@ -30,6 +31,7 @@ pub use error::{McpError, Result};
 pub use client::{McpClient, ClientConfig};
 pub use anonymous_transport::{AnonymousTransport, AnonymousConfig};
 pub use distributed_state::{DistributedState, AgentInfo, DistributedIntent};
+pub use observability::{McpEvent, McpEventCircuit, SharedEventCircuit, EVENT_CIRCUIT};
 
 /// MCP Server metadata
 pub const SERVER_NAME: &str = "synapsed-mcp";

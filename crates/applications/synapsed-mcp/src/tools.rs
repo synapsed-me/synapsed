@@ -1,6 +1,9 @@
 //! MCP Tools for intent verification
 
-use crate::error::{McpError, Result};
+use crate::{
+    error::{McpError, Result},
+    observability::{McpEvent, EVENT_CIRCUIT},
+};
 use rmcp::tool;
 use serde::{Deserialize, Serialize};
 use std::future::Future;
@@ -132,7 +135,16 @@ impl IntentTools {
         let stored_id = state.intent_store.store_intent(&intent).await?;
         
         // Also keep in memory for quick access
-        state.active_intents.insert(intent_id.0, intent);
+        state.active_intents.insert(intent_id.0, intent.clone());
+        
+        // Emit intent declared event
+        let event = McpEvent::intent_declared(
+            intent_id.0,
+            intent.goal().to_string(),
+            params.steps.len(),
+            None, // No agent ID available at this level
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
         
         Ok(serde_json::json!({
             "intent_id": stored_id,
@@ -151,10 +163,20 @@ impl IntentTools {
         if let Some(intent) = state.active_intents.get(&params.intent_id) {
             // Perform verification
             // TODO: Integrate with synapsed-verify
+            let success = true; // Placeholder - would be actual verification result
+            
+            // Emit intent verified event
+            let event = McpEvent::intent_verified(
+                params.intent_id,
+                success,
+                params.evidence.clone(),
+                None, // No agent ID available at this level
+            );
+            let _ = EVENT_CIRCUIT.emit_event(event).await;
             
             Ok(serde_json::json!({
                 "intent_id": params.intent_id,
-                "verified": true,
+                "verified": success,
                 "goal": intent.goal(),
                 "evidence": params.evidence,
                 "timestamp": chrono::Utc::now(),
@@ -182,13 +204,27 @@ impl VerificationTools {
         debug!("Checking trust for agent: {}", agent_id);
         
         // TODO: Implement trust checking using synapsed-promise
+        let trust_level = 0.85;
+        let reputation = "good".to_string();
+        let promises_fulfilled = 42;
+        let promises_broken = 3;
+        
+        // Emit trust checked event
+        let event = McpEvent::trust_checked(
+            agent_id,
+            trust_level,
+            reputation.clone(),
+            promises_fulfilled,
+            promises_broken,
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
         
         Ok(serde_json::json!({
             "agent_id": agent_id,
-            "trust_level": 0.85,
-            "reputation": "good",
-            "promises_fulfilled": 42,
-            "promises_broken": 3,
+            "trust_level": trust_level,
+            "reputation": reputation,
+            "promises_fulfilled": promises_fulfilled,
+            "promises_broken": promises_broken,
         }))
     }
     
@@ -223,7 +259,18 @@ impl VerificationTools {
         
         // Update status in persistent storage
         use crate::intent_store::IntentStatus;
+        let old_status = "executing"; // Would normally query the current status
         state.intent_store.update_status(&intent_id, IntentStatus::Completed).await?;
+        
+        // Emit intent status changed event
+        let event = McpEvent::intent_status_changed(
+            intent_id.clone(),
+            old_status.to_string(),
+            "completed".to_string(),
+            None,
+            None,
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
         
         Ok(serde_json::json!({
             "intent_id": intent_id,
@@ -296,7 +343,17 @@ impl VerificationTools {
             _ => IntentStatus::Declared,
         };
         
-        state.intent_store.update_step_status(&intent_id, &step_name, step_status, error).await?;
+        state.intent_store.update_step_status(&intent_id, &step_name, step_status, error.clone()).await?;
+        
+        // Emit intent status changed event (step-level)
+        let event = McpEvent::intent_status_changed(
+            intent_id.clone(),
+            "previous".to_string(), // Would normally track the previous status
+            status.clone(),
+            Some(step_name.clone()),
+            error,
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
         
         Ok(serde_json::json!({
             "intent_id": intent_id,

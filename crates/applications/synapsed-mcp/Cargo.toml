@@ -23,6 +23,10 @@ synapsed-verify = { workspace = true }
 synapsed-swarm = { path = "../../intent/synapsed-swarm" }
 synapsed-storage = { workspace = true }
 
+# Observability dependencies
+synapsed-substrates = { workspace = true }
+synapsed-monitor = { workspace = true }
+
 # Network and security dependencies
 synapsed-net = { workspace = true }
 synapsed-routing = { workspace = true }
@@ -49,6 +53,7 @@ anyhow = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 bytes = "1.5"
+lazy_static = "1.4"
 
 # HTTP/TLS client support
 hyper = { version = "1.5", features = ["client", "http2"] }

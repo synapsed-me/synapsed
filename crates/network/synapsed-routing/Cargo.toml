@@ -35,9 +35,9 @@ bytes = "1.7"
 futures = "0.3"
 rand = "0.8"
 
-# Internal dependencies
-synapsed-core = { path = "../../core/synapsed-core" }
-synapsed-crypto = { path = "../../core/synapsed-crypto" }
+# Internal dependencies - temporarily removed to avoid circular deps
+# synapsed-core = { path = "../../core/synapsed-core" }
+# synapsed-crypto = { path = "../../core/synapsed-crypto" }
 
 [dev-dependencies]
 tokio-test = "0.4"

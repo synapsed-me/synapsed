@@ -43,35 +43,12 @@
 pub mod config;
 pub mod error;
 pub mod types;
-pub mod traits;
 
-// Routing implementations
-#[cfg(feature = "onion")]
+// Simplified for now - we'll implement the actual routing later
 pub mod onion;
-
-#[cfg(feature = "kademlia")]
-pub mod kademlia;
-
-#[cfg(feature = "mixnet")]
-pub mod mixnet;
-
-// Core utilities
-pub mod crypto;
-pub mod directory;
-pub mod circuit;
-pub mod transport;
 
 // Re-exports for convenience
 pub use config::RouterConfig;
 pub use error::{RoutingError, Result};
-pub use types::{NodeId, Circuit, RouteInfo, MessagePayload};
-pub use traits::{Router, DirectoryService, Transport};
-
-#[cfg(feature = "onion")]
+pub use types::{NodeId, Circuit, MessagePayload};
 pub use onion::OnionRouter;
-
-#[cfg(feature = "kademlia")]
-pub use kademlia::KademliaRouter;
-
-#[cfg(feature = "mixnet")]
-pub use mixnet::MixNetRouter;
