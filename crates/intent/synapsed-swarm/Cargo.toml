@@ -1,0 +1,60 @@
+[package]
+name = "synapsed-swarm"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synapsed Team"]
+description = "Swarm coordination system integrating Intent, Promise Theory, and Verification"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourorg/synapsed"
+keywords = ["swarm", "agent", "promise-theory", "coordination", "verification"]
+categories = ["concurrency", "asynchronous"]
+
+[dependencies]
+# Core dependencies
+synapsed-core = { path = "../../core/synapsed-core" }
+synapsed-intent = { path = "../synapsed-intent" }
+synapsed-promise = { path = "../synapsed-promise" }
+synapsed-verify = { path = "../synapsed-verify" }
+
+# Async runtime
+tokio = { version = "1.42", features = ["full"] }
+async-trait = "0.1"
+
+# Data structures
+dashmap = "6.1"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Cryptography for proofs
+blake3 = "1.5"
+
+[dev-dependencies]
+tempfile = "3.14"
+proptest = "1.6"
+criterion = { version = "0.6", features = ["async_tokio"] }
+tokio-test = "0.4"
+
+[features]
+default = ["observability"]
+observability = ["synapsed-core/observability"]
+testing = []
+
+[[example]]
+name = "swarm_demo"
+path = "examples/swarm_demo.rs"
+
+# [[bench]]
+# name = "coordination"
+# harness = false

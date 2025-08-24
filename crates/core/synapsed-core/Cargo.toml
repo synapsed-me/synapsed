@@ -39,9 +39,8 @@ config = { version = "0.14", optional = true }
 toml = { version = "0.8", optional = true }
 serde_yaml = { version = "0.9", optional = true }
 
-# Observability (Substrates & Serventis)
-synapsed-substrates = { path = "../../observability/synapsed-substrates", optional = true }
-synapsed-serventis = { path = "../../observability/synapsed-serventis", optional = true }
+# NOTE: Observability crates removed to avoid circular dependency
+# They should depend on core, not the other way around
 
 # Observability
 metrics = { version = "0.23", optional = true }
@@ -64,11 +63,9 @@ log = "0.4"
 [features]
 default = ["observability", "config"]
 observability = ["dep:metrics", "dep:opentelemetry"]
-substrates = ["dep:synapsed-substrates", "dep:synapsed-serventis"]
 config = ["dep:config", "dep:toml"]
 yaml = ["dep:serde_yaml"]
 testing = ["dep:mockall", "dep:proptest"]
-full-observability = ["observability", "substrates"]
 
 [[bench]]
 name = "core_benchmarks"

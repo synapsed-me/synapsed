@@ -29,6 +29,7 @@ members = [
     "crates/intent/synapsed-intent",
     "crates/intent/synapsed-promise",
     "crates/intent/synapsed-verify",
+    "crates/intent/synapsed-swarm",
     # "crates/intent/synapsed-enforce",  # TODO: Create
     
     # Compute & Runtime
