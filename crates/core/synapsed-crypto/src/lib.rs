@@ -131,6 +131,10 @@ pub mod api;
 #[cfg(feature = "hybrid")]
 pub mod hybrid;
 
+// Observability module
+#[cfg(any(feature = "observability", feature = "std"))]
+pub mod observability;
+
 // Prelude for convenient imports
 pub mod prelude {
     //! Common imports for using synapsed-crypto

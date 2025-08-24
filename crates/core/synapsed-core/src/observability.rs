@@ -1,5 +1,8 @@
 //! Humainary Observability - A paradigm shift from traditional monitoring.
 //!
+//! This module now includes integration with Substrates and Serventis for
+//! comprehensive event-driven observability.
+//!
 //! This module implements the Humainary observability paradigm, which focuses on
 //! context-aware, reactive observation patterns rather than traditional metrics
 //! and monitoring approaches.
@@ -12,11 +15,16 @@
 //! - **Self-Describing Systems**: Components that can explain their own state
 //! - **Emergent Understanding**: Insights that emerge from system interactions
 
+pub mod substrates;
+
 use crate::SynapsedResult;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
+
+// Re-export Substrates integration
+pub use substrates::{CoreObservability, CoreEvent, CoreEventType, CoreMetric, AlertSeverity};
 
 /// Context represents the full situational awareness of an observable entity
 #[derive(Debug, Clone, Serialize, Deserialize)]
