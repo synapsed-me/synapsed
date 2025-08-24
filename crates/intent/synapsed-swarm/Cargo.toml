@@ -29,6 +29,10 @@ chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
+# Storage dependencies
+rusqlite = { version = "0.32", features = ["bundled", "chrono", "serde_json"] }
+tokio-rusqlite = "0.6"
+
 # Error handling
 thiserror = "2.0"
 anyhow = "1.0"
@@ -37,8 +41,22 @@ anyhow = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
+# Monitoring and metrics
+metrics = "0.23"
+metrics-exporter-prometheus = { version = "0.15", optional = true }
+opentelemetry = { version = "0.24", features = ["trace", "metrics"], optional = true }
+hyper = { version = "1.5", features = ["server"], optional = true }
+tower = { version = "0.5", optional = true }
+tower-http = { version = "0.6", features = ["cors", "metrics"], optional = true }
+
 # Cryptography for proofs
 blake3 = "1.5"
+
+# Command execution
+which = "7.0"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [dev-dependencies]
 tempfile = "3.14"
@@ -49,11 +67,24 @@ tokio-test = "0.4"
 [features]
 default = ["observability"]
 observability = ["synapsed-core/observability"]
+monitoring = ["dep:metrics-exporter-prometheus", "dep:opentelemetry", "dep:hyper", "dep:tower", "dep:tower-http"]
 testing = []
 
 [[example]]
 name = "swarm_demo"
 path = "examples/swarm_demo.rs"
+
+[[example]]
+name = "execution_demo"
+path = "examples/execution_demo.rs"
+
+[[example]]
+name = "trust_persistence_demo"
+path = "examples/trust_persistence_demo.rs"
+
+[[example]]
+name = "monitoring_demo"
+path = "examples/monitoring_demo.rs"
 
 # [[bench]]
 # name = "coordination"

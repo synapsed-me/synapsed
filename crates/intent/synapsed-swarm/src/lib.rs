@@ -32,14 +32,24 @@ pub mod protocol;
 pub mod claude_agent;
 pub mod verification;
 pub mod trust;
+pub mod persistence;
 pub mod types;
 pub mod error;
+pub mod execution;
+pub mod monitoring;
 
 pub use coordinator::{SwarmCoordinator, SwarmConfig, SwarmState};
 pub use protocol::{AgentMessage, AgentProtocol, ProtocolVersion, MessageType};
 pub use claude_agent::{ClaudeAgent, ClaudeAgentConfig, ClaudeContext};
 pub use verification::{SwarmVerifier, VerificationPolicy, VerificationReport};
-pub use trust::{TrustManager, TrustScore, TrustUpdate};
+pub use trust::{TrustManager, TrustScore, TrustUpdate, BackupConfig};
+pub use persistence::{TrustStore, SqliteTrustStore, FileTrustStore, InMemoryTrustStore, StorageHealth};
+pub use execution::{ExecutionEngine, ExecutionConfig, ExecutionResult};
+pub use monitoring::{
+    MetricsCollector, PrometheusExporter, DashboardProvider, MonitoringConfig,
+    AlertThresholds, Alert, AlertSeverity, DashboardMetrics, AgentMetrics,
+    PerformanceTrends, HealthStatus, HealthLevel, ComponentHealth,
+};
 pub use types::*;
 pub use error::{SwarmError, SwarmResult};
 
@@ -64,7 +74,10 @@ pub mod prelude {
         AgentMessage, AgentProtocol,
         ClaudeAgent, ClaudeAgentConfig,
         SwarmVerifier, VerificationPolicy,
-        TrustManager, TrustScore,
+        TrustManager, TrustScore, BackupConfig,
+        TrustStore, SqliteTrustStore, FileTrustStore, InMemoryTrustStore,
+        ExecutionEngine, ExecutionConfig, ExecutionResult,
+        MetricsCollector, PrometheusExporter, DashboardProvider, MonitoringConfig,
         SwarmError, SwarmResult,
     };
     

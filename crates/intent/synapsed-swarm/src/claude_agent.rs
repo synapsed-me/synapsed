@@ -237,11 +237,20 @@ impl ClaudeAgent {
         }
         
         // Create promise contract
-        let contract = PromiseContract::new(
-            format!("Execute task {}", assignment.task_id),
-            PromiseType::Offer,
-            PromiseScope::Specific(vec![assignment.task_id]),
-        );
+        let body = PromiseBody {
+            content: format!("Execute task {}", assignment.task_id),
+            constraints: Vec::new(),
+            qos: None,
+            metadata: Default::default(),
+        };
+        let contract = PromiseContract {
+            preconditions: Vec::new(),
+            body,
+            postconditions: Vec::new(),
+            invariants: Vec::new(),
+            timeout_ms: Some(self.config.task_timeout_secs * 1000),
+            dependencies: Vec::new(),
+        };
         
         // Evaluate willingness
         let willingness = self.agent.evaluate_willingness(&contract).await?;
@@ -249,7 +258,7 @@ impl ClaudeAgent {
         match willingness {
             Willingness::Willing { confidence } if confidence > 0.5 => {
                 // Make promise
-                let promise = self.agent.make_promise(contract).await?;
+                let promise = self.agent.make_promise_from_contract(contract).await?;
                 
                 // Store task
                 self.active_tasks.write().await.insert(assignment.task_id, assignment);

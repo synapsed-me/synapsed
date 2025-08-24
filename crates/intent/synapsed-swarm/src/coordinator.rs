@@ -6,6 +6,7 @@ use crate::{
     protocol::AgentProtocol,
     trust::TrustManager,
     verification::SwarmVerifier,
+    execution::{ExecutionEngine, ExecutionConfig},
 };
 use dashmap::DashMap;
 use std::sync::Arc;
@@ -34,6 +35,8 @@ pub struct SwarmConfig {
     pub require_consensus: bool,
     /// Consensus threshold (percentage of agents that must agree)
     pub consensus_threshold: f64,
+    /// Execution engine configuration
+    pub execution_config: ExecutionConfig,
 }
 
 impl Default for SwarmConfig {
@@ -46,6 +49,7 @@ impl Default for SwarmConfig {
             track_promises: true,
             require_consensus: false,
             consensus_threshold: 0.66,
+            execution_config: ExecutionConfig::default(),
         }
     }
 }
@@ -106,6 +110,8 @@ pub struct SwarmCoordinator {
     protocol: Arc<AgentProtocol>,
     /// Intent executor
     intent_executor: Arc<RwLock<VerifiedExecutor>>,
+    /// Execution engine for real command execution
+    execution_engine: Arc<ExecutionEngine>,
     /// Event log
     events: Arc<RwLock<Vec<SwarmEvent>>>,
 }
@@ -136,6 +142,7 @@ impl SwarmCoordinator {
             verifier: Arc::new(SwarmVerifier::new()),
             protocol: Arc::new(AgentProtocol::new()),
             intent_executor: Arc::new(RwLock::new(VerifiedExecutor::new())),
+            execution_engine: Arc::new(ExecutionEngine::with_config(config.execution_config.clone())),
             events: Arc::new(RwLock::new(Vec::new())),
         }
     }
@@ -149,6 +156,9 @@ impl SwarmCoordinator {
         
         // Initialize verifier
         self.verifier.initialize().await?;
+        
+        // Initialize execution engine
+        self.execution_engine.initialize().await?;
         
         // Update state
         let mut state = self.state.write().await;
@@ -370,40 +380,108 @@ impl SwarmCoordinator {
         Ok(())
     }
     
-    /// Execute with verification
+    /// Execute with verification using real execution engine
     async fn execute_with_verification(
         &self,
         assignment: &TaskAssignment,
         agent: &Arc<AutonomousAgent>,
     ) -> SwarmResult<(serde_json::Value, Option<synapsed_verify::VerificationProof>)> {
-        // Execute intent
-        let mut executor = self.intent_executor.write().await;
-        let result = executor.execute_with_verification(&assignment.intent).await?;
+        debug!("Executing task {} with verification using real execution engine", assignment.task_id);
         
-        // Verify execution
-        let verification = self.verifier.verify_execution(
+        // Execute each step of the intent using the real execution engine
+        let mut step_results = Vec::new();
+        let steps = assignment.intent.steps();
+        
+        for (step_index, step) in steps.iter().enumerate() {
+            info!("Executing step {} of {}: {}", step_index + 1, steps.len(), step.description);
+            
+            // Execute step using the execution engine
+            let step_result = self.execution_engine
+                .execute_intent_step(&assignment.intent, step_index)
+                .await?;
+            
+            // If step failed, stop execution
+            if !step_result.success {
+                let error_msg = format!("Step {} failed: {:?}", step_index + 1, step_result.output);
+                error!("{}", error_msg);
+                return Err(SwarmError::Other(anyhow::anyhow!(error_msg)));
+            }
+            
+            step_results.push(step_result);
+        }
+        
+        // Combine step results into final result
+        let final_result = Self::combine_step_results(&step_results);
+        
+        // Verify execution using the verification system
+        let verification_report = self.verifier.verify_execution(
             &assignment.intent,
-            &result,
+            &final_result,
             assignment.agent_id,
         ).await?;
         
-        // Generate proof
-        let proof = self.verifier.generate_proof(verification).await?;
+        // Generate proof if verification passed
+        let proof = if verification_report.verified {
+            verification_report.proof
+        } else {
+            warn!("Verification failed for task {}", assignment.task_id);
+            return Err(SwarmError::Other(anyhow::anyhow!("Verification failed")));
+        };
         
-        Ok((result.output, Some(proof)))
+        Ok((final_result.output.unwrap_or_default(), proof))
     }
     
-    /// Execute without verification
+    /// Execute without verification using real execution engine
     async fn execute_without_verification(
         &self,
         assignment: &TaskAssignment,
         agent: &Arc<AutonomousAgent>,
     ) -> SwarmResult<(serde_json::Value, Option<synapsed_verify::VerificationProof>)> {
-        // Execute intent
-        let mut executor = self.intent_executor.write().await;
-        let result = executor.execute(&assignment.intent).await?;
+        debug!("Executing task {} without verification using real execution engine", assignment.task_id);
         
-        Ok((result.output, None))
+        // Execute each step of the intent using the real execution engine
+        let mut step_results = Vec::new();
+        let steps = assignment.intent.steps();
+        
+        for (step_index, step) in steps.iter().enumerate() {
+            info!("Executing step {} of {}: {}", step_index + 1, steps.len(), step.description);
+            
+            // Execute step using the execution engine
+            let step_result = self.execution_engine
+                .execute_intent_step(&assignment.intent, step_index)
+                .await?;
+            
+            // Continue even if step fails in non-verification mode
+            if !step_result.success {
+                warn!("Step {} failed but continuing: {:?}", step_index + 1, step_result.output);
+            }
+            
+            step_results.push(step_result);
+        }
+        
+        // Combine step results into final result
+        let final_result = Self::combine_step_results(&step_results);
+        
+        Ok((final_result.output.unwrap_or_default(), None))
+    }
+    
+    /// Combine multiple step results into a single result
+    fn combine_step_results(step_results: &[synapsed_intent::StepResult]) -> synapsed_intent::StepResult {
+        let all_successful = step_results.iter().all(|r| r.success);
+        let combined_outputs: Vec<_> = step_results.iter()
+            .filter_map(|r| r.output.as_ref())
+            .collect();
+        
+        let combined_metadata = step_results.iter()
+            .flat_map(|r| r.metadata.iter())
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        
+        synapsed_intent::StepResult {
+            success: all_successful,
+            output: Some(serde_json::json!(combined_outputs)),
+            metadata: combined_metadata,
+        }
     }
     
     /// Select an agent for a task
@@ -499,6 +577,18 @@ impl SwarmCoordinator {
     /// Get task result
     pub async fn get_task_result(&self, task_id: TaskId) -> Option<TaskResult> {
         self.results.get(&task_id).map(|r| r.clone())
+    }
+    
+    /// Get the execution engine for direct access
+    pub fn execution_engine(&self) -> &Arc<ExecutionEngine> {
+        &self.execution_engine
+    }
+    
+    /// Update execution engine configuration
+    pub async fn update_execution_config(&self, new_config: ExecutionConfig) -> SwarmResult<()> {
+        self.execution_engine.update_config(new_config).await?;
+        info!("Swarm execution configuration updated");
+        Ok(())
     }
     
     /// Log an event

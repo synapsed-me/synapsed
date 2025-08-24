@@ -1,10 +1,16 @@
 //! Trust management for swarm agents
 
-use crate::{error::SwarmResult, types::AgentId};
+use crate::{
+    error::SwarmResult, 
+    types::AgentId,
+    persistence::{TrustStore, InMemoryTrustStore},
+};
 use dashmap::DashMap;
 use std::sync::Arc;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use tokio::{sync::RwLock, time::{interval, Duration}};
+use tracing::{debug, info, warn};
 
 /// Trust score for an agent
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -112,12 +118,40 @@ pub enum TrustUpdateReason {
 
 /// Trust manager for the swarm
 pub struct TrustManager {
-    /// Trust scores for agents
-    scores: Arc<DashMap<AgentId, TrustScore>>,
-    /// Trust update history
-    history: Arc<DashMap<AgentId, Vec<TrustUpdate>>>,
+    /// Persistent storage for trust data
+    storage: Arc<dyn TrustStore>,
+    /// In-memory cache for fast access
+    cache: Arc<DashMap<AgentId, TrustScore>>,
     /// Trust thresholds for different operations
     thresholds: TrustThresholds,
+    /// Backup configuration
+    backup_config: BackupConfig,
+    /// Shutdown signal for background tasks
+    shutdown: Arc<RwLock<bool>>,
+}
+
+/// Configuration for trust score backups
+#[derive(Debug, Clone)]
+pub struct BackupConfig {
+    /// Enable periodic backups
+    pub enabled: bool,
+    /// Backup interval in seconds
+    pub interval_secs: u64,
+    /// Enable backup on significant trust changes
+    pub on_significant_change: bool,
+    /// Threshold for "significant" trust change
+    pub significant_change_threshold: f64,
+}
+
+impl Default for BackupConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            interval_secs: 3600, // 1 hour
+            on_significant_change: true,
+            significant_change_threshold: 0.1,
+        }
+    }
 }
 
 /// Trust thresholds for different operations
@@ -148,52 +182,143 @@ impl Default for TrustThresholds {
 }
 
 impl TrustManager {
-    /// Create a new trust manager
+    /// Create a new trust manager with in-memory storage
     pub fn new() -> Self {
+        Self::with_storage(Arc::new(InMemoryTrustStore::new()))
+    }
+    
+    /// Create with custom storage
+    pub fn with_storage(storage: Arc<dyn TrustStore>) -> Self {
         Self {
-            scores: Arc::new(DashMap::new()),
-            history: Arc::new(DashMap::new()),
+            storage,
+            cache: Arc::new(DashMap::new()),
             thresholds: TrustThresholds::default(),
+            backup_config: BackupConfig::default(),
+            shutdown: Arc::new(RwLock::new(false)),
         }
     }
     
-    /// Create with custom thresholds
-    pub fn with_thresholds(thresholds: TrustThresholds) -> Self {
+    /// Create with custom thresholds and storage
+    pub fn with_thresholds_and_storage(
+        thresholds: TrustThresholds,
+        storage: Arc<dyn TrustStore>,
+    ) -> Self {
         Self {
-            scores: Arc::new(DashMap::new()),
-            history: Arc::new(DashMap::new()),
+            storage,
+            cache: Arc::new(DashMap::new()),
             thresholds,
+            backup_config: BackupConfig::default(),
+            shutdown: Arc::new(RwLock::new(false)),
         }
+    }
+    
+    /// Configure backup settings
+    pub fn with_backup_config(mut self, config: BackupConfig) -> Self {
+        self.backup_config = config;
+        self
     }
     
     /// Initialize trust manager
     pub async fn initialize(&self) -> SwarmResult<()> {
-        // Could load historical trust data here
+        // Initialize the storage backend
+        self.storage.initialize().await?;
+        
+        // Load existing trust scores into cache
+        let scores = self.storage.get_all_trust_scores().await?;
+        for (agent_id, score) in scores {
+            self.cache.insert(agent_id, score);
+        }
+        
+        info!("Loaded {} trust scores from storage", self.cache.len());
+        
+        // Start periodic backup task if enabled
+        if self.backup_config.enabled {
+            self.start_periodic_backup().await;
+        }
+        
         Ok(())
+    }
+    
+    /// Start periodic backup task
+    async fn start_periodic_backup(&self) {
+        let storage = Arc::clone(&self.storage);
+        let shutdown = Arc::clone(&self.shutdown);
+        let interval_secs = self.backup_config.interval_secs;
+        
+        tokio::spawn(async move {
+            let mut ticker = interval(Duration::from_secs(interval_secs));
+            
+            loop {
+                ticker.tick().await;
+                
+                // Check if we should shutdown
+                if *shutdown.read().await {
+                    debug!("Periodic backup task shutting down");
+                    break;
+                }
+                
+                // Create backup
+                let backup_path = std::env::temp_dir().join(format!(
+                    "synapsed_trust_backup_{}.backup", 
+                    chrono::Utc::now().timestamp()
+                ));
+                
+                if let Err(e) = storage.create_backup(&backup_path).await {
+                    warn!("Failed to create periodic backup: {}", e);
+                } else {
+                    debug!("Created periodic backup at {:?}", backup_path);
+                }
+            }
+        });
     }
     
     /// Initialize trust for a new agent
     pub async fn initialize_agent(&self, agent_id: AgentId, initial_trust: f64) -> SwarmResult<()> {
         let score = TrustScore::new(initial_trust);
-        self.scores.insert(agent_id, score);
-        self.history.insert(agent_id, Vec::new());
+        
+        // Store in persistent storage
+        self.storage.store_trust_score(agent_id, score).await?;
+        
+        // Update cache
+        self.cache.insert(agent_id, score);
+        
+        info!("Initialized trust for agent {} with score {}", agent_id, initial_trust);
+        
         Ok(())
     }
     
     /// Get trust score for an agent
     pub async fn get_trust(&self, agent_id: AgentId) -> SwarmResult<f64> {
-        self.scores
-            .get(&agent_id)
-            .map(|score| score.value)
-            .ok_or_else(|| crate::error::SwarmError::AgentNotFound(agent_id))
+        // Try cache first
+        if let Some(score) = self.cache.get(&agent_id) {
+            return Ok(score.value);
+        }
+        
+        // Fall back to storage
+        if let Some(score) = self.storage.get_trust_score(agent_id).await? {
+            // Update cache
+            self.cache.insert(agent_id, score);
+            Ok(score.value)
+        } else {
+            Err(crate::error::SwarmError::AgentNotFound(agent_id))
+        }
     }
     
     /// Get full trust score for an agent
     pub async fn get_trust_score(&self, agent_id: AgentId) -> SwarmResult<TrustScore> {
-        self.scores
-            .get(&agent_id)
-            .map(|entry| *entry)
-            .ok_or_else(|| crate::error::SwarmError::AgentNotFound(agent_id))
+        // Try cache first
+        if let Some(score) = self.cache.get(&agent_id) {
+            return Ok(*score.value());
+        }
+        
+        // Fall back to storage
+        if let Some(score) = self.storage.get_trust_score(agent_id).await? {
+            // Update cache
+            self.cache.insert(agent_id, score);
+            Ok(score)
+        } else {
+            Err(crate::error::SwarmError::AgentNotFound(agent_id))
+        }
     }
     
     /// Update trust based on task outcome
@@ -203,13 +328,21 @@ impl TrustManager {
         success: bool,
         verified: bool,
     ) -> SwarmResult<()> {
-        let mut score = self.scores
-            .get_mut(&agent_id)
-            .ok_or_else(|| crate::error::SwarmError::AgentNotFound(agent_id))?;
+        // Get current score from cache or storage
+        let current_score = self.get_trust_score(agent_id).await?;
+        let previous = current_score;
         
-        let previous = *score;
-        score.update(success, verified);
-        let current = *score;
+        // Calculate new score
+        let mut new_score = current_score;
+        new_score.update(success, verified);
+        
+        // Determine if this is a significant change
+        let is_significant = (new_score.value - previous.value).abs() 
+            >= self.backup_config.significant_change_threshold;
+        
+        // Use transaction for atomic update
+        let mut tx = self.storage.begin_transaction().await?;
+        tx.store_trust_score(agent_id, new_score).await?;
         
         // Record update
         let reason = if success {
@@ -222,7 +355,36 @@ impl TrustManager {
             TrustUpdateReason::TaskFailure
         };
         
-        self.record_update(agent_id, previous, current, reason).await;
+        let update = TrustUpdate {
+            agent_id,
+            previous,
+            current: new_score,
+            reason,
+            timestamp: Utc::now(),
+        };
+        
+        tx.store_trust_update(&update).await?;
+        tx.commit().await?;
+        
+        // Update cache
+        self.cache.insert(agent_id, new_score);
+        
+        debug!(
+            "Updated trust for agent {} from {:.3} to {:.3} (reason: {:?})",
+            agent_id, previous.value, new_score.value, reason
+        );
+        
+        // Create backup on significant change if enabled
+        if self.backup_config.on_significant_change && is_significant {
+            let backup_path = std::env::temp_dir().join(format!(
+                "synapsed_trust_significant_{}.backup", 
+                chrono::Utc::now().timestamp()
+            ));
+            
+            if let Err(e) = self.storage.create_backup(&backup_path).await {
+                warn!("Failed to create backup on significant change: {}", e);
+            }
+        }
         
         Ok(())
     }
@@ -233,13 +395,17 @@ impl TrustManager {
         agent_id: AgentId,
         fulfilled: bool,
     ) -> SwarmResult<()> {
-        let mut score = self.scores
-            .get_mut(&agent_id)
-            .ok_or_else(|| crate::error::SwarmError::AgentNotFound(agent_id))?;
+        // Get current score
+        let current_score = self.get_trust_score(agent_id).await?;
+        let previous = current_score;
         
-        let previous = *score;
-        score.update(fulfilled, true); // Promises are always "verified"
-        let current = *score;
+        // Calculate new score
+        let mut new_score = current_score;
+        new_score.update(fulfilled, true); // Promises are always "verified"
+        
+        // Use transaction for atomic update
+        let mut tx = self.storage.begin_transaction().await?;
+        tx.store_trust_score(agent_id, new_score).await?;
         
         let reason = if fulfilled {
             TrustUpdateReason::PromiseFulfilled
@@ -247,7 +413,24 @@ impl TrustManager {
             TrustUpdateReason::PromiseBroken
         };
         
-        self.record_update(agent_id, previous, current, reason).await;
+        let update = TrustUpdate {
+            agent_id,
+            previous,
+            current: new_score,
+            reason,
+            timestamp: Utc::now(),
+        };
+        
+        tx.store_trust_update(&update).await?;
+        tx.commit().await?;
+        
+        // Update cache
+        self.cache.insert(agent_id, new_score);
+        
+        debug!(
+            "Updated trust for agent {} promise (fulfilled: {}) from {:.3} to {:.3}",
+            agent_id, fulfilled, previous.value, new_score.value
+        );
         
         Ok(())
     }
@@ -259,26 +442,41 @@ impl TrustManager {
         feedback: f64,
         peer_trust: f64,
     ) -> SwarmResult<()> {
-        let mut score = self.scores
-            .get_mut(&agent_id)
-            .ok_or_else(|| crate::error::SwarmError::AgentNotFound(agent_id))?;
+        // Get current score
+        let current_score = self.get_trust_score(agent_id).await?;
+        let previous = current_score;
         
-        let previous = *score;
+        // Calculate new score with peer feedback
+        let mut new_score = current_score;
         
         // Weight feedback by peer's trust
         let weighted_feedback = feedback * peer_trust;
-        let delta = (weighted_feedback - score.value) * 0.1; // Conservative update
-        score.value = (score.value + delta).clamp(0.0, 1.0);
-        score.last_updated = Utc::now();
+        let delta = (weighted_feedback - new_score.value) * 0.1; // Conservative update
+        new_score.value = (new_score.value + delta).clamp(0.0, 1.0);
+        new_score.last_updated = Utc::now();
         
-        let current = *score;
+        // Use transaction for atomic update
+        let mut tx = self.storage.begin_transaction().await?;
+        tx.store_trust_score(agent_id, new_score).await?;
         
-        self.record_update(
+        let update = TrustUpdate {
             agent_id,
             previous,
-            current,
-            TrustUpdateReason::PeerFeedback(feedback),
-        ).await;
+            current: new_score,
+            reason: TrustUpdateReason::PeerFeedback(feedback),
+            timestamp: Utc::now(),
+        };
+        
+        tx.store_trust_update(&update).await?;
+        tx.commit().await?;
+        
+        // Update cache
+        self.cache.insert(agent_id, new_score);
+        
+        debug!(
+            "Applied peer feedback for agent {} (feedback: {:.3}, peer_trust: {:.3}) from {:.3} to {:.3}",
+            agent_id, feedback, peer_trust, previous.value, new_score.value
+        );
         
         Ok(())
     }
@@ -302,67 +500,120 @@ impl TrustManager {
     }
     
     /// Get agents above trust threshold
-    pub async fn get_trusted_agents(&self, threshold: f64) -> Vec<(AgentId, TrustScore)> {
-        self.scores
-            .iter()
-            .filter(|entry| entry.value().value >= threshold)
-            .map(|entry| (*entry.key(), *entry.value()))
-            .collect()
+    pub async fn get_trusted_agents(&self, threshold: f64) -> SwarmResult<Vec<(AgentId, TrustScore)>> {
+        // Get all scores from storage to ensure we have the latest data
+        let all_scores = self.storage.get_all_trust_scores().await?;
+        
+        Ok(all_scores
+            .into_iter()
+            .filter(|(_, score)| score.value >= threshold)
+            .collect())
     }
     
     /// Get trust history for an agent
-    pub async fn get_history(&self, agent_id: AgentId) -> SwarmResult<Vec<TrustUpdate>> {
-        self.history
-            .get(&agent_id)
-            .map(|entry| entry.clone())
-            .ok_or_else(|| crate::error::SwarmError::AgentNotFound(agent_id))
+    pub async fn get_history(&self, agent_id: AgentId, limit: Option<usize>) -> SwarmResult<Vec<TrustUpdate>> {
+        self.storage.get_trust_history(agent_id, limit).await
     }
     
-    /// Record trust update
-    async fn record_update(
-        &self,
-        agent_id: AgentId,
-        previous: TrustScore,
-        current: TrustScore,
-        reason: TrustUpdateReason,
-    ) {
-        let update = TrustUpdate {
-            agent_id,
-            previous,
-            current,
-            reason,
-            timestamp: Utc::now(),
-        };
+    /// Get trust updates since a specific timestamp
+    pub async fn get_updates_since(&self, timestamp: DateTime<Utc>) -> SwarmResult<Vec<TrustUpdate>> {
+        self.storage.get_trust_updates_since(timestamp).await
+    }
+    
+    /// Remove an agent and all associated data
+    pub async fn remove_agent(&self, agent_id: AgentId) -> SwarmResult<()> {
+        // Remove from storage
+        self.storage.remove_agent(agent_id).await?;
         
-        if let Some(mut history) = self.history.get_mut(&agent_id) {
-            history.push(update);
-            
-            // Limit history size
-            if history.len() > 100 {
-                history.drain(0..10);
-            }
+        // Remove from cache
+        self.cache.remove(&agent_id);
+        
+        info!("Removed agent {} from trust management", agent_id);
+        Ok(())
+    }
+    
+    /// Create a backup of trust data
+    pub async fn create_backup<P: AsRef<std::path::Path>>(&self, path: P) -> SwarmResult<()> {
+        self.storage.create_backup(path.as_ref()).await
+    }
+    
+    /// Restore from a backup
+    pub async fn restore_backup<P: AsRef<std::path::Path>>(&self, path: P) -> SwarmResult<()> {
+        // Restore storage
+        self.storage.restore_backup(path.as_ref()).await?;
+        
+        // Reload cache
+        self.cache.clear();
+        let scores = self.storage.get_all_trust_scores().await?;
+        for (agent_id, score) in scores {
+            self.cache.insert(agent_id, score);
         }
+        
+        info!("Restored trust data from backup and reloaded cache");
+        Ok(())
+    }
+    
+    /// Get storage health information
+    pub async fn get_storage_health(&self) -> SwarmResult<crate::persistence::StorageHealth> {
+        self.storage.health_check().await
+    }
+    
+    /// Cleanup old trust update data
+    pub async fn cleanup_old_data(&self, older_than: DateTime<Utc>) -> SwarmResult<usize> {
+        self.storage.cleanup_old_data(older_than).await
+    }
+    
+    /// Shutdown the trust manager and cleanup background tasks
+    pub async fn shutdown(&self) {
+        *self.shutdown.write().await = true;
+        info!("Trust manager shutting down");
     }
     
     /// Apply time decay to all trust scores
     pub async fn apply_time_decay(&self, decay_rate: f64) -> SwarmResult<()> {
-        for mut entry in self.scores.iter_mut() {
-            let previous = *entry.value();
+        let all_scores = self.storage.get_all_trust_scores().await?;
+        let mut updates = Vec::new();
+        
+        for (agent_id, score) in all_scores {
+            let previous = score;
             
             // Apply decay based on time since last update
             let hours_since_update = (Utc::now() - previous.last_updated).num_hours() as f64;
             if hours_since_update > 24.0 {
                 let decay = decay_rate * (hours_since_update / 24.0).min(1.0);
-                entry.value -= entry.value * decay;
-                entry.last_updated = Utc::now();
+                let mut new_score = previous;
+                new_score.value = new_score.value - (new_score.value * decay);
+                new_score.last_updated = Utc::now();
                 
-                self.record_update(
-                    *entry.key(),
+                let update = TrustUpdate {
+                    agent_id,
                     previous,
-                    *entry.value(),
-                    TrustUpdateReason::TimeDecay,
-                ).await;
+                    current: new_score,
+                    reason: TrustUpdateReason::TimeDecay,
+                    timestamp: Utc::now(),
+                };
+                
+                updates.push((agent_id, new_score, update));
             }
+        }
+        
+        // Apply all updates in a transaction
+        if !updates.is_empty() {
+            let mut tx = self.storage.begin_transaction().await?;
+            
+            for (agent_id, new_score, update) in &updates {
+                tx.store_trust_score(*agent_id, *new_score).await?;
+                tx.store_trust_update(update).await?;
+            }
+            
+            tx.commit().await?;
+            
+            // Update cache
+            for (agent_id, new_score, _) in updates {
+                self.cache.insert(agent_id, new_score);
+            }
+            
+            debug!("Applied time decay to {} agents", self.cache.len());
         }
         
         Ok(())

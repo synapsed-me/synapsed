@@ -85,6 +85,30 @@ pub enum SwarmError {
     #[error("Failed to recover from error: {0}")]
     RecoveryFailed(String),
     
+    /// Storage operation failed
+    #[error("Storage error: {0}")]
+    StorageError(String),
+    
+    /// Transaction failed
+    #[error("Transaction failed: {0}")]
+    TransactionFailed(String),
+    
+    /// Concurrent access error
+    #[error("Concurrent access error: {0}")]
+    ConcurrencyError(String),
+    
+    /// Migration failed
+    #[error("Migration failed: {0}")]
+    MigrationFailed(String),
+    
+    /// Backup/restore operation failed
+    #[error("Backup operation failed: {0}")]
+    BackupFailed(String),
+    
+    /// Monitoring system error
+    #[error("Monitoring error: {0}")]
+    MonitoringError(String),
+    
     /// Intent error
     #[error("Intent error: {0}")]
     Intent(#[from] synapsed_intent::IntentError),
@@ -112,6 +136,11 @@ impl From<SwarmError> for synapsed_core::SynapsedError {
                 synapsed_core::SynapsedError::Timeout(format!("{}s", secs))
             }
             SwarmError::CommunicationError(msg) => synapsed_core::SynapsedError::Network(msg),
+            SwarmError::StorageError(msg) => synapsed_core::SynapsedError::Internal(format!("Storage: {}", msg)),
+            SwarmError::TransactionFailed(msg) => synapsed_core::SynapsedError::Internal(format!("Transaction: {}", msg)),
+            SwarmError::ConcurrencyError(msg) => synapsed_core::SynapsedError::Internal(format!("Concurrency: {}", msg)),
+            SwarmError::MigrationFailed(msg) => synapsed_core::SynapsedError::Internal(format!("Migration: {}", msg)),
+            SwarmError::BackupFailed(msg) => synapsed_core::SynapsedError::Internal(format!("Backup: {}", msg)),
             _ => synapsed_core::SynapsedError::Internal(err.to_string()),
         }
     }

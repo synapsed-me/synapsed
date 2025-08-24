@@ -51,6 +51,12 @@ pub enum IntentStatus {
     RolledBack,
 }
 
+impl Default for IntentStatus {
+    fn default() -> Self {
+        IntentStatus::Pending
+    }
+}
+
 /// Priority level for intent execution
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Priority {

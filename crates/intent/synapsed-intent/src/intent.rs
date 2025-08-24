@@ -5,6 +5,7 @@ use crate::{
     context::IntentContext,
     checkpoint::CheckpointManager,
 };
+use serde::{Deserialize, Serialize};
 use futures::future::BoxFuture;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -16,7 +17,7 @@ use petgraph::algo::toposort;
 use synapsed_substrates::{Subject, types::{Name, SubjectType}};
 
 /// A hierarchical intent representing a goal to be achieved
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HierarchicalIntent {
     /// Unique intent ID
     pub id: IntentId,
@@ -33,11 +34,57 @@ pub struct HierarchicalIntent {
     /// Execution configuration
     pub config: ExecutionConfig,
     /// Current status
+    #[serde(skip, default = "default_status")]
     pub status: Arc<RwLock<IntentStatus>>,
     /// Context bounds
     pub bounds: ContextBounds,
     /// Observable substrate
+    #[serde(skip, default = "default_substrate")]
     pub substrate: Arc<Subject>,
+}
+
+// Default functions for serde
+fn default_status() -> Arc<RwLock<IntentStatus>> {
+    Arc::new(RwLock::new(IntentStatus::Pending))
+}
+
+fn default_substrate() -> Arc<Subject> {
+    Arc::new(Subject::new(
+        synapsed_substrates::types::Name::from("intent"),
+        synapsed_substrates::types::SubjectType::Source,
+    ))
+}
+
+impl Default for HierarchicalIntent {
+    fn default() -> Self {
+        let id = IntentId::new();
+        let substrate = Subject::new(
+            Name::from(format!("intent.{}", id.0).as_str()),
+            SubjectType::Source
+        );
+        
+        Self {
+            id,
+            goal: "default goal".to_string(),
+            description: None,
+            steps: Vec::new(),
+            sub_intents: Vec::new(),
+            metadata: IntentMetadata {
+                creator: "unknown".to_string(),
+                created_at: Utc::now(),
+                modified_at: Utc::now(),
+                tags: Vec::new(),
+                parent_intent: None,
+                agent_context: None,
+                priority: Priority::Normal,
+                estimated_duration_ms: None,
+            },
+            config: ExecutionConfig::default(),
+            status: Arc::new(RwLock::new(IntentStatus::Pending)),
+            bounds: ContextBounds::default(),
+            substrate: Arc::new(substrate),
+        }
+    }
 }
 
 impl HierarchicalIntent {

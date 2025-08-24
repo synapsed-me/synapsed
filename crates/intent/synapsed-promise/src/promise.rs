@@ -61,7 +61,7 @@ pub struct PromiseContract {
 }
 
 /// A promise made by an agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Promise {
     /// Unique promise ID
     id: PromiseId,
@@ -72,19 +72,38 @@ pub struct Promise {
     /// Scope of the promise
     scope: PromiseScope,
     /// Contract details
+    #[serde(skip)]
     contract: Arc<PromiseContract>,
     /// Current state
+    #[serde(skip)]
     state: Arc<RwLock<PromiseState>>,
     /// Creation timestamp
     created_at: DateTime<Utc>,
     /// Activation timestamp
+    #[serde(skip)]
     activated_at: Arc<RwLock<Option<DateTime<Utc>>>>,
     /// Completion timestamp
+    #[serde(skip)]
     completed_at: Arc<RwLock<Option<DateTime<Utc>>>>,
     /// Promise outcome
+    #[serde(skip)]
     outcome: Arc<RwLock<Option<PromiseOutcome>>>,
     /// Assessments of this promise
+    #[serde(skip)]
     assessments: Arc<RwLock<Vec<Assessment>>>,
+}
+
+impl Default for Promise {
+    fn default() -> Self {
+        let agent_id = AgentId::new();
+        let body = PromiseBody {
+            content: "default promise".to_string(),
+            constraints: Vec::new(),
+            qos: None,
+            metadata: Default::default(),
+        };
+        Self::new(agent_id, PromiseType::Offer, PromiseScope::Universal, body)
+    }
 }
 
 impl Promise {

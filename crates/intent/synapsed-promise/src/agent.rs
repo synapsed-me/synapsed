@@ -337,6 +337,64 @@ impl AutonomousAgent {
         Ok(assessment)
     }
     
+    /// Evaluates willingness to accept a promise contract
+    pub async fn evaluate_willingness(&self, contract: &PromiseContract) -> Result<Willingness> {
+        // Check if we have capacity
+        if self.promises_made.len() >= self.config.max_promises {
+            return Ok(Willingness::Unwilling { reason: "At maximum promise capacity".to_string() });
+        }
+        
+        // Check if we can fulfill based on capabilities
+        let can_fulfill = self.config.capabilities.services.iter()
+            .any(|s| contract.body.content.contains(s)) ||
+            self.config.capabilities.resources.iter()
+            .any(|r| contract.body.content.contains(r));
+        
+        if !can_fulfill {
+            return Ok(Willingness::Unwilling { reason: "Insufficient capabilities".to_string() });
+        }
+        
+        // Return willing with confidence based on capability match
+        Ok(Willingness::Willing { confidence: 0.8 })
+    }
+    
+    /// Makes a promise from a contract
+    pub async fn make_promise_from_contract(&self, contract: PromiseContract) -> Result<Promise> {
+        // Extract components from contract
+        let promise_type = PromiseType::Offer;
+        let scope = PromiseScope::Universal;
+        let body = contract.body.clone();
+        
+        // Check if we're in a valid state
+        let state = self.state.read().await;
+        if !matches!(*state, AgentState::Ready | AgentState::Active | AgentState::Cooperating) {
+            return Err(PromiseError::ValidationFailed(
+                format!("Cannot make promise in state {:?}", *state)
+            ));
+        }
+        drop(state);
+        
+        // Check if we've reached promise limit
+        if self.promises_made.len() >= self.config.max_promises {
+            return Err(PromiseError::ValidationFailed(
+                "Maximum promise limit reached".to_string()
+            ));
+        }
+        
+        // Create promise with full contract
+        let promise = Promise::with_contract(
+            self.id,
+            promise_type,
+            scope,
+            contract,
+        );
+        
+        // Store the promise
+        self.promises_made.insert(promise.id(), promise.clone());
+        
+        Ok(promise)
+    }
+
     /// Shuts down the agent
     pub async fn shutdown(&self) -> Result<()> {
         let mut state = self.state.write().await;

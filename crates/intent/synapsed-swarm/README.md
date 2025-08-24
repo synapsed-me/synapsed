@@ -24,6 +24,12 @@ This crate provides a complete framework for coordinating multiple AI agents (in
 - Willingness evaluation before commitment
 - Promise fulfillment tracking
 
+### ✅ Real Command Execution
+- Production-ready command execution with `tokio::process::Command`
+- Security: allowlist/blocklist and working directory restrictions  
+- Resource limits: timeouts, memory/CPU constraints
+- Sandboxing: user/group restrictions when running as root
+
 ### ✅ Execution Verification
 - Command execution verification
 - File system state verification  
@@ -32,9 +38,14 @@ This crate provides a complete framework for coordinating multiple AI agents (in
 
 ### 🔐 Trust Management
 - Dynamic trust scores based on performance
+- **Persistent storage** with SQLite, JSON files, or in-memory backends
+- **ACID transactions** for data integrity
+- **Schema migrations** for database evolution
 - Trust-based task assignment
 - Peer feedback integration
 - Time decay for stale trust scores
+- **Automated backups** and restore capabilities
+- **Concurrent access** support for multi-agent environments
 
 ### 🤖 Claude Integration
 - Special wrapper for Claude sub-agents
@@ -46,8 +57,9 @@ This crate provides a complete framework for coordinating multiple AI agents (in
 
 - ✅ Core swarm coordinator
 - ✅ Agent protocol (message passing)
-- ✅ Trust management system
+- ✅ Trust management system with persistent storage
 - ✅ Verification framework
+- ✅ Real command execution engine
 - ✅ Claude agent wrapper
 - 🚧 Full promise integration
 - 🚧 Consensus mechanisms
@@ -154,17 +166,40 @@ let promise = claude.accept_task(assignment).await?;
 let result = claude.execute_task(task_id).await?;
 ```
 
-### Trust Management
+### Trust Management with Persistent Storage
 
 ```rust
-use synapsed_swarm::trust::{TrustManager, TrustOperation};
+use synapsed_swarm::{
+    trust::{TrustManager, TrustOperation, BackupConfig},
+    persistence::{SqliteTrustStore, FileTrustStore, InMemoryTrustStore},
+};
+use std::sync::Arc;
 
-let trust_manager = TrustManager::new();
+// Option 1: SQLite storage (production recommended)
+let store = Arc::new(SqliteTrustStore::new("trust.db", Some("./backups")).await?);
+
+// Option 2: File-based JSON storage
+// let store = Arc::new(FileTrustStore::new("./trust_data", Some("./backups"))?);
+
+// Option 3: In-memory storage (testing only)
+// let store = Arc::new(InMemoryTrustStore::new());
+
+// Configure automatic backups
+let backup_config = BackupConfig {
+    enabled: true,
+    interval_secs: 3600, // Backup every hour
+    on_significant_change: true,
+    significant_change_threshold: 0.1,
+};
+
+let trust_manager = TrustManager::with_storage(store)
+    .with_backup_config(backup_config);
+trust_manager.initialize().await?;
 
 // Initialize agent trust
 trust_manager.initialize_agent(agent_id, 0.5).await?;
 
-// Update trust based on performance
+// Update trust based on performance (automatically persisted)
 trust_manager.update_trust(agent_id, success, verified).await?;
 
 // Check trust for operation
@@ -174,7 +209,51 @@ let can_perform = trust_manager.check_threshold(
 ).await?;
 
 // Get trusted agents for consensus
-let trusted = trust_manager.get_trusted_agents(0.7).await;
+let trusted = trust_manager.get_trusted_agents(0.7).await?;
+
+// Create manual backup
+trust_manager.create_backup("backup_20241224.db").await?;
+
+// Check storage health
+let health = trust_manager.get_storage_health().await?;
+println!("Trust storage health: {} agents tracked", health.total_agents);
+
+// Cleanup old data (older than 30 days)
+let cutoff = chrono::Utc::now() - chrono::Duration::days(30);
+let cleaned = trust_manager.cleanup_old_data(cutoff).await?;
+println!("Cleaned up {} old records", cleaned);
+```
+
+### Real Command Execution
+
+```rust
+use synapsed_swarm::{ExecutionEngine, ExecutionConfig};
+use std::path::PathBuf;
+
+// Configure execution engine
+let mut config = ExecutionConfig::default();
+config.allowed_commands = vec![
+    "ls".to_string(), "cat".to_string(), "echo".to_string()
+];
+config.blocked_commands = vec![
+    "rm".to_string(), "sudo".to_string()
+];
+config.max_execution_time_secs = 30;
+config.allowed_working_dirs = vec![PathBuf::from("/tmp")];
+config.enable_sandboxing = true;
+
+let engine = ExecutionEngine::with_config(config);
+engine.initialize().await?;
+
+// Execute commands safely
+let result = engine.execute_command("echo", &["Hello", "World"], None).await?;
+println!("Output: {}", result.stdout);
+println!("Success: {}", result.success);
+println!("Duration: {}ms", result.duration_ms);
+
+// Get execution history
+let history = engine.execution_history().await;
+println!("Executed {} commands", history.len());
 ```
 
 ### Verification
@@ -233,14 +312,40 @@ match message.message_type {
 
 See the `examples/` directory for:
 - `swarm_demo.rs` - Basic swarm coordination demo
-- More examples coming soon
+- `execution_demo.rs` - Real command execution demonstration
+- `trust_persistence_demo.rs` - Trust storage system demonstration
 
 ## Testing
 
 ```bash
 cargo test -p synapsed-swarm
 cargo run --example swarm_demo
+cargo run --example execution_demo
+cargo run --example trust_persistence_demo
 ```
+
+## Storage Backends
+
+### SQLite (Production Recommended)
+- ACID transactions for data integrity
+- Schema versioning and migrations
+- Automatic periodic backups
+- Concurrent read/write access
+- Query optimization with indexes
+
+### File-based JSON Storage
+- Human-readable format
+- Simple deployment
+- Atomic file operations
+- No external dependencies
+
+### In-Memory Storage
+- Ultra-fast operations
+- Perfect for testing
+- No persistence (by design)
+- Full feature compatibility
+
+For detailed information, see `docs/TRUST_PERSISTENCE.md`.
 
 ## License
 
