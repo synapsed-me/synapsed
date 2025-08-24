@@ -7,6 +7,7 @@ use crate::{
     trust::TrustManager,
     verification::SwarmVerifier,
     execution::{ExecutionEngine, ExecutionConfig},
+    recovery::{RecoveryManager, RecoveryResult},
 };
 use dashmap::DashMap;
 use std::sync::Arc;
@@ -37,6 +38,8 @@ pub struct SwarmConfig {
     pub consensus_threshold: f64,
     /// Execution engine configuration
     pub execution_config: ExecutionConfig,
+    /// Fault tolerance configuration
+    pub fault_tolerance_config: FaultToleranceConfig,
 }
 
 impl Default for SwarmConfig {
@@ -50,6 +53,7 @@ impl Default for SwarmConfig {
             require_consensus: false,
             consensus_threshold: 0.66,
             execution_config: ExecutionConfig::default(),
+            fault_tolerance_config: FaultToleranceConfig::default(),
         }
     }
 }
@@ -112,6 +116,8 @@ pub struct SwarmCoordinator {
     intent_executor: Arc<RwLock<VerifiedExecutor>>,
     /// Execution engine for real command execution
     execution_engine: Arc<ExecutionEngine>,
+    /// Fault tolerance manager
+    fault_tolerance_manager: Arc<FaultToleranceManager>,
     /// Event log
     events: Arc<RwLock<Vec<SwarmEvent>>>,
 }
@@ -130,6 +136,14 @@ impl SwarmCoordinator {
             metrics: SwarmMetrics::default(),
         };
         
+        let trust_manager = Arc::new(TrustManager::new());
+        let execution_engine = Arc::new(ExecutionEngine::with_config(config.execution_config.clone()));
+        let fault_tolerance_manager = Arc::new(FaultToleranceManager::new(
+            config.fault_tolerance_config.clone(),
+            trust_manager.clone(),
+            execution_engine.clone(),
+        ));
+        
         Self {
             swarm_id,
             config: Arc::new(config),
@@ -138,11 +152,12 @@ impl SwarmCoordinator {
             agent_statuses: Arc::new(DashMap::new()),
             tasks: Arc::new(DashMap::new()),
             results: Arc::new(DashMap::new()),
-            trust_manager: Arc::new(TrustManager::new()),
+            trust_manager,
             verifier: Arc::new(SwarmVerifier::new()),
             protocol: Arc::new(AgentProtocol::new()),
             intent_executor: Arc::new(RwLock::new(VerifiedExecutor::new())),
-            execution_engine: Arc::new(ExecutionEngine::with_config(config.execution_config.clone())),
+            execution_engine,
+            fault_tolerance_manager,
             events: Arc::new(RwLock::new(Vec::new())),
         }
     }
@@ -159,6 +174,9 @@ impl SwarmCoordinator {
         
         // Initialize execution engine
         self.execution_engine.initialize().await?;
+        
+        // Initialize recovery manager
+        self.recovery_manager.start_monitoring().await;
         
         // Update state
         let mut state = self.state.write().await;
@@ -196,6 +214,9 @@ impl SwarmCoordinator {
         // Initialize trust score
         self.trust_manager.initialize_agent(agent_id, crate::DEFAULT_TRUST_SCORE).await?;
         
+        // Register agent for fault tolerance monitoring
+        self.fault_tolerance_manager.register_agent(agent.clone()).await?;
+        
         // Update state
         state.active_agents += 1;
         
@@ -220,7 +241,7 @@ impl SwarmCoordinator {
         
         info!("Delegating intent {} as task {}", intent.id(), task_id);
         
-        // Find suitable agent
+        // Find suitable agent (fault tolerance aware)
         let agent_id = self.select_agent_for_task(&intent, &context).await?;
         
         // Get agent
@@ -292,6 +313,11 @@ impl SwarmCoordinator {
         
         let start_time = Utc::now();
         
+        // Record heartbeat at start of execution
+        self.fault_tolerance_manager
+            .record_heartbeat(assignment.agent_id, Some(task_id))
+            .await?;
+        
         // Execute with verification
         let result = if assignment.verification_required {
             self.execute_with_verification(&assignment, &agent).await
@@ -353,6 +379,13 @@ impl SwarmCoordinator {
             assignment.agent_id,
             task_result.success,
             task_result.verification_proof.is_some(),
+        ).await?;
+        
+        // Record task result for fault tolerance (circuit breaker)
+        self.fault_tolerance_manager.record_task_result(
+            assignment.agent_id,
+            task_result.success,
+            duration_ms,
         ).await?;
         
         // Update agent status
@@ -503,6 +536,11 @@ impl SwarmCoordinator {
                 }
             }
             
+            // Check fault tolerance - circuit breaker
+            if !self.fault_tolerance_manager.can_handle_task(agent_id).await {
+                continue;
+            }
+            
             // Check trust score
             let trust_score = self.trust_manager.get_trust(agent_id).await?;
             if trust_score < self.config.min_trust_score {
@@ -591,10 +629,128 @@ impl SwarmCoordinator {
         Ok(())
     }
     
+    /// Get the recovery manager for direct access
+    pub fn recovery_manager(&self) -> &Arc<RecoveryManager> {
+        &self.recovery_manager
+    }
+    
+    /// Create a recovery checkpoint of the current swarm state
+    pub async fn create_checkpoint(&self) -> SwarmResult<uuid::Uuid> {
+        self.recovery_manager.create_checkpoint(self).await
+    }
+    
+    /// Attempt to recover from an error using available strategies
+    pub async fn recover_from_error(
+        &self,
+        error: SwarmError,
+        failed_task_id: Option<TaskId>,
+        failed_agent_id: Option<AgentId>,
+    ) -> SwarmResult<RecoveryResult> {
+        let coordinator_arc = Arc::new(Self::new(self.config.as_ref().clone())); // Simplified for now
+        self.recovery_manager
+            .recover(coordinator_arc, error, failed_task_id, failed_agent_id)
+            .await
+    }
+    
     /// Log an event
     async fn log_event(&self, event: SwarmEvent) {
         let mut events = self.events.write().await;
         events.push(event);
+    }
+    
+    /// Get fault tolerance manager
+    pub fn fault_tolerance_manager(&self) -> &Arc<FaultToleranceManager> {
+        &self.fault_tolerance_manager
+    }
+    
+    /// Get agent health status
+    pub async fn get_agent_health(&self, agent_id: AgentId) -> Option<crate::fault_tolerance::AgentHealthStatus> {
+        self.fault_tolerance_manager.get_agent_health(agent_id).await
+    }
+    
+    /// Get all agent health statuses
+    pub async fn get_all_agent_health(&self) -> HashMap<AgentId, crate::fault_tolerance::AgentHealthStatus> {
+        self.fault_tolerance_manager.get_all_agent_health().await
+    }
+    
+    /// Get recovery statistics
+    pub async fn get_recovery_stats(&self) -> crate::fault_tolerance::RecoveryStatistics {
+        self.fault_tolerance_manager.get_recovery_stats().await
+    }
+    
+    /// Create a checkpoint for a task
+    pub async fn create_task_checkpoint(
+        &self, 
+        task_id: TaskId, 
+        agent_id: AgentId,
+        current_step: usize,
+        progress_percentage: f64,
+        context: HashMap<String, serde_json::Value>,
+    ) -> SwarmResult<uuid::Uuid> {
+        use crate::fault_tolerance::{TaskState, TaskProgress};
+        
+        let task_state = TaskState {
+            current_step,
+            completed_steps: Vec::new(), // Would be populated in real implementation
+            remaining_steps: Vec::new(), // Would be populated in real implementation
+            metadata: HashMap::new(),
+        };
+        
+        let progress = TaskProgress {
+            percentage: progress_percentage,
+            completed_steps: current_step,
+            total_steps: 0, // Would be calculated in real implementation
+            estimated_remaining_ms: None,
+        };
+        
+        self.fault_tolerance_manager
+            .create_checkpoint(task_id, agent_id, task_state, progress, context)
+            .await
+    }
+    
+    /// Remove an agent from the swarm
+    pub async fn remove_agent(&self, agent_id: AgentId) -> SwarmResult<()> {
+        // Unregister from fault tolerance monitoring
+        self.fault_tolerance_manager.unregister_agent(agent_id).await?;
+        
+        // Remove from swarm
+        self.agents.remove(&agent_id);
+        self.agent_statuses.remove(&agent_id);
+        
+        // Update state
+        let mut state = self.state.write().await;
+        state.active_agents = state.active_agents.saturating_sub(1);
+        
+        // Log event
+        self.log_event(SwarmEvent::AgentLeft {
+            agent_id,
+            reason: "Removed by coordinator".to_string(),
+            timestamp: Utc::now(),
+        }).await;
+        
+        info!("Agent {} removed from swarm {}", agent_id, self.swarm_id);
+        Ok(())
+    }
+    
+    /// Shutdown the swarm
+    pub async fn shutdown(&self) -> SwarmResult<()> {
+        info!("Shutting down swarm {}", self.swarm_id);
+        
+        // Update state
+        {
+            let mut state = self.state.write().await;
+            state.phase = SwarmPhase::ShuttingDown;
+        }
+        
+        // Stop fault tolerance manager
+        self.fault_tolerance_manager.stop().await?;
+        
+        // Clear agents
+        self.agents.clear();
+        self.agent_statuses.clear();
+        
+        info!("Swarm {} shutdown complete", self.swarm_id);
+        Ok(())
     }
     
     /// Clone inner references for spawning

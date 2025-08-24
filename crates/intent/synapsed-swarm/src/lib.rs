@@ -37,6 +37,9 @@ pub mod types;
 pub mod error;
 pub mod execution;
 pub mod monitoring;
+pub mod fault_tolerance;
+pub mod consensus;
+pub mod recovery;
 
 pub use coordinator::{SwarmCoordinator, SwarmConfig, SwarmState};
 pub use protocol::{AgentMessage, AgentProtocol, ProtocolVersion, MessageType};
@@ -49,6 +52,20 @@ pub use monitoring::{
     MetricsCollector, PrometheusExporter, DashboardProvider, MonitoringConfig,
     AlertThresholds, Alert, AlertSeverity, DashboardMetrics, AgentMetrics,
     PerformanceTrends, HealthStatus, HealthLevel, ComponentHealth,
+};
+pub use fault_tolerance::{
+    FaultToleranceManager, FaultToleranceConfig, AgentHealthStatus, AgentHeartbeat,
+    CircuitBreakerState, CircuitBreakerStatus, TaskCheckpoint, RecoveryAction,
+    RecoveryStatistics,
+};
+pub use consensus::{
+    ConsensusProtocol, PBFTConsensus, VotingRound, QuorumCertificate,
+    ConsensusMessage, ConsensusProposal, ConsensusResult, ConsensusStatistics,
+};
+pub use recovery::{
+    RecoveryStrategy, RecoveryManager, RecoveryContext, RecoveryResult,
+    ExponentialBackoffStrategy, CheckpointRecoveryStrategy, GracefulDegradationStrategy,
+    SelfHealingStrategy, RecoveryError,
 };
 pub use types::*;
 pub use error::{SwarmError, SwarmResult};
@@ -78,6 +95,8 @@ pub mod prelude {
         TrustStore, SqliteTrustStore, FileTrustStore, InMemoryTrustStore,
         ExecutionEngine, ExecutionConfig, ExecutionResult,
         MetricsCollector, PrometheusExporter, DashboardProvider, MonitoringConfig,
+        FaultToleranceManager, FaultToleranceConfig, AgentHealthStatus,
+        CircuitBreakerState, TaskCheckpoint, RecoveryStatistics,
         SwarmError, SwarmResult,
     };
     

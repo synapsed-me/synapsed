@@ -55,6 +55,9 @@ blake3 = "1.5"
 # Command execution
 which = "7.0"
 
+# Random number generation for recovery strategies
+rand = "0.8"
+
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 

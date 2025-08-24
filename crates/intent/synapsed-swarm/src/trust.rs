@@ -114,6 +114,8 @@ pub enum TrustUpdateReason {
     TimeDecay,
     /// Peer feedback
     PeerFeedback(f64),
+    /// Permanent failure (fault tolerance)
+    PermanentFailure,
 }
 
 /// Trust manager for the swarm
@@ -615,6 +617,49 @@ impl TrustManager {
             
             debug!("Applied time decay to {} agents", self.cache.len());
         }
+        
+        Ok(())
+    }
+    
+    /// Record a failure for an agent (for fault tolerance integration)
+    pub async fn record_failure(&self, agent_id: AgentId) -> SwarmResult<()> {
+        self.update_trust(agent_id, false, false).await
+    }
+    
+    /// Record a permanent failure for an agent (severely impacts trust)
+    pub async fn record_permanent_failure(&self, agent_id: AgentId) -> SwarmResult<()> {
+        // Get current score
+        let current_score = self.get_trust_score(agent_id).await?;
+        let previous = current_score;
+        
+        // Severely reduce trust for permanent failures
+        let mut new_score = current_score;
+        new_score.value = (new_score.value * 0.1).max(0.0); // Reduce to 10% of current
+        new_score.interactions += 1;
+        new_score.last_updated = Utc::now();
+        
+        // Use transaction for atomic update
+        let mut tx = self.storage.begin_transaction().await?;
+        tx.store_trust_score(agent_id, new_score).await?;
+        
+        let update = TrustUpdate {
+            agent_id,
+            previous,
+            current: new_score,
+            reason: TrustUpdateReason::PermanentFailure,
+            timestamp: Utc::now(),
+        };
+        
+        tx.store_trust_update(&update).await?;
+        tx.commit().await?;
+        
+        // Update cache
+        self.cache.insert(agent_id, new_score);
+        
+        warn!(
+            "Recorded permanent failure for agent {} - trust reduced from {:.3} to {:.3}",
+            agent_id, previous.value, new_score.value
+        );
         
         Ok(())
     }

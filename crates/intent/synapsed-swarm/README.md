@@ -9,6 +9,7 @@ This crate provides a complete framework for coordinating multiple AI agents (in
 - **Promise Theory**: Voluntary cooperation without coercion
 - **Verification Framework**: All agent claims are verified against reality
 - **Trust Management**: Reputation-based trust scoring
+- **Recovery System**: Comprehensive error recovery with multiple strategies
 
 ## Features
 
@@ -47,6 +48,14 @@ This crate provides a complete framework for coordinating multiple AI agents (in
 - **Automated backups** and restore capabilities
 - **Concurrent access** support for multi-agent environments
 
+### 🔄 Recovery System
+- **Multiple recovery strategies**: Exponential backoff, checkpoint recovery, graceful degradation, self-healing
+- **Automatic error detection** and strategy selection
+- **State reconstruction** from checkpoints
+- **Resource monitoring** and adaptive degradation
+- **Self-healing rules** with configurable patterns and actions
+- **Recovery history** and performance metrics
+
 ### 🤖 Claude Integration
 - Special wrapper for Claude sub-agents
 - Context injection for sub-agents
@@ -61,10 +70,12 @@ This crate provides a complete framework for coordinating multiple AI agents (in
 - ✅ Verification framework
 - ✅ Real command execution engine
 - ✅ Claude agent wrapper
-- 🚧 Full promise integration
-- 🚧 Consensus mechanisms
-- 📋 Distributed coordination
-- 📋 Fault tolerance
+- ✅ Byzantine Fault Tolerant consensus (PBFT)
+- ✅ Fault tolerance with circuit breakers
+- ✅ Recovery strategies and self-healing
+- ✅ Monitoring & metrics (Prometheus)
+- ✅ Full promise integration
+- 📋 Distributed coordination across networks
 
 ## Architecture
 
@@ -314,6 +325,8 @@ See the `examples/` directory for:
 - `swarm_demo.rs` - Basic swarm coordination demo
 - `execution_demo.rs` - Real command execution demonstration
 - `trust_persistence_demo.rs` - Trust storage system demonstration
+- `recovery_demo.rs` - Recovery system demonstration
+- `simple_recovery_integration.rs` - Simple recovery integration example
 
 ## Testing
 
@@ -322,6 +335,8 @@ cargo test -p synapsed-swarm
 cargo run --example swarm_demo
 cargo run --example execution_demo
 cargo run --example trust_persistence_demo
+cargo run --example recovery_demo
+cargo run --example simple_recovery_integration
 ```
 
 ## Storage Backends
