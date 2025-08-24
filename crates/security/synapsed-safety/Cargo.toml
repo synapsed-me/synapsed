@@ -31,6 +31,8 @@ rand = "0.8"
 # Internal dependencies
 synapsed-core = { path = "../../core/synapsed-core" }
 synapsed-crypto = { path = "../../core/synapsed-crypto" }
+synapsed-substrates = { path = "../../observability/synapsed-substrates", optional = true }
+synapsed-serventis = { path = "../../observability/synapsed-serventis", optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
@@ -49,3 +51,4 @@ rollback = []
 verification = []
 formal-verification = ["z3"]
 self-healing = []
+observability = ["dep:synapsed-substrates", "dep:synapsed-serventis"]

@@ -12,6 +12,8 @@ categories = ["authentication", "web-programming"]
 [dependencies]
 # Core dependencies - use synapsed-core for common functionality
 synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability", "config"] }
+synapsed-substrates = { path = "../../observability/synapsed-substrates", optional = true }
+synapsed-serventis = { path = "../../observability/synapsed-serventis", optional = true }
 
 # Core async runtime (from synapsed-core workspace)
 tokio = { workspace = true }
@@ -130,4 +132,7 @@ service-worker = []
 password-strength = []
 two-factor = []
 audit-logging = []
+
+# Observability
+observability = ["dep:synapsed-substrates", "dep:synapsed-serventis"]
 

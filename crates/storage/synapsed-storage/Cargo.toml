@@ -67,6 +67,8 @@ num_cpus = "1.16"
 
 # Synapsed dependencies - use core for common functionality
 synapsed-core = { path = "../../core/synapsed-core", version = "0.1.0", features = ["observability", "config"] }
+synapsed-substrates = { path = "../../observability/synapsed-substrates", optional = true }
+synapsed-serventis = { path = "../../observability/synapsed-serventis", optional = true }
 # synapsed-crypto = { version = "0.1", path = "../../core/synapsed-crypto", optional = true }
 
 [dev-dependencies]
@@ -95,6 +97,9 @@ snap = []   # Feature flag only, no actual dependency for now
 
 # Distributed features
 distributed = ["dep:raft", "dep:tonic"]
+
+# Observability
+observability = ["dep:synapsed-substrates", "dep:synapsed-serventis"]
 raft-consensus = ["distributed"]
 
 # Cache features
