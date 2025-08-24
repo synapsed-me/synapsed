@@ -1,0 +1,36 @@
+Synapsed is dual-licensed under either:
+
+* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+## Attribution
+
+Synapsed Framework
+Copyright 2025 Synapsed Team and Contributors
+
+This project incorporates ideas and concepts from:
+- Mark Burgess (Promise Theory) - https://markburgess.org/
+- William Louth & Humainary (Substrates Observability) - https://humainary.io/
+- FIPA (Agent Communication Language Standards) - http://www.fipa.org/
+- The Rust Community - https://www.rust-lang.org/
+
+## Contributing
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
+
+## Commercial Use
+
+You are free to use Synapsed in commercial projects under either license.
+For enterprise support, custom development, or managed services, please contact
+the Synapsed team.
+
+## Recognition
+
+When using Synapsed in your projects, we appreciate (but don't require under MIT):
+- A mention in your project's documentation
+- A star on our GitHub repository
+- Sharing your use cases with the community

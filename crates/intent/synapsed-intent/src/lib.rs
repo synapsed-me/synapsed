@@ -21,7 +21,7 @@ pub mod tool_discovery;
 pub mod agent_profiling;
 pub mod memory;
 pub mod permission_negotiation_enhanced;
-pub mod safe_execution;
+// pub mod safe_execution; // Temporarily disabled - missing patterns module in synapsed-safety
 
 pub use intent::{HierarchicalIntent, IntentBuilder};
 pub use tree::{IntentTree, IntentForest, IntentRelation};

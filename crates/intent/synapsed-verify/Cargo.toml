@@ -15,6 +15,7 @@ synapsed-core = { path = "../../core/synapsed-core" }
 synapsed-intent = { path = "../synapsed-intent" }
 synapsed-promise = { path = "../synapsed-promise" }
 synapsed-substrates = { path = "../../observability/synapsed-substrates" }
+synapsed-serventis = { path = "../../observability/synapsed-serventis" }
 
 # Async runtime
 tokio = { version = "1.35", features = ["full"] }

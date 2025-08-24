@@ -20,6 +20,7 @@ pub mod state;
 pub mod proof;
 pub mod strategy;
 pub mod types;
+pub mod observability;
 
 pub use command::{CommandVerifier, CommandVerification, ExecutionSandbox};
 pub use filesystem::{FileSystemVerifier, FileVerification, FileSystemSnapshot};
@@ -28,6 +29,7 @@ pub use state::{StateVerifier, StateSnapshot, StateDiff};
 pub use proof::{ProofGenerator, VerificationProof, ProofChain};
 pub use strategy::{VerificationStrategy, StrategyBuilder, ConsensusVerifier};
 pub use types::*;
+pub use observability::{ObservableVerifier, VerificationEvent, VerificationMetric};
 
 use synapsed_core::SynapsedError;
 

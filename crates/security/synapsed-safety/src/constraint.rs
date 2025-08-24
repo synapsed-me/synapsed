@@ -4,7 +4,7 @@
 //! that can validate system state against user-defined safety rules.
 
 use crate::error::{Result, SafetyError};
-use crate::traits::ConstraintEngine;
+use crate::traits::{ConstraintEngine, EngineStats};
 use crate::types::*;
 use async_trait::async_trait;
 use parking_lot::RwLock;
@@ -140,8 +140,10 @@ impl DefaultConstraintEngine {
             // Remove oldest entries (simple approach)
             let mut entries: Vec<_> = cache.iter().collect();
             entries.sort_by_key(|(_, v)| v.timestamp);
-            for (key, _) in entries.iter().take(excess) {
-                cache.remove(*key);
+            let keys_to_remove: Vec<_> = entries.iter().take(excess).map(|(k, _)| (*k).clone()).collect();
+            drop(entries); // Drop the borrow before mutating
+            for key in keys_to_remove {
+                cache.remove(&key);
             }
         }
     }

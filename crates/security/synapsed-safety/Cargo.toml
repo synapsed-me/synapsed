@@ -26,6 +26,7 @@ parking_lot = { workspace = true }
 # Safety specific
 petgraph = "0.6"
 z3 = { version = "0.12", optional = true }
+rand = "0.8"
 
 # Internal dependencies
 synapsed-core = { path = "../../core/synapsed-core" }

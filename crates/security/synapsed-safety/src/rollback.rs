@@ -4,14 +4,14 @@
 //! capabilities for safety-critical operations.
 
 use crate::error::{Result, SafetyError};
-use crate::traits::RollbackManager;
+use crate::traits::{RollbackManager, RollbackStats, RetentionPolicy};
 use crate::types::*;
 use async_trait::async_trait;
 use parking_lot::RwLock;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, warn};
 use uuid::Uuid;
 
 /// Default rollback manager implementation
@@ -257,10 +257,12 @@ impl RollbackManager for DefaultRollbackManager {
         description: Option<String>,
         tags: Vec<String>,
     ) -> Result<CheckpointId> {
-        let current_state = self.current_state.read();
-        let state = current_state.as_ref().ok_or_else(|| SafetyError::MonitorError {
-            message: "No current state available for checkpoint creation".to_string(),
-        })?;
+        let state = {
+            let current_state = self.current_state.read();
+            current_state.as_ref().ok_or_else(|| SafetyError::MonitorError {
+                message: "No current state available for checkpoint creation".to_string(),
+            })?.clone()
+        };
         
         let checkpoint_id = Uuid::new_v4();
         let timestamp = chrono::Utc::now();
@@ -273,7 +275,7 @@ impl RollbackManager for DefaultRollbackManager {
         let mut checkpoint = Checkpoint {
             id: checkpoint_id,
             timestamp,
-            state: state.clone(),
+            state,
             description: description.unwrap_or_else(|| format!("Checkpoint created at {}", timestamp)),
             tags: tags.clone(),
             size_bytes: 0, // Will be updated after compression
@@ -467,8 +469,8 @@ impl RollbackManager for DefaultRollbackManager {
         info!("Compressing checkpoints older than: {}", cutoff_time);
         
         let mut checkpoints = self.checkpoints.write();
-        let mut compressed_count = 0;
-        let mut bytes_saved = 0;
+        let mut compressed_count: u32 = 0;
+        let mut bytes_saved: u64 = 0;
         
         for checkpoint in checkpoints.values_mut() {
             if checkpoint.timestamp < cutoff_time && checkpoint.compression.is_none() {
@@ -489,7 +491,7 @@ impl RollbackManager for DefaultRollbackManager {
         
         let duration = start_time.elapsed();
         let compression_ratio = if bytes_saved > 0 {
-            1.0 - (bytes_saved as f64 / (bytes_saved + compressed_count * 1024) as f64)
+            1.0 - (bytes_saved as f64 / (bytes_saved + (compressed_count as u64) * 1024) as f64)
         } else {
             1.0
         };
@@ -510,13 +512,15 @@ impl RollbackManager for DefaultRollbackManager {
     }
 
     async fn validate_checkpoint(&self, checkpoint_id: &CheckpointId) -> Result<bool> {
-        let checkpoints = self.checkpoints.read();
-        let checkpoint = checkpoints.get(checkpoint_id).ok_or_else(|| SafetyError::RollbackFailed {
-            checkpoint_id: *checkpoint_id,
-            reason: "Checkpoint not found".to_string(),
-        })?;
+        let checkpoint = {
+            let checkpoints = self.checkpoints.read();
+            checkpoints.get(checkpoint_id).ok_or_else(|| SafetyError::RollbackFailed {
+                checkpoint_id: *checkpoint_id,
+                reason: "Checkpoint not found".to_string(),
+            })?.clone()
+        };
         
-        self.validate_checkpoint_integrity(checkpoint).await
+        self.validate_checkpoint_integrity(&checkpoint).await
     }
 
     async fn get_stats(&self) -> Result<crate::traits::RollbackStats> {
@@ -567,10 +571,12 @@ impl RollbackManager for DefaultRollbackManager {
         let checkpoint_id = Uuid::new_v4();
         
         // Simulate creating a checkpoint from imported data
-        let current_state = self.current_state.read();
-        if let Some(state) = current_state.as_ref() {
-            drop(current_state);
-            
+        let state_clone = {
+            let current_state = self.current_state.read();
+            current_state.as_ref().cloned()
+        };
+        
+        if let Some(state) = state_clone {
             let imported_checkpoint = Checkpoint {
                 id: checkpoint_id,
                 timestamp: chrono::Utc::now(),

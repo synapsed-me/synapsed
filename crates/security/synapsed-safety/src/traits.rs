@@ -7,7 +7,6 @@ use crate::error::Result;
 use crate::types::*;
 use async_trait::async_trait;
 use std::time::Duration;
-use uuid::Uuid;
 
 /// Core trait for safety monitoring systems
 ///

@@ -4,7 +4,7 @@
 //! automatic detection of safety violations as they occur.
 
 use crate::error::{Result, SafetyError};
-use crate::traits::{SafetyMonitor, StateChangeCallback};
+use crate::traits::{SafetyMonitor, StateChangeCallback, MonitorConfig, MonitoringStats, MonitorMetadata};
 use crate::types::*;
 use async_trait::async_trait;
 use parking_lot::RwLock;
@@ -14,11 +14,10 @@ use std::time::{Duration, Instant};
 use tokio::sync::broadcast;
 use tokio::task::JoinHandle;
 use tokio::time::interval;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, error};
 use uuid::Uuid;
 
 /// Default safety monitor implementation
-#[derive(Debug)]
 pub struct DefaultSafetyMonitor {
     /// Current system state
     current_state: Arc<RwLock<Option<SafetyState>>>,
@@ -64,6 +63,19 @@ pub enum StateChangeType {
     HealthChange,
     /// Error condition detected
     Error,
+}
+
+impl std::fmt::Debug for DefaultSafetyMonitor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DefaultSafetyMonitor")
+            .field("current_state", &self.current_state)
+            .field("config", &self.config)
+            .field("stats", &self.stats)
+            .field("callbacks_count", &self.callbacks.read().len())
+            .field("monitor_task", &self.monitor_task.read().is_some())
+            .field("active", &self.active)
+            .finish()
+    }
 }
 
 impl DefaultSafetyMonitor {
@@ -351,11 +363,13 @@ impl DefaultSafetyMonitor {
                     }
                     
                     // Notify callbacks
-                    let callbacks = self.callbacks.read().clone();
-                    for callback in callbacks.iter() {
-                        // Note: This is a simplified callback notification
-                        // In a real implementation, you'd want to handle async callbacks properly
-                        debug!("Would notify callback of state change");
+                    {
+                        let callbacks = self.callbacks.read();
+                        for _callback in callbacks.iter() {
+                            // Note: This is a simplified callback notification
+                            // In a real implementation, you'd want to handle async callbacks properly
+                            debug!("Would notify callback of state change");
+                        }
                     }
                     
                     // Update statistics
@@ -495,13 +509,17 @@ impl SafetyMonitor for DefaultSafetyMonitor {
     }
 
     async fn get_current_state(&self) -> Result<SafetyState> {
-        let state_guard = self.current_state.read();
-        match state_guard.as_ref() {
-            Some(state) => Ok(state.clone()),
+        let state = {
+            let state_guard = self.current_state.read();
+            state_guard.as_ref().cloned()
+        };
+        
+        match state {
+            Some(state) => Ok(state),
             None => {
-                if *self.active.read() {
+                let is_active = *self.active.read();
+                if is_active {
                     // If monitoring is active but no state captured yet, capture one now
-                    drop(state_guard);
                     self.capture_state().await
                 } else {
                     Err(SafetyError::MonitorError {
@@ -557,7 +575,7 @@ impl SafetyMonitor for DefaultSafetyMonitor {
 
     async fn health_check(&self) -> Result<crate::traits::HealthStatus> {
         let mut issues = Vec::new();
-        let mut performance_score = 1.0;
+        let mut performance_score: f64 = 1.0;
         
         // Check if monitor is active
         if !*self.active.read() {

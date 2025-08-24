@@ -189,7 +189,7 @@ pub mod healing;
 
 // Re-exports for convenience
 pub use error::{SafetyError, Result};
-pub use types::{Constraint, SafetyState, Severity, CheckpointId};
+pub use types::{Constraint, SafetyState, Severity, CheckpointId, SafetyConfig};
 pub use traits::{SafetyMonitor, ConstraintEngine, RollbackManager};
 pub use engine::SafetyEngine;
 

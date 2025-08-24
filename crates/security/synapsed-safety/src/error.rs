@@ -8,7 +8,7 @@ use std::fmt;
 use uuid::Uuid;
 
 /// Comprehensive error types for safety operations
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug)]
 pub enum SafetyError {
     /// Constraint violation detected
     #[error("Constraint violation: {message} (constraint: {constraint_id})")]
@@ -68,10 +68,9 @@ pub enum SafetyError {
     HealingFailed { strategy: String },
 
     /// External dependency error
-    #[error("External error: {source}")]
+    #[error("External error: {message}")]
     External {
-        #[from]
-        source: Box<dyn std::error::Error + Send + Sync>,
+        message: String,
     },
 
     /// Configuration error
@@ -89,6 +88,58 @@ pub enum SafetyError {
     /// Critical system error requiring immediate attention
     #[error("CRITICAL: {message}")]
     Critical { message: String },
+}
+
+impl Clone for SafetyError {
+    fn clone(&self) -> Self {
+        match self {
+            Self::ConstraintViolation { constraint_id, message, severity } => 
+                Self::ConstraintViolation { 
+                    constraint_id: constraint_id.clone(), 
+                    message: message.clone(), 
+                    severity: severity.clone() 
+                },
+            Self::RollbackFailed { checkpoint_id, reason } => 
+                Self::RollbackFailed { 
+                    checkpoint_id: *checkpoint_id, 
+                    reason: reason.clone() 
+                },
+            Self::MonitorError { message } => 
+                Self::MonitorError { message: message.clone() },
+            Self::ConstraintEngineError { message } => 
+                Self::ConstraintEngineError { message: message.clone() },
+            Self::ResourceLimitExceeded { resource, current, limit } => 
+                Self::ResourceLimitExceeded { 
+                    resource: resource.clone(), 
+                    current: *current, 
+                    limit: *limit 
+                },
+            Self::Timeout { duration_ms } => 
+                Self::Timeout { duration_ms: *duration_ms },
+            Self::EmergencyShutdown { reason } => 
+                Self::EmergencyShutdown { reason: reason.clone() },
+            Self::CheckpointCorrupted { checkpoint_id } => 
+                Self::CheckpointCorrupted { checkpoint_id: *checkpoint_id },
+            Self::StateInconsistent { description } => 
+                Self::StateInconsistent { description: description.clone() },
+            #[cfg(feature = "formal-verification")]
+            Self::VerificationFailed { property } => 
+                Self::VerificationFailed { property: property.clone() },
+            #[cfg(feature = "self-healing")]
+            Self::HealingFailed { strategy } => 
+                Self::HealingFailed { strategy: strategy.clone() },
+            Self::External { message } => 
+                Self::External { message: message.clone() },
+            Self::Configuration { message } => 
+                Self::Configuration { message: message.clone() },
+            Self::Serialization { message } => 
+                Self::Serialization { message: message.clone() },
+            Self::Io { message } => 
+                Self::Io { message: message.clone() },
+            Self::Critical { message } => 
+                Self::Critical { message: message.clone() },
+        }
+    }
 }
 
 impl SafetyError {
