@@ -23,6 +23,13 @@ synapsed-verify = { workspace = true }
 synapsed-swarm = { path = "../../intent/synapsed-swarm" }
 synapsed-storage = { workspace = true }
 
+# Network and security dependencies
+synapsed-net = { workspace = true }
+synapsed-routing = { workspace = true }
+synapsed-crypto = { workspace = true }
+synapsed-identity = { workspace = true }
+synapsed-crdt = { workspace = true }
+
 # MCP implementation using rmcp
 rmcp = { version = "0.3", features = ["server", "transport-io"] }
 serde = { workspace = true }
@@ -42,3 +49,14 @@ anyhow = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 bytes = "1.5"
+
+# HTTP/TLS client support
+hyper = { version = "1.5", features = ["client", "http2"] }
+hyper-util = { version = "0.1", features = ["client", "http2", "tokio", "client-legacy"] }
+hyper-rustls = { version = "0.27", features = ["http2"] }
+rustls = { version = "0.23", features = ["std"] }
+tokio-rustls = "0.26"
+rustls-native-certs = "0.8"
+http = "1.1"
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }

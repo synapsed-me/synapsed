@@ -1,0 +1,32 @@
+[package]
+name = "mcp-client-example"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[[bin]]
+name = "anonymous-agents"
+path = "src/main.rs"
+
+[dependencies]
+# Synapsed components (only the ones that compile)
+synapsed-mcp = { path = "../../crates/applications/synapsed-mcp" }
+synapsed-intent = { path = "../../crates/intent/synapsed-intent" }
+synapsed-swarm = { path = "../../crates/intent/synapsed-swarm" }
+
+# Async runtime
+tokio = { version = "1.42", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Utilities
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1.11", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.8"
+colored = "2.1"

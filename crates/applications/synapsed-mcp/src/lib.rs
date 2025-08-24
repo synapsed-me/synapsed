@@ -14,6 +14,10 @@ pub mod swarm_tools;
 pub mod resources;
 pub mod transport;
 pub mod error;
+pub mod client;
+pub mod client_transport;
+pub mod anonymous_transport;
+pub mod distributed_state;
 mod intent_store;  // Internal module - not exported
 mod protocol;      // Internal module - protocol handler
 mod agent_spawner; // Internal module - agent spawning
@@ -23,6 +27,9 @@ pub use tools::{IntentTools, VerificationTools};
 pub use swarm_tools::SwarmTools;
 pub use resources::ContextResources;
 pub use error::{McpError, Result};
+pub use client::{McpClient, ClientConfig};
+pub use anonymous_transport::{AnonymousTransport, AnonymousConfig};
+pub use distributed_state::{DistributedState, AgentInfo, DistributedIntent};
 
 /// MCP Server metadata
 pub const SERVER_NAME: &str = "synapsed-mcp";
