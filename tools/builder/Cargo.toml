@@ -41,3 +41,5 @@ tempfile = "3.8"
 proptest = "1.4"
 quickcheck = "1.0"
 quickcheck_macros = "1.0"
+insta = { version = "1.34", features = ["yaml"] }
+similar-asserts = "1.5"
