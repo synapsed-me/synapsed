@@ -1,0 +1,215 @@
+name: verified-ai-agent
+version: 1.0.0
+description: AI agent with intent verification and full observability
+category: ai-agent
+
+components:
+  - name: synapsed-intent
+    version: "^0.1.0"
+    features: []
+    optional: false
+    alias: intent
+    
+  - name: synapsed-verify
+    version: "^0.1.0"
+    features: []
+    optional: false
+    alias: verify
+    
+  - name: synapsed-storage
+    version: "^0.1.0"
+    features: ["sqlite"]
+    optional: false
+    alias: storage
+    
+  - name: synapsed-substrates
+    version: "^0.1.0"
+    features: []
+    optional: false
+    alias: observability
+    
+  - name: synapsed-monitor
+    version: "^0.1.0"
+    features: []
+    optional: true
+    alias: monitor
+
+connections:
+  # Intent to verification flow
+  - from:
+      component: intent
+      port: declared
+    to:
+      component: verify
+      port: queue
+    transform: None
+    properties:
+      async_connection: true
+      buffer_size: 100
+      retry: true
+      timeout_ms: 5000
+      
+  # Verification results to storage
+  - from:
+      component: verify
+      port: completed
+    to:
+      component: storage
+      port: write
+    transform: JsonSerialize
+    properties:
+      async_connection: true
+      buffer_size: 50
+      retry: true
+      timeout_ms: 3000
+      
+  # All events to observability
+  - from:
+      component: "*"
+      port: "*"
+    to:
+      component: observability
+      port: events
+    transform: None
+    properties:
+      async_connection: true
+      buffer_size: 1000
+      retry: false
+      timeout_ms: 1000
+      
+  # Observability to monitor
+  - from:
+      component: observability
+      port: events
+    to:
+      component: monitor
+      port: input
+    transform: None
+    properties:
+      async_connection: true
+      buffer_size: 500
+      retry: false
+      timeout_ms: 1000
+
+configurations:
+  intent:
+    max_depth: 5
+    timeout_ms: 30000
+    strict_mode: true
+    max_retries: 3
+    
+  verify:
+    strategies:
+      - command
+      - filesystem
+      - network
+    parallel_verification: true
+    fail_fast: false
+    
+  storage:
+    backend: sqlite
+    path: ./data/intents.db
+    pool_size: 10
+    auto_migrate: true
+    
+  observability:
+    emit_to_stdout: false
+    buffer_size: 1000
+    sampling_rate: 1.0
+    persist_events: true
+    
+  monitor:
+    dashboard_port: 8080
+    metrics_port: 9090
+    enable_cors: true
+    auth_required: false
+
+environment:
+  RUST_LOG: info
+  SYNAPSED_INTENT_STORAGE: ./data/intents.db
+  SYNAPSED_SUBSTRATES_LOG: ./logs/events.log
+
+steps:
+  - name: create-directories
+    step_type: Custom
+    params:
+      command: mkdir -p ./data ./logs
+    depends_on: []
+    
+  - name: init-storage
+    step_type: Initialize
+    params:
+      component: storage
+    depends_on: [create-directories]
+    
+  - name: init-observability
+    step_type: Initialize
+    params:
+      component: observability
+    depends_on: [create-directories]
+    
+  - name: init-intent
+    step_type: Initialize
+    params:
+      component: intent
+    depends_on: [init-storage]
+    
+  - name: init-verify
+    step_type: Initialize
+    params:
+      component: verify
+    depends_on: [init-intent]
+    
+  - name: init-monitor
+    step_type: Initialize
+    params:
+      component: monitor
+    depends_on: [init-observability]
+    
+  - name: connect-all
+    step_type: Connect
+    params:
+      connections: all
+    depends_on: [init-intent, init-verify, init-storage, init-observability, init-monitor]
+    
+  - name: start-monitor
+    step_type: Start
+    params:
+      component: monitor
+    depends_on: [connect-all]
+    
+  - name: start-services
+    step_type: Start
+    params:
+      components: [intent, verify, storage, observability]
+    depends_on: [connect-all]
+
+validations:
+  - name: components-exist
+    check:
+      ComponentExists: synapsed-intent
+    critical: true
+    
+  - name: storage-configured
+    check:
+      ConfigurationValid: storage
+    critical: true
+    
+  - name: connections-valid
+    check:
+      ConnectionValid:
+        from: intent
+        to: verify
+    critical: true
+    
+  - name: resources-available
+    check: ResourcesAvailable
+    critical: false
+
+tags:
+  - ai
+  - agent
+  - verification
+  - observable
+  - monitoring
+  - intent-based

@@ -1,0 +1,39 @@
+{
+  "name": "@synapsed/builder-sdk",
+  "version": "1.0.0",
+  "description": "No-code application composition SDK for Claude Code",
+  "main": "lib/index.js",
+  "bin": {
+    "synapsed-builder": "./bin/init.js"
+  },
+  "scripts": {
+    "postinstall": "node lib/postinstall.js",
+    "test": "node test/test-sdk.js"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "builder",
+    "no-code",
+    "composition",
+    "synapsed"
+  ],
+  "author": "Synapsed Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synapsed-ai/synapsed"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@synapsed/sdk-core": "^1.0.0"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/",
+    "README.md"
+  ]
+}

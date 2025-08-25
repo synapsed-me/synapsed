@@ -1,0 +1,301 @@
+name: secure-payment-system
+version: 1.0.0
+description: Production-ready payment processing with identity management and cryptography
+category: financial
+
+components:
+  - name: synapsed-payments
+    version: "^0.1.0"
+    features: ["stripe", "paypal"]
+    optional: false
+    alias: payments
+    
+  - name: synapsed-identity
+    version: "^0.1.0"
+    features: ["oauth2", "webauthn"]
+    optional: false
+    alias: identity
+    
+  - name: synapsed-crypto
+    version: "^0.1.0"
+    features: ["kyber", "dilithium"]
+    optional: false
+    alias: crypto
+    
+  - name: synapsed-storage
+    version: "^0.1.0"
+    features: ["rocksdb", "encryption"]
+    optional: false
+    alias: storage
+    
+  - name: synapsed-substrates
+    version: "^0.1.0"
+    features: []
+    optional: false
+    alias: observability
+    
+  - name: synapsed-safety
+    version: "^0.1.0"
+    features: []
+    optional: false
+    alias: safety
+
+connections:
+  # Identity verification before payments
+  - from:
+      component: payments
+      port: auth_required
+    to:
+      component: identity
+      port: verify_user
+    transform: None
+    properties:
+      async_connection: false  # Synchronous for security
+      buffer_size: 1
+      retry: false
+      timeout_ms: 10000
+      
+  # Encrypt sensitive payment data
+  - from:
+      component: payments
+      port: encrypt_data
+    to:
+      component: crypto
+      port: encrypt
+    transform: None
+    properties:
+      async_connection: false
+      buffer_size: 1
+      retry: false
+      timeout_ms: 1000
+      
+  # Store payment records
+  - from:
+      component: payments
+      port: store_transaction
+    to:
+      component: storage
+      port: write_encrypted
+    transform: JsonSerialize
+    properties:
+      async_connection: true
+      buffer_size: 100
+      retry: true
+      timeout_ms: 5000
+      
+  # Safety checks on all operations
+  - from:
+      component: "*"
+      port: operation
+    to:
+      component: safety
+      port: validate
+    transform: None
+    properties:
+      async_connection: false
+      buffer_size: 1
+      retry: false
+      timeout_ms: 500
+      
+  # Comprehensive observability
+  - from:
+      component: "*"
+      port: "*"
+    to:
+      component: observability
+      port: events
+    transform: None
+    properties:
+      async_connection: true
+      buffer_size: 2000
+      retry: false
+      timeout_ms: 100
+
+configurations:
+  payments:
+    supported_currencies: ["USD", "EUR", "GBP", "BTC", "ETH"]
+    risk_threshold: 70
+    max_transaction_amount: 1000000
+    retry_failed_payments: true
+    webhook_endpoints:
+      success: "/webhooks/payment/success"
+      failure: "/webhooks/payment/failure"
+    gateways:
+      stripe:
+        api_key: "${STRIPE_API_KEY}"
+        webhook_secret: "${STRIPE_WEBHOOK_SECRET}"
+      paypal:
+        client_id: "${PAYPAL_CLIENT_ID}"
+        client_secret: "${PAYPAL_CLIENT_SECRET}"
+        
+  identity:
+    auth_providers:
+      - type: oauth2
+        provider: google
+        client_id: "${GOOGLE_CLIENT_ID}"
+        client_secret: "${GOOGLE_CLIENT_SECRET}"
+      - type: oauth2
+        provider: github
+        client_id: "${GITHUB_CLIENT_ID}"
+        client_secret: "${GITHUB_CLIENT_SECRET}"
+      - type: webauthn
+        rp_name: "Secure Payment System"
+        rp_id: "${DOMAIN}"
+    session_timeout: 3600
+    mfa_required: true
+    password_policy:
+      min_length: 12
+      require_uppercase: true
+      require_lowercase: true
+      require_numbers: true
+      require_special: true
+      
+  crypto:
+    algorithm: kyber1024  # Post-quantum
+    signature_algorithm: dilithium5
+    key_derivation: argon2id
+    key_rotation_days: 90
+    secure_random: true
+    
+  storage:
+    backend: rocksdb
+    path: ./data/payments
+    encryption:
+      enabled: true
+      algorithm: aes-256-gcm
+    compression: lz4
+    cache_size_mb: 512
+    write_buffer_size_mb: 64
+    
+  safety:
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 100
+      burst_size: 20
+    input_validation:
+      strict: true
+      max_input_size: 10240
+    sql_injection_protection: true
+    xss_protection: true
+    
+  observability:
+    emit_to_stdout: false
+    persist_events: true
+    event_retention_days: 90
+    pii_redaction: true
+    compliance_mode: pci-dss
+
+environment:
+  RUST_LOG: info,synapsed_payments=debug
+  STRIPE_API_KEY: "${STRIPE_API_KEY}"
+  STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+  PAYPAL_CLIENT_ID: "${PAYPAL_CLIENT_ID}"
+  PAYPAL_CLIENT_SECRET: "${PAYPAL_CLIENT_SECRET}"
+  GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+  GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+  GITHUB_CLIENT_ID: "${GITHUB_CLIENT_ID}"
+  GITHUB_CLIENT_SECRET: "${GITHUB_CLIENT_SECRET}"
+  DOMAIN: "payments.example.com"
+  DATABASE_ENCRYPTION_KEY: "${DATABASE_ENCRYPTION_KEY}"
+
+steps:
+  - name: create-directories
+    step_type: Custom
+    params:
+      command: mkdir -p ./data/payments ./logs ./keys
+    depends_on: []
+    
+  - name: generate-keys
+    step_type: Custom
+    params:
+      command: ./scripts/generate-keys.sh
+    depends_on: [create-directories]
+    
+  - name: init-crypto
+    step_type: Initialize
+    params:
+      component: crypto
+    depends_on: [generate-keys]
+    
+  - name: init-storage
+    step_type: Initialize
+    params:
+      component: storage
+    depends_on: [init-crypto]
+    
+  - name: init-identity
+    step_type: Initialize
+    params:
+      component: identity
+    depends_on: [init-storage]
+    
+  - name: init-safety
+    step_type: Initialize
+    params:
+      component: safety
+    depends_on: []
+    
+  - name: init-observability
+    step_type: Initialize
+    params:
+      component: observability
+    depends_on: []
+    
+  - name: init-payments
+    step_type: Initialize
+    params:
+      component: payments
+    depends_on: [init-identity, init-crypto, init-storage]
+    
+  - name: connect-all
+    step_type: Connect
+    params:
+      connections: all
+    depends_on: [init-payments, init-identity, init-crypto, init-storage, init-safety, init-observability]
+    
+  - name: validate-config
+    step_type: Validate
+    params:
+      validation: all
+    depends_on: [connect-all]
+    
+  - name: start-services
+    step_type: Start
+    params:
+      components: all
+    depends_on: [validate-config]
+
+validations:
+  - name: encryption-keys-exist
+    check:
+      Custom: "test -f ./keys/master.key"
+    critical: true
+    
+  - name: payment-gateways-configured
+    check:
+      ConfigurationValid: payments
+    critical: true
+    
+  - name: identity-providers-configured
+    check:
+      ConfigurationValid: identity
+    critical: true
+    
+  - name: storage-encrypted
+    check:
+      Custom: "grep 'encryption.enabled = true' config/storage.toml"
+    critical: true
+    
+  - name: compliance-mode-enabled
+    check:
+      Custom: "grep 'compliance_mode = pci-dss' config/observability.toml"
+    critical: true
+
+tags:
+  - payments
+  - financial
+  - security
+  - encryption
+  - identity
+  - pci-dss
+  - production

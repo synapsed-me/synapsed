@@ -139,9 +139,44 @@ async fn test_agent_cooperation() {
 - Don't bypass the trust model when evaluating impositions
 - Don't create promises that exceed agent capabilities
 
-## MCP Integration
+## Available Tools and SDKs
 
-The `synapsed-mcp` crate provides Model Context Protocol server for Claude integration with tools:
+### Modular MCP SDKs
+The project provides modular MCP (Model Context Protocol) servers that can be installed individually:
+
+- **@synapsed/intent-sdk** (`tools/intent-sdk/`) - Intent verification and hierarchical planning
+  - Tools: `intent_declare`, `intent_verify`, `intent_status`, `context_inject`
+- **@synapsed/builder-sdk** (`tools/builder-sdk/`) - No-code module composition 
+  - Tools: `compose_app`, `find_components`, `use_template`, `validate_composition`
+- **@synapsed/observability-sdk** - Monitoring and metrics (planned)
+
+Install with: `npx @synapsed/{sdk-name} init`
+
+### Builder System (`tools/builder/`)
+Provides no-code composition of Synapsed modules:
+- Use pre-built templates (verified-ai-agent, distributed-consensus, etc.)
+- Compose applications using the Builder DSL
+- Automatic dependency resolution and validation
+- Generate Rust/TypeScript code from compositions
+
+Example:
+```rust
+let app = SynapsedBuilder::new("my-app")
+    .add_intent_verification()
+    .add_storage(StorageBackend::Postgres)
+    .add_observability(ObservabilityLevel::Full)
+    .build()?;
+```
+
+### Recipe System (`tools/recipes/`)
+Pre-built application blueprints:
+- YAML/JSON format for declarative composition
+- Reusable patterns for common architectures
+- Can be loaded and customized programmatically
+
+### MCP Integration
+
+The original `synapsed-mcp` crate provides Model Context Protocol server for Claude integration with tools:
 - `intent_declare`: Declare intentions before acting
 - `intent_verify`: Verify execution against declaration
 - `context_inject`: Pass context to sub-agents

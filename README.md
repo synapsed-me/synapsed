@@ -117,9 +117,41 @@ graph TB
 - **[synapsed-storage](crates/storage/synapsed-storage)** - Multi-backend storage
 - **[synapsed-net](crates/network/synapsed-net)** - P2P and secure networking
 
+## 🛠️ Development Tools
+
+### Builder System
+- **[synapsed-builder](tools/builder/)** - No-code module composition framework
+- **[Recipe System](tools/recipes/)** - Pre-built application recipes
+- **[Builder Documentation](tools/builder/README.md)** - Complete builder guide
+
+### SDKs for Claude Code
+- **[@synapsed/intent-sdk](tools/intent-sdk/)** - Intent verification MCP server
+- **[@synapsed/builder-sdk](tools/builder-sdk/)** - No-code composition MCP server
+- **[SDK Architecture](tools/sdk-architecture.md)** - Modular SDK design
+
+### Example Applications
+- **[Builder Demo](examples/builder-demo/)** - Shows module composition patterns
+- **[Intent Examples](examples/intent-examples/)** - Intent verification patterns
+
 ## 🚀 Quick Start
 
-### Installation
+### Installation Options
+
+#### Option 1: Use Modular SDKs (Recommended for Claude Code)
+
+```bash
+# Install specific SDK for your needs
+npx @synapsed/intent-sdk init        # Intent verification
+npx @synapsed/builder-sdk init       # No-code composition
+npx @synapsed/observability-sdk init # Monitoring
+
+# Or install a bundle
+npx @synapsed/sdk install --bundle verified-ai  # Common AI agent setup
+npx @synapsed/sdk install --bundle distributed   # Distributed systems
+npx @synapsed/sdk install --bundle full         # All capabilities
+```
+
+#### Option 2: Use as Rust Crates
 
 ```toml
 [dependencies]
@@ -198,10 +230,17 @@ Add to `.claude/hooks.json`:
 
 ## 📚 Documentation
 
+### Core Documentation
 - [Integration Guide](docs/INTEGRATION_GUIDE.md) - Complete integration patterns
 - [Intent Verification](docs/intent-verification/) - Intent system documentation
 - [API Documentation](https://docs.rs/synapsed-core) - Full API reference
 - [Examples](examples/) - Working examples
+
+### Tool Documentation
+- [Builder Guide](tools/builder/README.md) - Module composition system
+- [SDK Architecture](tools/sdk-architecture.md) - Modular SDK design
+- [Recipe Documentation](tools/recipes/README.md) - Using and creating recipes
+- [Testing Guide](tools/builder/TESTING.md) - Comprehensive testing approach
 
 ## 🛠️ Development
 
