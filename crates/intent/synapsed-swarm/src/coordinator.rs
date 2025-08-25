@@ -762,16 +762,25 @@ impl SwarmCoordinator {
 }
 
 // Implement Observable trait
+#[async_trait::async_trait]
 impl synapsed_core::traits::Observable for SwarmCoordinator {
-    fn status(&self) -> synapsed_core::ObservableStatus {
-        synapsed_core::ObservableStatus::Healthy
+    async fn status(&self) -> synapsed_core::SynapsedResult<synapsed_core::traits::ObservableStatus> {
+        Ok(synapsed_core::traits::ObservableStatus {
+            state: synapsed_core::traits::ObservableState::Running,
+            last_updated: chrono::Utc::now(),
+            metadata: HashMap::new(),
+        })
     }
     
-    fn health(&self) -> synapsed_core::Health {
-        synapsed_core::Health::default()
+    async fn health(&self) -> synapsed_core::SynapsedResult<synapsed_core::HealthStatus> {
+        Ok(synapsed_core::HealthStatus::Healthy)
     }
     
-    fn metrics(&self) -> synapsed_core::MetricSet {
-        synapsed_core::MetricSet::default()
+    async fn metrics(&self) -> synapsed_core::SynapsedResult<HashMap<String, f64>> {
+        Ok(HashMap::new())
+    }
+    
+    fn describe(&self) -> String {
+        "SwarmCoordinator: Managing distributed agent swarm".to_string()
     }
 }

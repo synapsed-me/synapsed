@@ -60,12 +60,12 @@ pub use fault_tolerance::{
 };
 pub use consensus::{
     ConsensusProtocol, PBFTConsensus, VotingRound, QuorumCertificate,
-    ConsensusMessage, ConsensusProposal, ConsensusResult, ConsensusStatistics,
+    ConsensusMessage, ConsensusProposal, ConsensusResult, ConsensusStats,
 };
 pub use recovery::{
     RecoveryStrategy, RecoveryManager, RecoveryContext, RecoveryResult,
     ExponentialBackoffStrategy, CheckpointRecoveryStrategy, GracefulDegradationStrategy,
-    SelfHealingStrategy, RecoveryError,
+    SelfHealingStrategy,
 };
 pub use types::*;
 pub use error::{SwarmError, SwarmResult};
@@ -100,7 +100,8 @@ pub mod prelude {
         SwarmError, SwarmResult,
     };
     
-    pub use synapsed_intent::prelude::*;
-    pub use synapsed_promise::prelude::*;
-    pub use synapsed_verify::prelude::*;
+    // Re-export commonly used types from dependencies
+    pub use synapsed_intent::{HierarchicalIntent, IntentId};
+    pub use synapsed_promise::{AutonomousAgent, Promise, TrustModel};
+    pub use synapsed_verify::{VerificationResult, Verifier};
 }

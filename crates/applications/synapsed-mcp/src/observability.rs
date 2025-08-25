@@ -289,6 +289,17 @@ impl McpEvent {
         }
     }
     
+    /// Create a context injected event
+    pub fn context_injected(agent_id: String, context: serde_json::Value, boundaries: serde_json::Value) -> Self {
+        Self::ContextInjected {
+            parent_agent_id: None,
+            child_agent_id: agent_id,
+            context_size: context.to_string().len(),
+            timestamp: Utc::now(),
+            success: true,
+        }
+    }
+    
     /// Create an agent terminated event
     pub fn agent_terminated(agent_id: String, reason: String, success: bool) -> Self {
         Self::AgentTerminated {

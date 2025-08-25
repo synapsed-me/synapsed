@@ -10,7 +10,7 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
-use metrics::{counter, gauge, histogram, register_counter, register_gauge, register_histogram};
+use metrics::{counter, gauge, histogram};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, atomic::{AtomicU64, Ordering}};

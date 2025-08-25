@@ -21,7 +21,7 @@ pub mod types;
 pub mod voluntary;
 pub mod acl;
 
-pub use agent::{AutonomousAgent, AgentCapabilities, AgentState};
+pub use agent::{AutonomousAgent, AgentCapabilities, AgentState, AgentConfig};
 pub use promise::{Promise, PromiseContract, PromiseState, PromiseOutcome};
 pub use trust::{TrustModel, TrustLevel, Reputation};
 pub use cooperation::{CooperationProtocol, CooperationRequest, CooperationResponse};

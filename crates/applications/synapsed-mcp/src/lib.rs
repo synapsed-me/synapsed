@@ -22,6 +22,7 @@ pub mod observability;
 mod intent_store;  // Internal module - not exported
 mod protocol;      // Internal module - protocol handler
 mod agent_spawner; // Internal module - agent spawning
+pub mod rmcp_adapter; // Adapter for rmcp server integration
 
 pub use server::{McpServer, ServerConfig};
 pub use tools::{IntentTools, VerificationTools};

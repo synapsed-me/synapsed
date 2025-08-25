@@ -35,6 +35,7 @@ pub enum AgentStatus {
 pub struct AgentSpawner {
     agents: Arc<RwLock<HashMap<String, AgentInfo>>>,
     intent_store_path: Option<String>,
+    agent_contexts: Arc<RwLock<HashMap<String, Value>>>,
 }
 
 impl AgentSpawner {
@@ -43,6 +44,7 @@ impl AgentSpawner {
         Self {
             agents: Arc::new(RwLock::new(HashMap::new())),
             intent_store_path: std::env::var("INTENT_STORE_PATH").ok(),
+            agent_contexts: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
@@ -241,6 +243,46 @@ impl AgentSpawner {
         } else {
             Err(anyhow!("Agent not found"))
         }
+    }
+
+    /// Inject context into an agent
+    pub async fn inject_context(
+        &self,
+        agent_id: &str,
+        context: Value,
+        boundaries: Value,
+    ) -> Result<()> {
+        // Store the context for the agent
+        let mut contexts = self.agent_contexts.write().await;
+        contexts.insert(agent_id.to_string(), serde_json::json!({
+            "context": context,
+            "boundaries": boundaries,
+            "timestamp": chrono::Utc::now().to_rfc3339(),
+        }));
+        
+        // Emit context injection event
+        let event = McpEvent::context_injected(
+            agent_id.to_string(),
+            context,
+            boundaries,
+        );
+        let _ = EVENT_CIRCUIT.emit_event(event).await;
+        
+        // Check if agent exists
+        let agents = self.agents.read().await;
+        if !agents.contains_key(agent_id) {
+            return Err(anyhow!("Agent not found: {}", agent_id));
+        }
+        
+        Ok(())
+    }
+    
+    /// Get injected context for an agent
+    pub async fn get_agent_context(&self, agent_id: &str) -> Result<Value> {
+        let contexts = self.agent_contexts.read().await;
+        contexts.get(agent_id)
+            .cloned()
+            .ok_or_else(|| anyhow!("No context found for agent: {}", agent_id))
     }
 
     /// Terminate an agent

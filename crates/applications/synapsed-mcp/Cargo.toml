@@ -34,7 +34,8 @@ synapsed-crypto = { workspace = true }
 synapsed-identity = { workspace = true }
 synapsed-crdt = { workspace = true }
 
-# MCP implementation using rmcp
+# MCP implementation using rmcp  
+# Note: Using 0.3 for stability, will upgrade to 0.6+ after API stabilization
 rmcp = { version = "0.3", features = ["server", "transport-io"] }
 serde = { workspace = true }
 serde_json = { workspace = true }

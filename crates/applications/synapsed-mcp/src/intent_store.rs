@@ -246,6 +246,83 @@ impl IntentStore {
     pub async fn get_all_intents(&self) -> Result<Vec<IntentRecord>> {
         self.list_intents(None, None, None).await
     }
+    
+    /// Store an intent from UUID and HierarchicalIntent (for rmcp adapter)
+    pub fn store_intent(&self, id: Uuid, intent: HierarchicalIntent) -> Result<()> {
+        // Convert to async operation synchronously since rmcp adapter calls are async
+        let rt = tokio::runtime::Handle::current();
+        rt.block_on(async {
+            let mut record = IntentRecord::from(&intent);
+            record.id = id.to_string();
+            
+            let json = serde_json::to_vec(&record)
+                .map_err(|e| McpError::SerializationError(e.to_string()))?;
+            
+            let key = format!("intent:{}", id);
+            let mut storage = self.storage.write().await;
+            storage.put(key.as_bytes(), &json).await
+                .map_err(|e| McpError::StorageError(e.to_string()))?;
+            
+            Ok(())
+        })
+    }
+    
+    /// Get intent by UUID (for rmcp adapter)
+    pub fn get_intent(&self, id: &Uuid) -> Result<HierarchicalIntent> {
+        let rt = tokio::runtime::Handle::current();
+        rt.block_on(async {
+            let storage = self.storage.read().await;
+            
+            let key = format!("intent:{}", id);
+            match storage.get(key.as_bytes()).await {
+                Ok(Some(data)) => {
+                    let record: IntentRecord = serde_json::from_slice(&data)
+                        .map_err(|e| McpError::SerializationError(e.to_string()))?;
+                    
+                    // Convert IntentRecord back to HierarchicalIntent
+                    let mut intent = HierarchicalIntent::new(record.goal);
+                    if let Some(desc) = record.description {
+                        intent = intent.with_description(desc);
+                    }
+                    
+                    Ok(intent)
+                }
+                Ok(None) => Err(McpError::NotFound(format!("Intent {} not found", id))),
+                Err(e) => Err(McpError::StorageError(e.to_string())),
+            }
+        })
+    }
+    
+    /// List active intents (for rmcp adapter)
+    pub fn list_active_intents(&self) -> Result<Vec<serde_json::Value>> {
+        let rt = tokio::runtime::Handle::current();
+        rt.block_on(async {
+            let intents = self.list_intents(Some(IntentStatus::Executing), None, None).await?;
+            Ok(intents.into_iter().map(|i| serde_json::json!({
+                "id": i.id,
+                "goal": i.goal,
+                "status": format!("{:?}", i.status),
+                "created_at": i.created_at.to_rfc3339(),
+            })).collect())
+        })
+    }
+    
+    /// Get verification results (for rmcp adapter)
+    pub fn get_verification_results(&self, limit: usize) -> Result<Vec<serde_json::Value>> {
+        let rt = tokio::runtime::Handle::current();
+        rt.block_on(async {
+            let intents = self.list_intents(Some(IntentStatus::Verified), None, None).await?;
+            Ok(intents.into_iter()
+                .take(limit)
+                .map(|i| serde_json::json!({
+                    "id": i.id,
+                    "goal": i.goal,
+                    "verified": true,
+                    "timestamp": i.updated_at.to_rfc3339(),
+                }))
+                .collect())
+        })
+    }
 
     /// Get child intents (called internally by intent_children)
     pub async fn get_children(&self, parent_id: &str) -> Result<Vec<IntentRecord>> {
