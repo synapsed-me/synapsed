@@ -6,7 +6,24 @@ use crate::{
     Story, StoryPath, Narrative,
     TrustScore, SemanticResult,
 };
-use synapsed_intent::Intent;
+use serde::{Deserialize, Serialize};
+
+// Wrapper for Intent type
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Intent {
+    pub goal: String,
+    pub description: String,
+}
+
+impl Intent {
+    pub fn new(goal: impl Into<String>) -> Self {
+        let goal = goal.into();
+        Self {
+            description: goal.clone(),
+            goal,
+        }
+    }
+}
 use synapsed_promise::{Promise, PromiseOutcome};
 use synapsed_verify::VerificationResult;
 use uuid::Uuid;

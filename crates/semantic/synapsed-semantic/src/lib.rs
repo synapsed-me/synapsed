@@ -14,14 +14,18 @@ pub mod story;
 pub mod navigation;
 pub mod trust;
 pub mod chemistry;
+pub mod substrates_bridge;
+pub mod serventis_bridge;
 
 pub use coordinates::{SemanticCoords, SemanticPosition, SemanticDistance};
-pub use traits::{SemanticAgent, StoryTeller, VoluntaryAgent, NarrativeParticipant};
+pub use traits::{SemanticAgent, StoryTeller, VoluntaryAgent, NarrativeParticipant, Intent};
 pub use relations::{SemanticRelation, RelationType, SemanticLink};
 pub use story::{Story, StoryPath, StoryFragment, Narrative, StoryOutcome, StoryEvent, StoryContext, TrustDelta};
 pub use navigation::{SemanticNavigator, AgentNode, PathMetrics};
 pub use trust::{TrustScore, TrustNetwork, TrustRelationship, TrustCategory, TrustDecision};
 pub use chemistry::{PromiseChemistry, AffinityBond, CollaborationSuggestion};
+pub use substrates_bridge::{SubstratesStoryBridge, EventTypeMapper, SemanticPositionTracker};
+pub use serventis_bridge::{ServentisStoryHealth, StoryHealth, RecoveryAction, StoryHealthMetrics};
 
 use thiserror::Error;
 

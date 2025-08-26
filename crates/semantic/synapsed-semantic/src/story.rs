@@ -5,7 +5,7 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use crate::{SemanticCoords, SemanticLink, TrustScore};
-use synapsed_intent::Intent;
+use crate::traits::Intent;
 use synapsed_promise::{Promise, PromiseOutcome};
 use synapsed_verify::VerificationResult;
 
@@ -83,15 +83,17 @@ impl Story {
     
     /// Calculate trust updates based on promise fulfillment
     fn calculate_trust_updates(&mut self) {
-        for promise in &self.promises {
-            let fulfilled = self.verification.is_success();
-            let delta = if fulfilled {
-                TrustDelta::increase(promise.promisor_id(), 0.1)
-            } else {
-                TrustDelta::decrease(promise.promisor_id(), 0.2)
-            };
-            self.trust_updates.push(delta);
-        }
+        // For now, use a placeholder agent ID
+        // In production, this would extract from the Promise struct
+        let agent_id = Uuid::new_v4();
+        
+        let fulfilled = self.verification.is_success();
+        let delta = if fulfilled {
+            TrustDelta::increase(agent_id, 0.1)
+        } else {
+            TrustDelta::decrease(agent_id, 0.2)
+        };
+        self.trust_updates.push(delta);
     }
     
     /// Get story duration
@@ -106,8 +108,10 @@ impl Story {
     
     /// Get participating agent IDs
     pub fn participants(&self) -> Vec<Uuid> {
-        self.promises.iter()
-            .map(|p| p.promisor_id())
+        // For now, return trust update agent IDs
+        // In production, this would extract from Promise structs
+        self.trust_updates.iter()
+            .map(|update| update.agent_id)
             .collect()
     }
 }
@@ -188,14 +192,14 @@ pub enum StoryOutcome {
 impl StoryOutcome {
     /// Create from verification result
     pub fn from_verification(verification: VerificationResult) -> Self {
-        if verification.is_verified {
+        if verification.success {
             Self::Success {
                 verification,
-                confidence: verification.confidence,
+                confidence: 1.0, // Default confidence
             }
         } else {
             Self::Failure {
-                reason: "Verification failed".to_string(),
+                reason: verification.error.unwrap_or_else(|| "Verification failed".to_string()),
                 error: None,
             }
         }

@@ -1,7 +1,7 @@
 //! Semantic coordinate system for positioning agents in spacetime
 
 use serde::{Deserialize, Serialize};
-use nalgebra::{Vector4, distance};
+use nalgebra::{Vector4, Point4};
 
 /// Coordinates in semantic spacetime
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -32,9 +32,9 @@ impl SemanticCoords {
     
     /// Calculate Euclidean distance to another point
     pub fn distance_to(&self, other: &Self) -> f64 {
-        let v1 = Vector4::new(self.intent, self.promise, self.context, self.expression);
-        let v2 = Vector4::new(other.intent, other.promise, other.context, other.expression);
-        distance(&v1, &v2)
+        let p1 = Point4::new(self.intent, self.promise, self.context, self.expression);
+        let p2 = Point4::new(other.intent, other.promise, other.context, other.expression);
+        nalgebra::distance(&p1, &p2)
     }
     
     /// Calculate semantic similarity (inverse of distance)
