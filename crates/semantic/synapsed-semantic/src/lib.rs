@@ -16,6 +16,9 @@ pub mod trust;
 pub mod chemistry;
 pub mod substrates_bridge;
 pub mod serventis_bridge;
+pub mod verification_gate;
+pub mod story_recorder;
+pub mod story_query;
 
 pub use coordinates::{SemanticCoords, SemanticPosition, SemanticDistance};
 pub use traits::{SemanticAgent, StoryTeller, VoluntaryAgent, NarrativeParticipant, Intent};
@@ -26,6 +29,9 @@ pub use trust::{TrustScore, TrustNetwork, TrustRelationship, TrustCategory, Trus
 pub use chemistry::{PromiseChemistry, AffinityBond, CollaborationSuggestion};
 pub use substrates_bridge::{SubstratesStoryBridge, EventTypeMapper, SemanticPositionTracker};
 pub use serventis_bridge::{ServentisStoryHealth, StoryHealth, RecoveryAction, StoryHealthMetrics};
+pub use verification_gate::{VerificationGate, GateConfig, GateTicket, VerifiedStory, VerificationStrategy};
+pub use story_recorder::{StoryRecorder, RecorderConfig, StoryHandle, StoryStorage};
+pub use story_query::{StoryQueryEngine, QueryConfig, QueryResponse, AIDiscoveryInterface};
 
 use thiserror::Error;
 
@@ -52,6 +58,12 @@ pub enum SemanticError {
     
     #[error("Promise chemistry unstable: {0}")]
     UnstableChemistry(String),
+    
+    #[error("Verification failed: {0}")]
+    VerificationFailed(String),
+    
+    #[error("Other error: {0}")]
+    Other(String),
 }
 
 /// Result type for semantic operations
