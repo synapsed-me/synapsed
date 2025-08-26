@@ -1,0 +1,56 @@
+[package]
+name = "synapsed-semantic"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["semantic", "spacetime", "promise-theory", "narrative", "story"]
+categories = ["data-structures", "algorithms"]
+description = "Semantic Spacetime layer for living codebase architecture"
+
+[dependencies]
+# Core dependencies
+synapsed-core = { workspace = true }
+synapsed-intent = { workspace = true }
+synapsed-promise = { workspace = true }
+synapsed-verify = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+
+# Data structures
+dashmap = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+chrono = { workspace = true, features = ["serde"] }
+
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+# Math for semantic calculations
+nalgebra = "0.33"
+
+# Graph operations
+petgraph = "0.6"
+
+# Optional visualization
+plotters = { version = "0.3", optional = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.6"
+criterion = { version = "0.6", features = ["async_tokio"] }
+
+[features]
+default = []
+visualization = ["plotters"]

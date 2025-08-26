@@ -8,6 +8,7 @@ use crate::{
     verification::SwarmVerifier,
     execution::{ExecutionEngine, ExecutionConfig},
     recovery::{RecoveryManager, RecoveryResult},
+    fault_tolerance::{FaultToleranceConfig, FaultToleranceManager},
 };
 use dashmap::DashMap;
 use std::sync::Arc;

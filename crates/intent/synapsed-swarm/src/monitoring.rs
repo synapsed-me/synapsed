@@ -204,24 +204,24 @@ pub struct MetricsCollector {
 impl MetricsCollector {
     /// Create a new metrics collector
     pub fn new(config: MonitoringConfig) -> Self {
-        // Register Prometheus metrics
-        register_counter!("swarm_tasks_total", "Total number of tasks assigned");
-        register_counter!("swarm_tasks_success_total", "Total number of successful tasks");
-        register_counter!("swarm_tasks_failed_total", "Total number of failed tasks");
-        register_counter!("swarm_promises_total", "Total number of promises made");
-        register_counter!("swarm_promises_fulfilled_total", "Total number of promises fulfilled");
-        register_counter!("swarm_promises_broken_total", "Total number of promises broken");
-        register_counter!("swarm_verifications_total", "Total number of verifications performed");
-        register_counter!("swarm_verifications_success_total", "Total number of successful verifications");
+        // TODO: Register Prometheus metrics when metrics feature is enabled
+        // register_counter!("swarm_tasks_total", "Total number of tasks assigned");
+        // register_counter!("swarm_tasks_success_total", "Total number of successful tasks");
+        // register_counter!("swarm_tasks_failed_total", "Total number of failed tasks");
+        // register_counter!("swarm_promises_total", "Total number of promises made");
+        // register_counter!("swarm_promises_fulfilled_total", "Total number of promises fulfilled");
+        // register_counter!("swarm_promises_broken_total", "Total number of promises broken");
+        // register_counter!("swarm_verifications_total", "Total number of verifications performed");
+        // register_counter!("swarm_verifications_success_total", "Total number of successful verifications");
         
-        register_gauge!("swarm_agents_active", "Number of active agents");
-        register_gauge!("swarm_trust_score_avg", "Average trust score across all agents");
-        register_gauge!("swarm_task_success_rate", "Task success rate");
-        register_gauge!("swarm_promise_fulfillment_rate", "Promise fulfillment rate");
-        register_gauge!("swarm_verification_success_rate", "Verification success rate");
+        // register_gauge!("swarm_agents_active", "Number of active agents");
+        // register_gauge!("swarm_trust_score_avg", "Average trust score across all agents");
+        // register_gauge!("swarm_task_success_rate", "Task success rate");
+        // register_gauge!("swarm_promise_fulfillment_rate", "Promise fulfillment rate");
+        // register_gauge!("swarm_verification_success_rate", "Verification success rate");
         
-        register_histogram!("swarm_task_duration_seconds", "Task execution duration");
-        register_histogram!("swarm_verification_duration_seconds", "Verification duration");
+        // register_histogram!("swarm_task_duration_seconds", "Task execution duration");
+        // register_histogram!("swarm_verification_duration_seconds", "Verification duration");
 
         let (alert_sender, _) = broadcast::channel(1000);
 

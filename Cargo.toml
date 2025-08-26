@@ -30,6 +30,9 @@ members = [
     "crates/observability/synapsed-substrates",
     "crates/observability/synapsed-serventis", 
     "crates/monitor/synapsed-monitor",
+    
+    # Semantic spacetime layer
+    "crates/semantic/synapsed-semantic",
     # "crates/core/synapsed-gpu",
     # "crates/network/synapsed-consensus",
     # "crates/security/synapsed-safety",
